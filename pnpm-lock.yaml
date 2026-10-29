@@ -833,8 +833,8 @@ importers:
         specifier: 8.18.0
         version: 8.18.0
       chalk:
-        specifier: ^5
-        version: 5.6.2
+        specifier: ^6
+        version: 6.0.1
       cli-highlight:
         specifier: ^2.1.11
         version: 2.1.11
@@ -987,8 +987,8 @@ importers:
         specifier: 0.3.4
         version: 0.3.4
       chalk:
-        specifier: 5.6.2
-        version: 5.6.2
+        specifier: 6.0.1
+        version: 6.0.1
       cross-spawn:
         specifier: 7.0.6
         version: 7.0.6
@@ -1071,8 +1071,8 @@ importers:
         specifier: 5.5.0
         version: 5.5.0
       chalk:
-        specifier: 5.6.2
-        version: 5.6.2
+        specifier: 6.0.1
+        version: 6.0.1
 
   third_party/sandbox-runtime:
     dependencies:
@@ -2495,9 +2495,9 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
-  chalk@5.6.2:
-    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+  chalk@6.0.1:
+    resolution: {integrity: sha512-/Ce6KNm3vIbWdMlNna6RVIZ/ICQxnJxCicet5LBKK9ZffBkqzDw0xh9EiKSljdRtiIQ1S1z4YgcscUUGzNCWrA==}
+    engines: {node: '>=22'}
 
   chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
@@ -6110,7 +6110,7 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  chalk@5.6.2: {}
+  chalk@6.0.1: {}
 
   chownr@1.1.4: {}
 
