@@ -51,7 +51,7 @@
     "@earendil-works/pi-ai": "workspace:*",
     "@earendil-works/pi-tui": "workspace:*",
     "@silvia-odwyer/photon-node": "0.3.4",
-    "chalk": "5.6.2",
+    "chalk": "6.0.1",
     "cross-spawn": "7.0.6",
     "diff": "8.0.4",
     "glob": "13.0.6",
