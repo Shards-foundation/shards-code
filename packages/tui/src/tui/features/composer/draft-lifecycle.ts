@@ -90,7 +90,7 @@ export class TuiDraftLifecycle {
       retry: {
         retryId: submissionToken,
         snapshot,
-        failedReason: 'MCode stopped before Runtime admission completed.',
+        failedReason: 'Shards Code stopped before Runtime admission completed.',
         failureCode: 'submission.interrupted',
       },
     });

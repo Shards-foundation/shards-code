@@ -141,7 +141,7 @@ function permissionModeOption(
     type: 'select',
     id: ACP_CONFIG_PERMISSION_MODE,
     name: 'Permission mode',
-    description: 'Controls how MiniMax Code handles tool permission requests in this process.',
+    description: 'Controls how Shards Code handles tool permission requests in this process.',
     category: '_permission',
     currentValue: current,
     options: MINIMAX_CODE_PERMISSION_MODES.map((mode) => ({

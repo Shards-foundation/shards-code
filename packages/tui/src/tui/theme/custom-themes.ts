@@ -88,7 +88,7 @@ export interface TuiThemeLoadResult {
   readonly issues: readonly TuiThemeLoadIssue[];
 }
 
-/** Directory MCode scans for user-authored theme files. */
+/** Directory Shards Code scans for user-authored theme files. */
 export function customThemesDirectory(dataDir: string): string {
   return path.join(dataDir, 'tui', 'themes');
 }

@@ -1,4 +1,4 @@
-"""AcroForm metadata enumeration for the MiniMax PDF skill.
+"""AcroForm metadata enumeration for the Shards Code PDF skill.
 
 The functions here produce the JSON-shaped records that the
 ``inspect`` and ``fill`` script groups consume. The schema is:

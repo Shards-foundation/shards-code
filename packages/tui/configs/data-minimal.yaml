@@ -1,4 +1,4 @@
-# Minimax Code M1 data-generation baseline.
+# Shards Code M1 data-generation baseline.
 # Run it with an isolated MINIMAX_DATA_DIR so user, workspace, Plugin, and
 # configured MCP state from a Desktop profile cannot enter the capability set.
 agents:

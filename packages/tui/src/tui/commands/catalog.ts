@@ -140,13 +140,13 @@ const COMMAND_SOURCES: readonly TuiCommandSource[] = [
   },
   {
     name: 'update',
-    description: 'Check for and install an MCode update',
+    description: 'Check for and install an Shards Code update',
     category: 'Application',
     discoverability: 'search-only',
   },
   {
     name: 'changelog',
-    description: 'Show the packaged MCode update history',
+    description: 'Show the packaged Shards Code update history',
     category: 'Application',
   },
   {
@@ -315,7 +315,7 @@ const COMMAND_SOURCES: readonly TuiCommandSource[] = [
   },
   {
     name: 'login',
-    description: 'Sign in to use MiniMax Code Agent features',
+    description: 'Sign in to use Shards Code Agent features',
     category: 'Runtime',
     discoverability: 'contextual',
     visibleWhen: (context) => !context.managedTokenPresent,
@@ -370,7 +370,7 @@ const COMMAND_SOURCES: readonly TuiCommandSource[] = [
   },
   {
     name: 'settings',
-    description: 'Configure the MCode terminal interface',
+    description: 'Configure the Shards Code terminal interface',
     category: 'Application',
   },
   {
@@ -383,7 +383,7 @@ const COMMAND_SOURCES: readonly TuiCommandSource[] = [
   },
   {
     name: 'theme',
-    description: 'Choose the MCode color theme and terminal appearance',
+    description: 'Choose the Shards Code color theme and terminal appearance',
     category: 'Application',
     // Reachable by typing, but kept out of the default slash list: theme
     // selection is a preference, not a primary verb.
@@ -520,7 +520,7 @@ const COMMAND_SOURCES: readonly TuiCommandSource[] = [
   {
     name: 'quit',
     aliases: ['exit'],
-    description: 'Exit Minimax Code',
+    description: 'Exit Shards Code',
     category: 'Application',
     readiness: 'immediate',
   },

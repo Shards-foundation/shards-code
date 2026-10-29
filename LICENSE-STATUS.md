@@ -1,6 +1,6 @@
 # License status
 
-The default license for first-party code is [MIT](LICENSE), including the root workspace and first-party package manifests. The root `LICENSE` and `NOTICE` use the maintainer-supplied attribution **MiniMax Code**. Existing third-party and file-level declarations take precedence for those materials; this change does not relicense upstream code, dependencies or assets.
+Shards Code is an independently maintained fork and is not affiliated with or endorsed by MiniMax. The default license for first-party code is [MIT](LICENSE), including the root workspace and first-party package manifests. The root `LICENSE` and `NOTICE` retain the legally required maintainer-supplied attribution **MiniMax Code**. Existing third-party and file-level declarations take precedence for those materials; the rebrand does not relicense upstream code, dependencies or assets.
 
 ## Third-party exceptions
 

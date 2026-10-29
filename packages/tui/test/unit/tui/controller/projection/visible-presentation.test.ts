@@ -698,6 +698,12 @@ describe("visible presentation selector", () => {
     }
   });
 
+  it("uses the Shards Code initial at extremely narrow widths", () => {
+    const { shell } = resolve({ snapshot: { ...idleChat } });
+    const rendered = stripAnsi(new TuiWelcome(shell).render(3).join("\n")).trim();
+    expect(rendered).toBe("S");
+  });
+
   it("projects the selected model and Token Plan quota without live activity details", () => {
     const presentation = resolve({
       currentLiveRunId: "turn-1",

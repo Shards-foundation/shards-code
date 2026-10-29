@@ -15,6 +15,7 @@ on:
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'packages/tui/package.json'
+      - 'packages/code-acp/**'
   workflow_dispatch:
     inputs:
       tag:
@@ -104,7 +105,7 @@ jobs:
           path: ${{ runner.temp }}/package
       - run: pnpm verify --profile package
         env:
-          MCODE_RELEASE_ARCHIVE: ${{ runner.temp }}/package/minimax-code-${{ needs.build.outputs.version }}.tar.gz
+          MCODE_RELEASE_ARCHIVE: ${{ runner.temp }}/package/shards-code-${{ needs.build.outputs.version }}.tar.gz
           MCODE_VERIFY_REPORT_DIR: ${{ runner.temp }}/install-report
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ always() }}
@@ -144,12 +145,11 @@ jobs:
           GH_REPO: ${{ github.repository }}
           MCODE_RELEASE_DIRECTORY: ${{ runner.temp }}/package
           MCODE_RELEASE_REPORTS: ${{ runner.temp }}/reports
-  # Publishes the single-bin ACP launcher (@minimax-ai/code-acp) in lockstep
-  # with @minimax-ai/code, which the ACP registry runs via `npx ... acp`.
-  # Opt-in: set repo variable MCODE_ACP_PUBLISH=true and secret NPM_TOKEN.
+  # Publishes the single-bin Shards ACP launcher in lockstep with the CLI.
+  # Opt-in: set repo variable SHARDS_ACP_PUBLISH=true and secret NPM_TOKEN.
   publish-acp:
     needs: [build, publish]
-    if: github.event_name == 'push' && vars.MCODE_ACP_PUBLISH == 'true'
+    if: github.event_name == 'push' && vars.SHARDS_ACP_PUBLISH == 'true'
     permissions:
       contents: read
       id-token: write
@@ -166,22 +166,22 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
-      - name: Wait for @minimax-ai/code at this version on npm
+      - name: Wait for @shards-foundation/shards-code at this version on npm
         shell: bash
         run: |
           for _ in $(seq 1 80); do
-            npm view "@minimax-ai/code@$VERSION" version >/dev/null 2>&1 && exit 0
+            npm view "@shards-foundation/shards-code@$VERSION" version >/dev/null 2>&1 && exit 0
             sleep 20
           done
-          echo "@minimax-ai/code@$VERSION not on npm after waiting" >&2; exit 1
-      - name: Stamp and publish @minimax-ai/code-acp
+          echo "@shards-foundation/shards-code@$VERSION not on npm after waiting" >&2; exit 1
+      - name: Stamp and publish @shards-foundation/shards-code-acp
         working-directory: packages/code-acp
         shell: bash
         run: |
-          if npm view "@minimax-ai/code-acp@$VERSION" version >/dev/null 2>&1; then
+          if npm view "@shards-foundation/shards-code-acp@$VERSION" version >/dev/null 2>&1; then
             echo "already published"; exit 0
           fi
-          npm pkg set version="$VERSION" "dependencies.@minimax-ai/code=$VERSION"
+          npm pkg set version="$VERSION" "dependencies.@shards-foundation/shards-code=$VERSION"
           tag=latest; [[ "$VERSION" == *-* ]] && tag=next
           npm publish --access public --provenance --tag "$tag"
         env:

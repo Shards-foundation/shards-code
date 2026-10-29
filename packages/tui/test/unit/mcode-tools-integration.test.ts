@@ -383,7 +383,7 @@ describe('mcode-tools command environment', () => {
       configureMcodeToolsChildEnvironment({
         __MAVIS_MCODE_TOOLS_BROKER_ENDPOINT: '/runtime/broker.sock',
       }),
-    ).toThrow(/Restart MCode/u);
+    ).toThrow(/Restart Shards Code/u);
   });
 });
 

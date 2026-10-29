@@ -1619,7 +1619,7 @@ export class TuiCommandFlow {
           this.options.append(
             formatTuiActionFailure(error, {
               summary: "Couldn't save the TUI mode.",
-              nextStep: 'Check the MCode data directory permissions, then retry /settings.',
+              nextStep: 'Check the Shards Code data directory permissions, then retry /settings.',
               preservation: `The TUI remains in ${previousMode} mode.`,
             }),
             'warning',

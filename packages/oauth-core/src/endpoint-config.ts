@@ -62,7 +62,7 @@ export function resolveMCodeOAuthEndpointConfig(
   const revocationEndpoint = readHttpsEndpoint(environment.MCODE_OAUTH_REVOCATION_ENDPOINT);
   if (!deviceAuthorizationEndpoint || !tokenEndpoint || !revocationEndpoint) {
     throw new TypeError(
-      'Shared MCode OAuth requires all three public OAuth endpoints to be configured.',
+      'Shared Shards Code OAuth requires all three public OAuth endpoints to be configured.',
     );
   }
   return {

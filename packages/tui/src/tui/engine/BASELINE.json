@@ -14,7 +14,7 @@
   "adaptation": {
     "id": "relative-typescript-imports-to-nodenext-javascript-specifiers",
     "behaviorChange": false,
-    "description": "Relative .ts module specifiers are rewritten to .js for the MCode NodeNext build."
+    "description": "Relative .ts module specifiers are rewritten to .js for the Shards Code NodeNext build."
   },
   "sourceFileCount": 39,
   "upstreamTreeDigest": "3e0601b9e99f2a2f09fc746d40be14b1ffd9bb3a118a20c0c1bc0ad17185e48a",

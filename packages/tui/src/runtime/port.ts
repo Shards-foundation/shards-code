@@ -608,7 +608,7 @@ export interface TuiActiveRunControlPort {
 }
 
 /**
- * Product-facing Runtime surface required by the interactive MCode TUI.
+ * Product-facing Runtime surface required by the interactive Shards Code TUI.
  *
  * Headless run lifecycle is intentionally excluded: commands and application
  * services should depend on the narrow domain ports above instead of this

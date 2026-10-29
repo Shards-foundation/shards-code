@@ -1491,7 +1491,7 @@ async function expectMandatoryDenySurface(
  * Probes must measure the sandbox, not the caller's shell. Every probe spawns a
  * real process and resolves its command through `PATH`, so inheriting the
  * ambient one lets a wrapper ahead of `/bin` decide what `rm` means — for
- * example the recoverable-delete shim MCode installs into agent shells, whose
+ * example the recoverable-delete shim Shards Code installs into agent shells, whose
  * trash move the sandbox then denies, turning a correct allow-probe into a
  * reported sandbox regression. Pin the probes to the system binaries they
  * actually use (`cat`, `rm`, `rmdir`, `find`, `mv`, `printf`, `git`, `true`).

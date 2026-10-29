@@ -7,7 +7,7 @@ import {
   resolveTuiAttachment,
 } from '../../../../../src/tui/features/composer/attachments.js';
 
-describe('Minimax Code TUI attachments', () => {
+describe('Shards Code TUI attachments', () => {
   it('resolves relative image paths against the workspace with safe metadata', async () => {
     const workspaceDir = await mkdtemp(join(tmpdir(), 'minimax-code-attachment-'));
     const imagePath = join(workspaceDir, 'diagram.png');

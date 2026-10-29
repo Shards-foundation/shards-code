@@ -14,7 +14,7 @@ export function formatTuiExecFailure(error: TuiExecError): string {
   if (error.kind === 'runtime') {
     return `The run failed: ${tuiErrorDiagnostic(error)}. Retry after the connection recovers.`;
   }
-  return `MCode encountered an internal error: ${tuiErrorDiagnostic(error)}. Retry; if it keeps happening, report it through an available support channel.`;
+  return `Shards Code encountered an internal error: ${tuiErrorDiagnostic(error)}. Retry; if it keeps happening, report it through an available support channel.`;
 }
 
 export function formatTuiExecResultFailure(result: ExecResult): string {
@@ -27,11 +27,11 @@ export function formatTuiExecResultFailure(result: ExecResult): string {
   if (result.status === 'cancelled') return 'The run was cancelled.';
   if (result.error?.category === 'config') {
     const reason = result.error.message ? `: ${tuiErrorDiagnostic(result.error.message)}` : '';
-    return `The run could not start with the current configuration${reason}. Open MCode and run /doctor.`;
+    return `The run could not start with the current configuration${reason}. Open Shards Code and run /doctor.`;
   }
   if (result.error?.category === 'internal') {
     const reason = result.error.message ? `: ${tuiErrorDiagnostic(result.error.message)}` : '';
-    return `MCode encountered an internal error${reason}. Retry; if it keeps happening, report it through an available support channel.`;
+    return `Shards Code encountered an internal error${reason}. Retry; if it keeps happening, report it through an available support channel.`;
   }
   const reason = result.error?.message ? `: ${tuiErrorDiagnostic(result.error.message)}` : '';
   return `The run failed${reason}. Retry after the connection recovers.`;

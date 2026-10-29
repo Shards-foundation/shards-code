@@ -4,7 +4,7 @@ import {
   projectTuiSessionStreamFrame,
 } from "../../src/runtime/stream-events.js";
 
-describe("Minimax Code stream event projection", () => {
+describe("Shards Code stream event projection", () => {
   it("projects generated Session SSE frames without a Runtime-private event contract", () => {
     expect(
       projectTuiSessionStreamFrame(

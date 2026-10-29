@@ -61,7 +61,7 @@ export class TuiThemeRegistry {
   /**
    * Normalize a persisted or CLI-supplied value. `light/dark` selects an
    * explicit appearance while keeping the current theme, which is the syntax
-   * MCode uses to pin a terminal that reports its background unreliably.
+   * Shards Code uses to pin a terminal that reports its background unreliably.
    */
   resolveSelection(value: string | undefined): {
     readonly themeId: string;

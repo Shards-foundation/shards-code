@@ -21,7 +21,7 @@ const ALL_PALETTES = BUILT_IN_THEMES.flatMap((theme) => [
 ]);
 
 describe('built-in TUI themes', () => {
-  it('keeps the default MCode palette byte-identical to the pre-theme implementation', () => {
+  it('keeps the default Shards Code palette byte-identical to the pre-theme implementation', () => {
     // The default theme is what every existing user sees, so it must not move.
     expect(MINIMAX_CODE_DARK_THEME.colors).toEqual({
       brand: '#68C0FF',

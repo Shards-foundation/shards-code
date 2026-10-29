@@ -1,18 +1,11 @@
-# @minimax-ai/code-acp
+# @shards-foundation/shards-code-acp
 
-ACP launcher for [MiniMax Code](https://agent.minimax.io). It runs the `mcode`
-binary from `@minimax-ai/code`, forwarding all arguments, stdio, signals and the
-exit code:
+Single-bin launcher for Shards Code's Agent Client Protocol (ACP) server. It forwards arguments, standard input/output, signals, and the exit code to the canonical `shards-code` executable.
 
 ```sh
-npx -y @minimax-ai/code-acp@<version> acp
+npx -y @shards-foundation/shards-code-acp@<version> acp
 ```
 
-Why: `@minimax-ai/code` ships two bins (`mcode`, `mcode-tools`), so
-`npx @minimax-ai/code acp` cannot decide which to run. This package has a single
-bin, which is what the [ACP registry](https://github.com/agentclientprotocol/registry)
-npx distribution needs.
+The Shards Code package also includes `mcode` as a compatibility alias. This wrapper selects `shards-code` explicitly so `npx` does not have to choose between multiple package binaries.
 
-**Release rule:** publish this package at the same version as `@minimax-ai/code`,
-with `dependencies["@minimax-ai/code"]` pinned to that exact version. The ACP
-registry auto-update follows this package's version.
+Publish this package at the same version as `@shards-foundation/shards-code`, with its dependency pinned to that exact release. This is an independent fork; it is not affiliated with or endorsed by MiniMax.

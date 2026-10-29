@@ -1,19 +1,19 @@
-# MCode TUI Engine local changes
+# Shards Code TUI Engine local changes
 
 This ledger starts at the exact Pi source baseline recorded in `BASELINE.json`. It records every
-MCode-owned difference from that baseline.
+Shards Code-owned difference from that baseline.
 
 | ID   | Origin                 | Scope                                                                   | Change                                                                                                                                                                                          | Behavior impact                                                                                                                                   | Evidence                                                                                   |
 | ---- | ---------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | L001 | Initial import         | all upstream TypeScript files                                           | Rewrite relative `.ts` module specifiers to `.js` for NodeNext.                                                                                                                                 | none                                                                                                                                              | `BASELINE.json`; baseline verifier                                                         |
-| L002 | Initial import         | source ownership                                                        | Store the adapted Pi snapshot in MCode `engine/`.                                                                                                                                               | none                                                                                                                                              | source inventory                                                                           |
+| L002 | Initial import         | source ownership                                                        | Store the adapted Pi snapshot in Shards Code `engine/`.                                                                                                                                               | none                                                                                                                                              | source inventory                                                                           |
 | L003 | Initial import         | product import boundary                                                 | Add `public.ts` as the only product-facing engine import entry.                                                                                                                                 | none                                                                                                                                              | source boundary check                                                                      |
 | L004 | Initial import         | provenance                                                              | Record upstream identity, per-file hashes and the adapted tree digest.                                                                                                                          | none                                                                                                                                              | baseline verifier                                                                          |
-| L005 | Initial import         | TypeScript contract                                                     | Apply only the type-level changes required by the shared ES2022 strict MCode build.                                                                                                             | none intended                                                                                                                                     | unified typecheck/build                                                                    |
+| L005 | Initial import         | TypeScript contract                                                     | Apply only the type-level changes required by the shared ES2022 strict Shards Code build.                                                                                                             | none intended                                                                                                                                     | unified typecheck/build                                                                    |
 | L006 | Runtime integration    | `public.ts` utility surface                                             | Export current Pi key, text and layout utilities through the product-facing barrel so product adapters can reuse Engine behavior without importing implementation modules.                      | Product input, text layout and regular feature viewport allocation use the canonical Pi Engine implementation.                                    | key/width/Markdown/editor corpus; regular feature renderer tests                           |
-| L007 | Product rendering      | `components/markdown.ts` product hooks                                  | Add compact plain fenced-code chrome and terminal `<br>` semantics so MCode can preserve its visual contract without a second Markdown implementation.                                          | MCode keeps its compact code presentation while inheriting Pi Markdown, LaTeX and terminal-image behavior.                                        | Engine Markdown corpus; code-block and Transcript focused tests                            |
-| L008 | Product input          | `components/input.ts` and `components/select-list.ts` product hooks     | Add configurable prompt/paste transform/mask plus product filtering and bounded wrapped descriptions so the superseded MCode copies can be deleted.                                             | Product search, secret input and decision lists use the Pi Engine implementations without losing MCode presentation behavior.                     | Input, SelectList, decision-picker and interaction focused tests                           |
-| L009 | Editor integration     | `components/editor.ts` generic adapter hooks and `index.ts` type export | Add serializable state capture/restore, range replacement, paste interception, autocomplete telemetry and undo extension state so the duplicate MCode editing state machine can be deleted.     | All generic editing behavior now executes in Pi Editor; the product wrapper owns only Draft persistence and attachment identity.                  | Complete Pi Editor corpus; Engine delta test; product Draft/attachment/failed-submit tests |
+| L007 | Product rendering      | `components/markdown.ts` product hooks                                  | Add compact plain fenced-code chrome and terminal `<br>` semantics so Shards Code can preserve its visual contract without a second Markdown implementation.                                          | Shards Code keeps its compact code presentation while inheriting Pi Markdown, LaTeX and terminal-image behavior.                                        | Engine Markdown corpus; code-block and Transcript focused tests                            |
+| L008 | Product input          | `components/input.ts` and `components/select-list.ts` product hooks     | Add configurable prompt/paste transform/mask plus product filtering and bounded wrapped descriptions so the superseded Shards Code copies can be deleted.                                             | Product search, secret input and decision lists use the Pi Engine implementations without losing Shards Code presentation behavior.                     | Input, SelectList, decision-picker and interaction focused tests                           |
+| L009 | Editor integration     | `components/editor.ts` generic adapter hooks and `index.ts` type export | Add serializable state capture/restore, range replacement, paste interception, autocomplete telemetry and undo extension state so the duplicate Shards Code editing state machine can be deleted.     | All generic editing behavior now executes in Pi Editor; the product wrapper owns only Draft persistence and attachment identity.                  | Complete Pi Editor corpus; Engine delta test; product Draft/attachment/failed-submit tests |
 | L011 | Fullscreen interaction | `layout.ts`, `tui-alt-screen.ts` and `public.ts` mouse dispatch         | Route SGR press, drag and release events through the rendered Pi layout before Alt text selection, using layout-local coordinates and deepest-target precedence.                                | Fullscreen product interactions such as Plan Review remain mouse-operable without restoring the deleted product-owned selection or renderer path. | Alt renderer integration; Chat layout; Inline panel; Plan Review mouse tests               |
 | L013 | Pi maintenance         | `components/text.ts` and `components/markdown.ts`                       | Adopt Pi post-0.84.2 fixes for adaptive narrow-width padding and wrapped table style restoration.                                                                                               | Narrow panes stay within terminal width, and wrapped links do not leak styles into table borders or adjacent cells.                               | Engine local-delta narrow-width regression; Pi Markdown corpus                             |
 | L014 | Native packaging       | `native-module-path.ts`, `native-modifiers.ts` and `terminal.ts`        | Resolve native helpers from the installed `@minimax/code` package root before standalone archive fallbacks.                                                                                     | Packaged Apple Terminal and Windows modifier/VT helpers load from the actual release layout.                                                      | Native candidate unit contract; package layout inspection                                  |
@@ -47,7 +47,7 @@ fork contract and must not be reintroduced as compatibility infrastructure.
 
 Future entries must include:
 
-- the concrete MCode product contract that Pi cannot satisfy;
+- the concrete Shards Code product contract that Pi cannot satisfy;
 - the smallest source difference needed;
 - user-visible behavior impact;
 - focused evidence;
@@ -55,15 +55,15 @@ Future entries must include:
 
 Pi-specific environment variables, symbol names and package-layout assumptions remain unchanged from
 the imported Pi baseline. Product integration should pass supported constructor options first. A Pi
-source change is allowed only after a real MCode integration problem is demonstrated.
+source change is allowed only after a real Shards Code integration problem is demonstrated.
 
 `L011` can be removed once the selected Pi baseline exposes equivalent layout-targeted component
-mouse dispatch and MCode has migrated to that upstream contract.
+mouse dispatch and Shards Code has migrated to that upstream contract.
 
 `L016` can be removed once the selected Pi baseline contains equivalent child stdout/stderr error
 containment for fd-backed autocomplete.
 
-`L017` can be removed once the selected Pi baseline contains the bounded terminal writer and MCode
+`L017` can be removed once the selected Pi baseline contains the bounded terminal writer and Shards Code
 no longer needs the NodeNext-adapted copy of that implementation.
 
 `L018` can be removed once the selected Pi baseline orders direct and recursive autocomplete matches
@@ -73,10 +73,10 @@ with the same depth, length and path tie-breakers.
 selection joiners.
 
 `L020` can be removed once the selected Pi baseline exposes the same fullscreen selection-copy
-options and helpers used by MCode hosts.
+options and helpers used by Shards Code hosts.
 
 `L021` can be removed once the selected Pi baseline exposes equivalent host and environment
-capability overrides and MCode no longer needs a product-facing Engine export for them.
+capability overrides and Shards Code no longer needs a product-facing Engine export for them.
 
 `L022` supports a per-frame `render(width, placeholder)` override, falling back to the constructor option when omitted. `/btw` supplies display copy only; it no longer slices and replaces rendered editor lines, avoiding truncation of the zero-width cursor marker after padding. Drafts, history, and submitted text are unchanged. Evidence: regular / fullscreen cursor regression in `tui-composer-cursor.test.ts` and the per-frame placeholder contract in `editor-behavior.test.ts`.
 
@@ -90,7 +90,7 @@ Remove `L024` when the selected Pi baseline natively matches legacy-terminal `Ct
 - Minimal difference: optional `handlesViewportKeys` on Component; TuiAltScreen checks the focused component before keyboard viewport navigation. Components without it retain existing behavior; mouse and global search are unchanged.
 - User impact: paging scrolls fixed-frame panel content instead of being swallowed by an empty outer viewport.
 - Evidence: `tui-chat-layout.test.ts` sends actual PgDn / PgUp sequences through VirtualTerminal; `tui-alt-screen.test.ts` verifies default scrolling; built CLI regular / fullscreen PTY checks at 40×12 change changelog lines from 1–5 to 5–9.
-- Removal condition: the selected Pi baseline provides equivalent focused-component keyboard-navigation ownership and MCode migrates to it.
+- Removal condition: the selected Pi baseline provides equivalent focused-component keyboard-navigation ownership and Shards Code migrates to it.
 
 ## L032: Continuous command-argument completion
 
@@ -114,7 +114,7 @@ Remove `L024` when the selected Pi baseline natively matches legacy-terminal `Ct
 - Minimal difference: `components/scroll-view.ts` accepts an optional `scrollbarGutter` for always-visible bars, defaulting to one column and retaining at least one content column on narrow terminals. `tui-alt-screen.ts` restricts wide hit targets to that reserved gutter, factors drag mapping into `dragScrollbarTo`, and cancels a drag when an overlay receives the next mouse event. Auto bars retain a one-column target. `layout.ts` stays at the Pi baseline.
 - Adaptation: the original contribution widened hits over two live content columns. The reserved gutter prevents those presses from swallowing content clicks or text selection. `chat-layout.ts` opts into the three-column gutter.
 - Evidence: `test/unit/tui-scrollbar-interaction.test.ts` drives SGR press, motion, release and wheel events through VirtualTerminal, covering track jumps, thumb grabs, narrow terminals, content routing, selection, overlays and the actual fullscreen ChatLayout.
-- Removal condition: the selected Pi baseline provides equivalent reserved-gutter track and drag interaction and MCode migrates to it.
+- Removal condition: the selected Pi baseline provides equivalent reserved-gutter track and drag interaction and Shards Code migrates to it.
 
 ## L034: Regular viewport reconstruction after document changes
 
@@ -208,7 +208,7 @@ Remove `L024` when the selected Pi baseline natively matches legacy-terminal `Ct
 
 - Product contract: a long Regular-mode session keeps frame cost bounded without rewriting native scrollback.
 - Minimal difference: `Component.takeDiscardedRows()` lets the root report leading rows it dropped since the last frame. When those rows are all above the previous viewport, `tui-main-screen.ts` drops them from its retained lines and rebases its viewport and cursor rows before diffing. Other cases keep the existing differential and reconstruction paths.
-- Product boundary: the MCode Transcript only drops whole units of final rows far above the screen, so the remaining output is an exact suffix of the previous output. A later reconstruction, such as a resize, replays only the retained rows.
+- Product boundary: the Shards Code Transcript only drops whole units of final rows far above the screen, so the remaining output is an exact suffix of the previous output. A later reconstruction, such as a resize, replays only the retained rows.
 - Evidence: `tui-engine-local-deltas.test.ts` retained-document cases assert no scrollback erase and exact native history after trimming (failing without the rebase), and exact history without stale rows when a root reports too few or too many discarded rows.
 - Removal condition: the selected Pi baseline supports discarding a committed document prefix.
 
@@ -220,4 +220,4 @@ Remove `L024` when the selected Pi baseline natively matches legacy-terminal `Ct
 - Tradeoff: after an output-driven layout shrink, blank rows can separate history from the screen until the next key. After other output-driven reconstructions, native history keeps stale, removed or duplicated rows above the screen until the next key; the screen itself is current. The one-second input window is a heuristic: a reader who scrolls up within it while a layout shrink lands can still be moved. A host that does not scroll to the bottom on input can still be moved to the top by the deferred replay. Legacy Shift+F3-style keys encoded as `CSI 1;n R` are indistinguishable from cursor position reports and do not trigger the replay. A resize that settles while the reader is scrolled up still moves the viewport to the top.
 - Evidence: `tui-engine-local-deltas.test.ts` scrolls xterm up and, without input, changes a scrollback row, removes the previous run-duration note from a real append-only transcript, shrinks the document by more than a screen, and refreshes a footer taller than a five-row screen, asserting no ED 3, an unchanged scroll position and a current screen, then exact history after the next key; existing reconstruction cases deliver the next key before asserting exact history. It also scrolls xterm up, collapses the Tasks section without input, and asserts no ED 3, an unchanged scroll position and unique history, then exact history after the next key; a tailing reader stays at the bottom when output ends and the task list collapses; recent input reconstructs immediately; resize keeps its replay; each report kind and a report-only mixed chunk do not trigger the replay, while keys, Escape and a paste mixed with reports do; and the deferred replay runs before stop. The shrink and input cases emit ED 3 or fail without the change, and cursor position and mixed report chunks counted as input under whole-chunk matching. Native Windows Terminal and ConPTY acceptance remain separate.
 - Product side: the transcript no longer removes one-time feedback (the run-duration note, a finished ephemeral `!` shell block, a stale run error) once settled output follows it, which was the common trigger of changed historical text; this fallback covers the remaining causes, such as the welcome header's live status on screens too small to hold the welcome surface.
-- Removal condition: the selected Pi baseline preserves the host scroll position through history reconstruction, or MCode stops reconstructing native history outside user input.
+- Removal condition: the selected Pi baseline preserves the host scroll position through history reconstruction, or Shards Code stops reconstructing native history outside user input.

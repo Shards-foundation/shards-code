@@ -43,7 +43,7 @@ function createHttpOAuthClient(
 ): HttpOAuthClient {
   if (!endpoints) {
     throw new TypeError(
-      'Shared MCode OAuth requires explicit device authorization, token, and revocation endpoints.',
+      'Shared Shards Code OAuth requires explicit device authorization, token, and revocation endpoints.',
     );
   }
   return new HttpOAuthClient(endpoints);

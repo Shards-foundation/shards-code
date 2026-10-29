@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { c as createTar } from 'tar';
-import { cliBuildVersion, cliExternalModules } from './lib/cli-release.mjs';
+import { cliArchiveFilename, cliBuildVersion, cliExternalModules } from './lib/cli-release.mjs';
 import { readExtraction, dependencyLicensesPath } from './lib/release-metadata.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -62,11 +62,11 @@ export function releaseManifest(importers, version) {
     target[name] = [...versions][0];
   }
   return {
-    name: '@minimax-ai/code', version, private: true, type: 'module', license: 'MIT',
-    description: 'MiniMax Code CLI built from the tagged public source.',
-    bin: { mcode: 'cli.js' },
+    name: '@shards-foundation/shards-code', version, private: true, type: 'module', license: 'MIT',
+    description: 'Shards Code CLI and TUI. Independent fork; not affiliated with or endorsed by MiniMax.',
+    bin: { 'shards-code': 'cli.js', mcode: 'cli.js' },
     engines: json(path.join(root, 'package.json')).engines,
-    repository: { type: 'git', url: 'https://github.com/MiniMax-AI/minimax-code.git' },
+    repository: { type: 'git', url: 'https://github.com/Shards-foundation/shards-code.git' },
     dependencies, optionalDependencies,
   };
 }
@@ -78,7 +78,7 @@ export async function packageCliRelease({ tag, out }) {
   const revision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   if (execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], { cwd: root, encoding: 'utf8' }).trim()) throw new Error('Packaging requires a clean committed working tree.');
   if (json(path.join(dist, 'package.json')).gitHead !== revision) throw new Error('Build revision does not match HEAD. Rebuild with MCODE_RELEASE_TAG.');
-  const temporary = mkdtempSync(path.join(tmpdir(), 'mcode-release-'));
+  const temporary = mkdtempSync(path.join(tmpdir(), 'shards-code-release-'));
   try {
     const stage = path.join(temporary, 'package');
     cpSync(dist, stage, { recursive: true, filter: file => path.basename(file) !== 'metafile.json' });
@@ -86,17 +86,20 @@ export async function packageCliRelease({ tag, out }) {
     writeFileSync(path.join(stage, 'package.json'), JSON.stringify(manifest, null, 2) + '\n');
     copyLicenses(stage);
     writeFileSync(path.join(stage, 'release.json'), JSON.stringify({ version, tag, revision, buildNode: process.version }, null, 2) + '\n');
-    writeFileSync(path.join(stage, 'README.md'), `# MiniMax Code ${version}
+    writeFileSync(path.join(stage, 'README.md'), `# Shards Code ${version}
 
-Built from https://github.com/MiniMax-AI/minimax-code/tree/${revision}.
-Install this tar.gz with npm. Node.js must satisfy the package engines requirement.
-Keep optional dependencies enabled and allow better-sqlite3 installation scripts.
-Update by installing a newer GitHub release archive; the built-in updater follows npm.
-The archive uses the same package name, mcode command and user data as the official npm CLI.
-See https://github.com/MiniMax-AI/minimax-code/blob/${revision}/docs/installation.md.
+Shards Code is an independent fork and is not affiliated with or endorsed by MiniMax.
+Built from https://github.com/Shards-foundation/shards-code/tree/${revision}.
+
+Install this archive with npm. Node.js must satisfy the package engines requirement.
+Keep optional dependencies enabled and allow the better-sqlite3 installation script.
+Use shards-code as the canonical command; mcode remains as a compatibility alias.
+The original MIT copyright and required third-party notices are included in this archive.
+MiniMax model/API compatibility, when selected, remains subject to the provider's service terms.
+See https://github.com/Shards-foundation/shards-code/blob/${revision}/docs/installation.md.
 `);
     mkdirSync(out, { recursive: true });
-    const archive = path.join(out, `minimax-code-${version}.tar.gz`);
+    const archive = path.join(out, cliArchiveFilename(version));
     if (existsSync(archive) || existsSync(`${archive}.sha256`)) throw new Error(`Output already exists: ${archive}`);
     await createTar({ file: archive, gzip: true, cwd: temporary, portable: true }, ['package']);
     writeFileSync(`${archive}.sha256`, `${digest(readFileSync(archive))}  ${path.basename(archive)}\n`, { flag: 'wx' });

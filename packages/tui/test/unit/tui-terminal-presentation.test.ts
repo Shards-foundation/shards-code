@@ -26,17 +26,17 @@ describe('terminal title ownership', () => {
       workspace: '/workspace',
       status: 'perm' as const,
     };
-    expect(formatTuiTerminalTitle(input)).toBe('Needs approval | 修复 登录 | MCode');
+    expect(formatTuiTerminalTitle(input)).toBe('Needs approval | 修复 登录 | Shards Code');
     expect(
       formatTuiTerminalTitle(input, ['session-name', 'status', 'status', 'unknown', 'toString']),
     ).toBe('修复 登录 | Needs approval');
     expect(formatTuiTerminalTitle(input, null)).toBeUndefined();
     expect(formatTuiTerminalTitle(input, [])).toBeUndefined();
     expect(formatTuiTerminalTitle({ ...input, title: 'New session' })).toBe(
-      'Needs approval | workspace (session-) | MCode',
+      'Needs approval | workspace (session-) | Shards Code',
     );
     expect(formatTuiTerminalTitle({ ...input, status: 'auth' })).toBe(
-      'Needs login | 修复 登录 | MCode',
+      'Needs login | 修复 登录 | Shards Code',
     );
     const long = formatTuiTerminalTitle({ ...input, title: '😀'.repeat(300) })!;
     expect(Array.from(long)).toHaveLength(240);
@@ -239,7 +239,7 @@ describe('terminal notification policy and transport', () => {
     [{ TMUX: 'synthetic', TERM_PROGRAM: 'iTerm.app' }, '\u001bPtmux;'],
   ])('uses the shared terminal detection for %j', (env, prefix) => {
     const sequences = buildTuiTerminalNotificationSequences(
-      { title: 'MCode', body: 'Complete' },
+      { title: 'Shards Code', body: 'Complete' },
       env,
     );
     expect(sequences[0]?.startsWith(prefix)).toBe(true);
@@ -248,7 +248,7 @@ describe('terminal notification policy and transport', () => {
   it('assigns distinct kitty IDs and sanitizes title/body before framing', () => {
     const env = { TERM: 'xterm-kitty' };
     const message = {
-      title: 'MCode\u001b]0;injected\u0007',
+      title: 'Shards Code\u001b]0;injected\u0007',
       body: '修复\n登录\u0007',
     };
     const first = buildTuiTerminalNotificationSequences(message, env);

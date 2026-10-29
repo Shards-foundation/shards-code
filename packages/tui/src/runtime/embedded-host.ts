@@ -64,7 +64,7 @@ export async function createEmbeddedRuntimeHost(
 ): Promise<EmbeddedRuntimeHost> {
   if (process.env.MAVIS_LOCAL_RUNTIME_V2_FORCE_LEGACY === '1') {
     throw new Error(
-      'Minimax Code embedded Runtime requires the local-runtime-v2 front door; legacy fallback is disabled.',
+      'Shards Code embedded runtime requires the local-runtime-v2 front door; legacy fallback is disabled.',
     );
   }
   const { productCapabilities, ...runtimeOptions } = options;
@@ -96,7 +96,7 @@ export async function createEmbeddedRuntimeHost(
   try {
     await host.ready;
     if (!host.cliService) {
-      throw new Error('Minimax Code embedded Runtime does not expose CliService.');
+      throw new Error('Shards Code embedded runtime does not expose CliService.');
     }
     await host.apiHost.ensureBuiltinAgents();
     return host as EmbeddedRuntimeHost;

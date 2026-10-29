@@ -291,7 +291,7 @@ const DEFAULT_TUI_KEYBINDINGS: readonly TuiKeybindingDefinition[] = [
     key: 'ctrl+z',
     action: 'suspend',
     when: 'application',
-    description: 'Suspend MCode and return to the shell',
+    description: 'Suspend Shards Code and return to the shell',
     helpOrder: 122,
   },
   {

@@ -25,9 +25,6 @@ import {
 
 export { isManagedMcodeInstallRoot } from './install-source.js';
 
-const DEFAULT_RELEASE_BASE_URL =
-  'https://algeng-ali-shanghai-agent-02.oss-cn-shanghai.aliyuncs.com/' +
-  'minimax-dialogue/data/env/.npm-global/mcode';
 const DEFAULT_TIMEOUT_MS = 8_000;
 
 export interface McodeUpdateRequest extends McodeUpdateOperationOptions {
@@ -75,7 +72,7 @@ export interface McodeUpdateServiceOptions {
 export class McodeUpdateService {
   private readonly currentVersion: string;
   private readonly installRoot: string;
-  private readonly releaseBaseUrl: string;
+  private readonly releaseBaseUrl: string | undefined;
   private readonly publicKey?: string;
   private readonly environment: NodeJS.ProcessEnv;
   private readonly dependencies: McodeUpdateDependencies;
@@ -83,9 +80,11 @@ export class McodeUpdateService {
   constructor(options: McodeUpdateServiceOptions) {
     this.currentVersion = parseMcodeVersion(options.currentVersion);
     this.installRoot = options.installRoot ?? resolveMcodeInstallRoot(options.environment);
-    this.releaseBaseUrl = (options.releaseBaseUrl ?? DEFAULT_RELEASE_BASE_URL).replace(/\/+$/u, '');
-    this.publicKey = options.publicKey;
     this.environment = options.environment ?? process.env;
+    const configuredReleaseBaseUrl =
+      options.releaseBaseUrl ?? this.environment.SHARDS_CODE_RELEASE_BASE_URL;
+    this.releaseBaseUrl = configuredReleaseBaseUrl?.trim().replace(/\/+$/u, '') || undefined;
+    this.publicKey = options.publicKey;
     this.dependencies = {
       fetchBytes: defaultFetchBytes,
       installArtifact: defaultInstallArtifact,
@@ -95,6 +94,11 @@ export class McodeUpdateService {
   }
 
   async check(request: McodeUpdateRequest = {}): Promise<McodeUpdateCheckResult> {
+    if (!this.releaseBaseUrl) {
+      throw new Error(
+        'Shards Code release feed is not configured. Automatic managed updates are unavailable; see docs/installation.md for source-build instructions.',
+      );
+    }
     throwIfMcodeUpdateCancelled(request.signal);
     reportMcodeUpdatePhase(request, 'checking', true);
     const channel = request.channel
@@ -111,7 +115,7 @@ export class McodeUpdateService {
     let timedOut = false;
     const timeout = setTimeout(() => {
       timedOut = true;
-      controller.abort(new Error(`MCode update check timed out after ${timeoutMs}ms.`));
+      controller.abort(new Error(`Shards Code update check timed out after ${timeoutMs}ms.`));
     }, timeoutMs);
     timeout.unref?.();
     try {
@@ -132,12 +136,12 @@ export class McodeUpdateService {
       );
       if (!version && manifest.channel !== channel) {
         throw new Error(
-          `Signed MCode release channel mismatch: expected ${channel}, got ${manifest.channel}.`,
+          `Signed Shards Code release channel mismatch: expected ${channel}, got ${manifest.channel}.`,
         );
       }
       if (version && manifest.version !== version) {
         throw new Error(
-          `Signed MCode release version mismatch: expected ${version}, got ${manifest.version}.`,
+          `Signed Shards Code release version mismatch: expected ${version}, got ${manifest.version}.`,
         );
       }
       assertMcodeReleaseTargetAvailable(manifest, resolveMcodeReleaseTarget());
@@ -152,7 +156,7 @@ export class McodeUpdateService {
     } catch (error) {
       if (request.signal?.aborted) throw new McodeUpdateCancelledError();
       if (timedOut) {
-        throw new Error(`MCode update check timed out after ${timeoutMs}ms.`, { cause: error });
+        throw new Error(`Shards Code update check timed out after ${timeoutMs}ms.`, { cause: error });
       }
       throw error;
     } finally {
@@ -168,7 +172,7 @@ export class McodeUpdateService {
     }
     if (check.status === 'ahead' && !request.version) {
       throw new Error(
-        `Installed MCode ${this.currentVersion} is newer than ${check.channel} ` +
+        `Installed Shards Code ${this.currentVersion} is newer than ${check.channel} ` +
           `${check.latestVersion}; pass --to to downgrade explicitly.`,
       );
     }
@@ -182,7 +186,7 @@ export class McodeUpdateService {
     const artifactTimeout = setTimeout(() => {
       artifactTimedOut = true;
       artifactController.abort(
-        new Error(`MCode artifact download timed out after ${artifactTimeoutMs}ms.`),
+        new Error(`Shards Code artifact download timed out after ${artifactTimeoutMs}ms.`),
       );
     }, artifactTimeoutMs);
     artifactTimeout.unref?.();
@@ -195,7 +199,7 @@ export class McodeUpdateService {
     } catch (error) {
       if (request.signal?.aborted) throw new McodeUpdateCancelledError();
       if (artifactTimedOut) {
-        throw new Error(`MCode artifact download timed out after ${artifactTimeoutMs}ms.`, {
+        throw new Error(`Shards Code artifact download timed out after ${artifactTimeoutMs}ms.`, {
           cause: error,
         });
       }
@@ -213,7 +217,7 @@ export class McodeUpdateService {
       versionsRoot,
       `.staging-${check.latestVersion}-${process.pid}-${Date.now()}`,
     );
-    const artifactFile = path.join(stagingPrefix, `minimax-mcode-${check.latestVersion}.tgz`);
+    const artifactFile = path.join(stagingPrefix, `shards-code-${check.latestVersion}.tgz`);
     mkdirSync(stagingPrefix, { recursive: true });
     let createdFinalPrefix = false;
     try {
@@ -253,7 +257,7 @@ export class McodeUpdateService {
         throw new McodeUpdateCancelledError();
       }
       throw new Error(
-        `MCode ${check.latestVersion} was not activated; the previous version is unchanged: ${errorMessage(error)}`,
+        `Shards Code ${check.latestVersion} was not activated; the previous version is unchanged: ${errorMessage(error)}`,
         { cause: error },
       );
     }
@@ -265,11 +269,11 @@ export function resolveMcodeInstallRoot(environment: NodeJS.ProcessEnv = process
   if (process.platform === 'win32') {
     const localAppData = environment.LOCALAPPDATA;
     if (!localAppData)
-      throw new Error('LOCALAPPDATA is required to resolve the MCode install root.');
-    return path.join(localAppData, 'MinimaxCode');
+      throw new Error('LOCALAPPDATA is required to resolve the Shards Code install root.');
+    return path.join(localAppData, 'ShardsCode');
   }
   const dataHome = environment.XDG_DATA_HOME || path.join(homedir(), '.local', 'share');
-  return path.join(dataHome, 'minimax-code');
+  return path.join(dataHome, 'shards-code');
 }
 
 export function readMcodeUpdateChannel(installRoot: string): McodeUpdateChannel {
@@ -279,7 +283,7 @@ export function readMcodeUpdateChannel(installRoot: string): McodeUpdateChannel 
   try {
     parsed = JSON.parse(readFileSync(file, 'utf8'));
   } catch (error) {
-    throw new Error(`MCode update channel config is invalid: ${errorMessage(error)}`);
+    throw new Error(`Shards Code update channel config is invalid: ${errorMessage(error)}`);
   }
   if (
     typeof parsed !== 'object' ||
@@ -287,7 +291,7 @@ export function readMcodeUpdateChannel(installRoot: string): McodeUpdateChannel 
     !('channel' in parsed) ||
     typeof parsed.channel !== 'string'
   ) {
-    throw new Error('MCode update channel config is missing channel.');
+    throw new Error('Shards Code update channel config is missing channel.');
   }
   return parseMcodeUpdateChannel(parsed.channel);
 }
@@ -298,12 +302,12 @@ function readInstalledPublicKey(installRoot: string, environment: NodeJS.Process
   const metadataFile = path.join(installRoot, 'install.json');
   if (!existsSync(metadataFile)) {
     throw new Error(
-      'MCode update trust root is missing. Install with the official Shell/PowerShell installer first.',
+      'Shards Code update trust root is missing. Install with the official Shell/PowerShell installer first.',
     );
   }
   const metadata = JSON.parse(readFileSync(metadataFile, 'utf8')) as { publicKey?: unknown };
   if (typeof metadata.publicKey !== 'string' || !metadata.publicKey.includes('BEGIN PUBLIC KEY')) {
-    throw new Error('MCode installer metadata does not contain a valid release public key.');
+    throw new Error('Shards Code installer metadata does not contain a valid release public key.');
   }
   return metadata.publicKey;
 }
@@ -311,7 +315,7 @@ function readInstalledPublicKey(installRoot: string, environment: NodeJS.Process
 function normalizeTimeout(value: number | undefined): number {
   if (value === undefined) return DEFAULT_TIMEOUT_MS;
   if (!Number.isSafeInteger(value) || value < 100 || value > 60_000) {
-    throw new Error('MCode update timeout must be an integer between 100 and 60000 milliseconds.');
+    throw new Error('Shards Code update timeout must be an integer between 100 and 60000 milliseconds.');
   }
   return value;
 }
@@ -332,7 +336,7 @@ async function defaultFetchBytes(
       redirect: 'error',
     });
     if (!response.ok) {
-      throw new Error(`MCode release server returned HTTP ${response.status} for ${url}`);
+      throw new Error(`Shards Code release server returned HTTP ${response.status} for ${url}`);
     }
     return Buffer.from(await response.arrayBuffer());
   } finally {
@@ -377,14 +381,14 @@ async function defaultValidateInstalledVersion(prefix: string, version: string):
     const manifest = JSON.parse(readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
     const binEntry = readMcodeBinEntry(manifest.bin, 'mcode');
     if (!binEntry || !existsSync(path.join(prefix, 'mcode.cmd'))) {
-      throw new Error(`Installed MCode launcher is missing or invalid at ${prefix}.`);
+      throw new Error(`Installed Shards Code launcher is missing or invalid at ${prefix}.`);
     }
     executable = process.execPath;
     args = [path.join(packageRoot, binEntry), '--version'];
   }
   const output = await runMcodeUpdateCommand(executable, args, process.env, true);
   if (output.trim() !== version) {
-    throw new Error(`Installed MCode version mismatch: expected ${version}, got ${output.trim()}`);
+    throw new Error(`Installed Shards Code version mismatch: expected ${version}, got ${output.trim()}`);
   }
 }
 
@@ -438,13 +442,13 @@ function forwardAbort(signal: AbortSignal | undefined, controller: AbortControll
 function verifyArtifact(bytes: Buffer, manifest: McodeReleaseManifestV1): void {
   if (bytes.length !== manifest.installArtifact.size) {
     throw new Error(
-      `MCode artifact checksum/size verification failed: expected ` +
+      `Shards Code artifact checksum/size verification failed: expected ` +
         `${manifest.installArtifact.size} bytes, got ${bytes.length}.`,
     );
   }
   const digest = createHash('sha256').update(bytes).digest('hex');
   if (digest !== manifest.installArtifact.sha256) {
-    throw new Error('MCode artifact checksum verification failed.');
+    throw new Error('Shards Code artifact checksum verification failed.');
   }
 }
 

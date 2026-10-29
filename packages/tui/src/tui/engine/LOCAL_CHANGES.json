@@ -17,14 +17,14 @@
       "changeIds": ["L016", "L018", "L030", "L032"],
       "upstreamCommit": "b37ebb7f22ec1a8fbf882366dc20ae6d6010a6e2",
       "reason": "Contain fd child stdout and stderr stream failures at the autocomplete owner and order nested matches after shallower same-score matches. 提供方通过上下文回调控制自动触发，并通过 applyOnEnter 控制 Enter 是否填入候选。 命令参数候选标记阶段，接受命令后续查参数，并隔离参数回调失败。",
-      "behaviorImpact": "A failed background file-autocomplete scan returns no suggestions while the active MCode session remains usable, and direct paths remain visible when recursive results are abundant. Shell 补全只由 Tab 打开，菜单内输入继续过滤；Enter 执行当前输入，Tab 填入选中项。其他提供方沿用默认行为。 带参数候选的命令支持连续补全，参数 Enter 仅填入，Esc 保留草稿；无参数命令保持原行为。"
+      "behaviorImpact": "A failed background file-autocomplete scan returns no suggestions while the active Shards Code session remains usable, and direct paths remain visible when recursive results are abundant. Shell 补全只由 Tab 打开，菜单内输入继续过滤；Enter 执行当前输入，Tab 填入选中项。其他提供方沿用默认行为。 带参数候选的命令支持连续补全，参数 Enter 仅填入，Esc 保留草稿；无参数命令保持原行为。"
     },
     {
       "path": "components/editor.ts",
       "currentSha256": "55d313e4f7f5760212e0ff397cb7a599c52d42a90df8c0014f25cf4652897d20",
       "changeIds": ["L005", "L009", "L022", "L030", "L032", "L042"],
-      "reason": "Preserve product history metadata through a generic text transform and draft extension state. Keep strict TypeScript fixes and add the smallest generic snapshot, paste, telemetry, programmatic submission, undo-extension and empty-placeholder hooks needed by the MCode product wrapper. 提供方通过上下文回调控制自动触发，并通过 applyOnEnter 控制 Enter 是否填入候选。 强制补全上下文失效时立即取消请求并清空菜单。 支持单帧 placeholder 覆盖，由 Editor 统一保留 padding、可见光标和 IME 定位标记。 命令参数候选标记阶段，接受命令后续查参数，并隔离参数回调失败。",
-      "behaviorImpact": "MCode Draft, attachment, product-level submission-intent and empty-input guidance semantics use the canonical Pi Editor cursor, width, padding, history, undo, paste-marker and autocomplete behavior. Shell 补全只由 Tab 打开，菜单内输入继续过滤；Enter 执行当前输入，Tab 填入选中项。其他提供方沿用默认行为。 删除 Shell 标记或命令名前缀后立即关闭候选；已取消请求的延迟结果无法恢复旧菜单。 带参数候选的命令支持连续补全，参数 Enter 仅填入，Esc 保留草稿；无参数命令保持原行为。"
+      "reason": "Preserve product history metadata through a generic text transform and draft extension state. Keep strict TypeScript fixes and add the smallest generic snapshot, paste, telemetry, programmatic submission, undo-extension and empty-placeholder hooks needed by the Shards Code product wrapper. 提供方通过上下文回调控制自动触发，并通过 applyOnEnter 控制 Enter 是否填入候选。 强制补全上下文失效时立即取消请求并清空菜单。 支持单帧 placeholder 覆盖，由 Editor 统一保留 padding、可见光标和 IME 定位标记。 命令参数候选标记阶段，接受命令后续查参数，并隔离参数回调失败。",
+      "behaviorImpact": "Shards Code Draft, attachment, product-level submission-intent and empty-input guidance semantics use the canonical Pi Editor cursor, width, padding, history, undo, paste-marker and autocomplete behavior. Shell 补全只由 Tab 打开，菜单内输入继续过滤；Enter 执行当前输入，Tab 填入选中项。其他提供方沿用默认行为。 删除 Shell 标记或命令名前缀后立即关闭候选；已取消请求的延迟结果无法恢复旧菜单。 带参数候选的命令支持连续补全，参数 Enter 仅填入，Esc 保留草稿；无参数命令保持原行为。"
     },
     {
       "path": "components/input.ts",
@@ -37,7 +37,7 @@
       "path": "components/loader.ts",
       "currentSha256": "2f3dd7bc3ea9e7627f68b74632c56bf75066c39e80e71b129d52ea6ee5a23387",
       "changeIds": ["L005"],
-      "reason": "Declare the inherited render override under the shared MCode strict TypeScript contract.",
+      "reason": "Declare the inherited render override under the shared Shards Code strict TypeScript contract.",
       "behaviorImpact": "none_intended"
     },
     {
@@ -45,7 +45,7 @@
       "currentSha256": "1d32aa3553e99178db5a96130f9a18c1add235d5d70100a8cd2d47c4189ddd1b",
       "changeIds": ["L005", "L007", "L013", "L029", "L026", "L045"],
       "reason": "Keep strict TypeScript fixes and product Markdown hooks, plus Pi's post-baseline wrapped-table style restoration. 链接标签使用独立样式上下文，防止外层正文或标题颜色覆盖链接颜色。 稳定 Markdown 块缓存",
-      "behaviorImpact": "MCode keeps its compact code presentation without reimplementing Pi Markdown or leaking wrapped link styles into table borders and adjacent cells. 链接保留嵌套强调与行内代码，并在结束后恢复外层样式。 保留两个尾部块并对引用回退全文。"
+      "behaviorImpact": "Shards Code keeps its compact code presentation without reimplementing Pi Markdown or leaking wrapped link styles into table borders and adjacent cells. 链接保留嵌套强调与行内代码，并在结束后恢复外层样式。 保留两个尾部块并对引用回退全文。"
     },
     {
       "path": "components/scroll-view.ts",
@@ -58,15 +58,15 @@
       "path": "components/settings-list.ts",
       "currentSha256": "959f7db23190e0e526ca84c3032443d7d15248d891809f28c837cfa958692b5c",
       "changeIds": ["L005"],
-      "reason": "Make modulo-bounded value access explicit under the shared MCode strict TypeScript contract.",
+      "reason": "Make modulo-bounded value access explicit under the shared Shards Code strict TypeScript contract.",
       "behaviorImpact": "none_intended"
     },
     {
       "path": "components/select-list.ts",
       "currentSha256": "9785ec8f02553795487e836cc2cebf7c59a5e173c422ed349725c59dc021561d",
       "changeIds": ["L008"],
-      "reason": "Add grouped Provider headings to replace the superseded MCode SelectList copy while retaining Pi filtering and single-line descriptions.",
-      "behaviorImpact": "MCode decision and picker lists retain Provider grouping while using Pi selection and single-line description behavior."
+      "reason": "Add grouped Provider headings to replace the superseded Shards Code SelectList copy while retaining Pi filtering and single-line descriptions.",
+      "behaviorImpact": "Shards Code decision and picker lists retain Provider grouping while using Pi selection and single-line description behavior."
     },
     {
       "path": "components/text.ts",
@@ -86,7 +86,7 @@
       "path": "keybindings.ts",
       "currentSha256": "19d60011a07509eaa1fe808a5856d7c29eb62c65f2001d7460b7ee79b202b976",
       "changeIds": ["L005"],
-      "reason": "Make the exhaustive keybinding definition lookup explicit under the shared MCode strict TypeScript contract.",
+      "reason": "Make the exhaustive keybinding definition lookup explicit under the shared Shards Code strict TypeScript contract.",
       "behaviorImpact": "none_intended"
     },
     {
@@ -100,7 +100,7 @@
       "path": "latex.ts",
       "currentSha256": "b4b4982ad3a5f10d05cecd4966c35032f2b5efedb4dc8cf7f819ceb614606d4c",
       "changeIds": ["L005"],
-      "reason": "Make the parser-loop character invariant explicit under the shared MCode strict TypeScript contract.",
+      "reason": "Make the parser-loop character invariant explicit under the shared Shards Code strict TypeScript contract.",
       "behaviorImpact": "none_intended"
     },
     {
@@ -114,7 +114,7 @@
       "path": "native-modifiers.ts",
       "currentSha256": "2629accc0254e1b2095aa0cfa9ed25bf057b8daf5383e6ff0bc40e21dac1cadb",
       "changeIds": ["L014"],
-      "reason": "Resolve modifier helpers through the installed MCode package root before standalone archive fallbacks.",
+      "reason": "Resolve modifier helpers through the installed Shards Code package root before standalone archive fallbacks.",
       "behaviorImpact": "Apple Terminal and Windows can load the packaged modifier helper even though Engine output is nested below dist/tui/engine."
     },
     {
@@ -135,7 +135,7 @@
       "path": "terminal-colors.ts",
       "currentSha256": "1214640bb22b2efb921d7639b9878ed571b6d50e29e412049b97a5ffada72684",
       "changeIds": ["L005", "L023"],
-      "reason": "Make the matched OSC capture explicit under the shared MCode strict TypeScript contract, and add chunk-scanning extraction for OSC 11 replies and DEC 2031 color-scheme reports.",
+      "reason": "Make the matched OSC capture explicit under the shared Shards Code strict TypeScript contract, and add chunk-scanning extraction for OSC 11 replies and DEC 2031 color-scheme reports.",
       "behaviorImpact": "An asynchronous terminal color answer is still recognized when it arrives coalesced with unrelated input."
     },
     {

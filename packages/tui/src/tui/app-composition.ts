@@ -77,7 +77,7 @@ import type { CreateTuiAppOptions } from '../types/tui-app.js';
 import { Editor } from './widgets/editor/editor.js';
 import { MINIMAX_CODE_DEFAULT_AGENT_NAME } from '../product-context.js';
 import { createTuiAutomationResultWriter } from './automation/result-writer.js';
-import { MINIMAX_CODE_WELCOME_DESIGN } from './shell/welcome/design.js';
+import { SHARDS_CODE_WELCOME_DESIGN } from './shell/welcome/design.js';
 
 // ---------------------------------------------------------------------------
 // Small numeric / utility helpers
@@ -346,7 +346,7 @@ export function createTuiApplicationWidgets(options: {
     },
     options.app.keybindings,
     {
-      tips: selectRandomTuiItems(MINIMAX_CODE_WELCOME_DESIGN.tipPool, 3),
+      tips: selectRandomTuiItems(SHARDS_CODE_WELCOME_DESIGN.tipPool, 3),
       ...(changelog
         ? {
             changelogEntries: selectRandomTuiItems(

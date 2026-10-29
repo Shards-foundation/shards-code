@@ -11,6 +11,11 @@ export function versionFromTag(tag) {
   return tag.slice(1);
 }
 
+export function cliArchiveFilename(version) {
+  const canonicalVersion = versionFromTag(`v${version}`);
+  return `shards-code-${canonicalVersion}.tar.gz`;
+}
+
 export function cliBuildVersion(root, tag = process.env.MCODE_RELEASE_TAG) {
   const version = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8')).version;
   const tuiVersion = JSON.parse(readFileSync(path.join(root, 'packages/tui/package.json'), 'utf8')).version;

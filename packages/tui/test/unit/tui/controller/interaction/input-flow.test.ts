@@ -766,7 +766,7 @@ describe("TuiInputFlow steer Draft handling", () => {
     expect(harness.returnFromSideSession).not.toHaveBeenCalled();
   });
 
-  it("closes the side conversation on empty Ctrl+D instead of quitting MCode", () => {
+  it("closes the side conversation on empty Ctrl+D instead of quitting Shards Code", () => {
     const harness = createHarness(
       "",
       { attachments: [] },

@@ -11,5 +11,5 @@ export const ZH_HANS_RUNTIME_TRANSLATIONS = {
   'questionnaire.noAnswer': '未回答',
   'questionnaire.others': '其他',
   'update.versionedInstalled':
-    'MCode {version} 已安装。新启动的 MCode 会话将使用新版本，当前运行中的会话可以继续使用。',
+    'Shards Code {version} 已安装。新启动的 Shards Code 会话将使用新版本，当前运行中的会话可以继续使用。',
 } as const satisfies RuntimeTranslations;

@@ -1,3 +1,2 @@
-# Release coordinator; assign an independent collaborator to review author changes.
-# This file routes reviews; repository settings control whether approval is required.
-* @hetaoBackend
+# Configure this file with confirmed Shards Foundation maintainers or teams before enabling code-owner review.
+# No upstream MiniMax account is carried forward as an owner of this fork.

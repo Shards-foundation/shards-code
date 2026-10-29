@@ -54,7 +54,7 @@ export interface ReadAgentPluginOptions {
   readonly createPluginData?: boolean;
 }
 
-/** Reads the Agent Plugins 1.0.0 portable subset supported by MiniMax Code. */
+/** Reads the Agent Plugins 1.0.0 portable subset supported by Shards Code. */
 export async function readAgentPluginPackage(
   packageRoot: string,
   options: ReadAgentPluginOptions,

@@ -110,7 +110,7 @@ export class TuiDailyCheckinHttpGateway implements TuiDailyCheckinGateway {
     const accessToken = auth?.accessToken?.trim();
     const realUserID = auth?.realUserID?.trim();
     if (!accessToken || !realUserID) {
-      throw new Error('MiniMax Code sign-in is required. Run /login, then retry /checkin.');
+      throw new Error('Shards Code sign-in is required. Run /login, then retry /checkin.');
     }
     return { accessToken, realUserID };
   }

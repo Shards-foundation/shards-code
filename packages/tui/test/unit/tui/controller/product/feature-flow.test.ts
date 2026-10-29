@@ -1087,7 +1087,7 @@ describe("TuiFeatureFlow", () => {
     expect(harness.shown).toHaveLength(1);
     const panel = harness.shown[0] as { render(width: number): string[] };
     const output = stripAnsi(panel.render(100).join("\n"));
-    expect(output).toContain("MCode status");
+    expect(output).toContain("Shards Code status");
     expect(output).toContain("/workspace");
     expect(output).toContain("Unavailable · Unavailable");
     expect(output).toContain("MiniMax account unavailable");

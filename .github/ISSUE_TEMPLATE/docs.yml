@@ -7,9 +7,8 @@ body:
     id: product
     attributes:
       label: Product or interface
-      description: Desktop app and interactive TUI reports automatically receive the desktop or tui label.
+      description: Interactive TUI reports receive both cli and tui labels; other Shards Code reports receive cli.
       options:
-        - Desktop app
         - CLI - interactive TUI
         - CLI - headless
         - CLI - ACP

@@ -10,6 +10,6 @@ export const ZH_HANS_COMPOSER_COPY = {
   draftCleanupFailed: '无法清理草稿恢复备份。',
   draftMigrationFailed: '无法将草稿恢复备份迁移到当前会话。',
   draftRestoreFailed: '无法读取草稿恢复备份。',
-  draftRecoveryUnavailable: '可继续正常使用 MCode，重启后可能无法恢复未发送内容。',
+  draftRecoveryUnavailable: '可继续正常使用 Shards Code，重启后可能无法恢复未发送内容。',
   draftCleanupNextStep: '磁盘上可能仍保留旧草稿或附件备份。',
 } as const satisfies Readonly<Record<ComposerCopyKey, string>>;

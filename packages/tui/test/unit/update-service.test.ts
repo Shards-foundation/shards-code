@@ -5,9 +5,13 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { McodeUpdateService, type McodeUpdateDependencies } from '../../src/update/service.js';
+import {
+  McodeUpdateService,
+  resolveMcodeInstallRoot,
+  type McodeUpdateDependencies,
+} from '../../src/update/service.js';
 import { resolveMcodeNpmDistribution } from '../../src/update/install-source.js';
-import type { McodeReleaseManifestV1 } from '../../src/update/release.js';
+import { parseAndVerifyMcodeReleaseManifest, type McodeReleaseManifestV1 } from '../../src/update/release.js';
 
 const temporaryRoots: string[] = [];
 
@@ -15,6 +19,13 @@ function temporaryRoot(): string {
   const root = mkdtempSync(path.join(tmpdir(), 'mcode-update-test-'));
   temporaryRoots.push(root);
   return root;
+}
+
+function createTestUpdateService(options: ConstructorParameters<typeof McodeUpdateService>[0]) {
+  return new McodeUpdateService({
+    releaseBaseUrl: 'https://updates.example.invalid',
+    ...options,
+  });
 }
 
 function releaseFixture(version = '1.2.4', artifact = Buffer.from('signed artifact bytes')) {
@@ -47,8 +58,40 @@ function releaseFixture(version = '1.2.4', artifact = Buffer.from('signed artifa
     signature: sign(null, manifestBytes, privateKey).toString('base64'),
     publicKey: publicKey.export({ format: 'pem', type: 'spki' }).toString(),
     artifact,
+    privateKey,
   };
 }
+
+describe('signed release product identity', () => {
+  it('accepts Shards Code manifests while retaining legacy MiniMax manifests', () => {
+    const shards = releaseFixture();
+    const shardsManifest = { ...shards.manifest, product: 'shards-code' };
+    const shardsBytes = Buffer.from(`${JSON.stringify(shardsManifest, null, 2)}\n`);
+    const shardsSignature = sign(null, shardsBytes, shards.privateKey).toString('base64');
+    expect(
+      parseAndVerifyMcodeReleaseManifest(shardsBytes, shardsSignature, shards.publicKey),
+    ).toMatchObject({ product: 'shards-code' });
+
+    const legacy = releaseFixture();
+    expect(
+      parseAndVerifyMcodeReleaseManifest(legacy.manifestBytes, legacy.signature, legacy.publicKey),
+    ).toMatchObject({ product: 'minimax-code' });
+  });
+});
+
+describe('Shards Code install root', () => {
+  it('uses a Shards-specific default and honors the legacy override variable', () => {
+    const dataHome = process.platform === 'win32' ? 'C:\\Users\\demo\\AppData\\Local' : '/tmp/data';
+    const environment =
+      process.platform === 'win32' ? { LOCALAPPDATA: dataHome } : { XDG_DATA_HOME: dataHome };
+    expect(resolveMcodeInstallRoot(environment)).toBe(
+      path.join(dataHome, process.platform === 'win32' ? 'ShardsCode' : 'shards-code'),
+    );
+    expect(resolveMcodeInstallRoot({ MCODE_INSTALL_ROOT: '/custom/path' })).toBe(
+      path.resolve('/custom/path'),
+    );
+  });
+});
 
 afterEach(() => {
   for (const root of temporaryRoots.splice(0)) {
@@ -57,6 +100,22 @@ afterEach(() => {
 });
 
 describe('McodeUpdateService', () => {
+  it('requires a configured Shards release feed before making network requests', async () => {
+    const root = temporaryRoot();
+    const fetchBytes = vi.fn(async () => {
+      throw new Error('unexpected network request');
+    });
+    const service = new McodeUpdateService({
+      currentVersion: '1.2.3',
+      installRoot: root,
+      publicKey: releaseFixture().publicKey,
+      dependencies: { fetchBytes },
+    });
+
+    await expect(service.check()).rejects.toThrow(/Shards Code release feed is not configured/i);
+    expect(fetchBytes).not.toHaveBeenCalled();
+  });
+
   it
     .skipIf(process.platform !== 'win32')
     .each(['standard npm', 'custom npm wrapper', 'custom npm wrapper with adjacent CLI'])(
@@ -150,7 +209,7 @@ describe('McodeUpdateService', () => {
       const installRoot = path.join(root, '用户 files & (test)');
       mkdirSync(installRoot);
       writeFileSync(path.join(installRoot, 'current'), '1.2.3\n');
-      const service = new McodeUpdateService({
+      const service = createTestUpdateService({
         currentVersion: '1.2.3',
         installRoot,
         environment,
@@ -184,7 +243,7 @@ describe('McodeUpdateService', () => {
       try {
         const address = proxy.address();
         if (!address || typeof address === 'string') throw new Error('Expected TCP proxy');
-        const service = new McodeUpdateService({
+        const service = createTestUpdateService({
           currentVersion: '1.2.3',
           installRoot: temporaryRoot(),
           releaseBaseUrl: 'https://updates.example.invalid',
@@ -207,7 +266,7 @@ describe('McodeUpdateService', () => {
     const fetchBytes = vi.fn(async (url: string) =>
       url.endsWith('.sig') ? Buffer.from(fixture.signature) : fixture.manifestBytes,
     );
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -238,7 +297,7 @@ describe('McodeUpdateService', () => {
           throw failure;
         }),
       };
-      const service = new McodeUpdateService({
+      const service = createTestUpdateService({
         currentVersion: '1.2.3',
         installRoot: root,
         dependencies,
@@ -263,7 +322,7 @@ describe('McodeUpdateService', () => {
       installArtifact: vi.fn(async () => undefined),
       validateInstalledVersion: vi.fn(async () => undefined),
     };
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -280,7 +339,7 @@ describe('McodeUpdateService', () => {
     const fixture = releaseFixture();
     const installArtifact = vi.fn(async () => undefined);
     const validateInstalledVersion = vi.fn(async () => undefined);
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -312,7 +371,7 @@ describe('McodeUpdateService', () => {
     mkdirSync(root, { recursive: true });
     writeFileSync(path.join(root, 'current'), '1.2.3\n');
     const fixture = releaseFixture();
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -339,7 +398,7 @@ describe('McodeUpdateService', () => {
   it('requires the explicit --to option before downgrading from a channel', async () => {
     const root = temporaryRoot();
     const fixture = releaseFixture('1.2.2');
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -360,7 +419,7 @@ describe('McodeUpdateService', () => {
     const fixture = releaseFixture();
     const controller = new AbortController();
     const phases: string[] = [];
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -397,7 +456,7 @@ describe('McodeUpdateService', () => {
     writeFileSync(path.join(root, 'current'), '1.2.3\n');
     const fixture = releaseFixture();
     const controller = new AbortController();
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,
@@ -442,7 +501,7 @@ describe('McodeUpdateService', () => {
           finishInstall = resolve;
         }),
     );
-    const service = new McodeUpdateService({
+    const service = createTestUpdateService({
       currentVersion: '1.2.3',
       installRoot: root,
       publicKey: fixture.publicKey,

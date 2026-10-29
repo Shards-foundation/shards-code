@@ -121,7 +121,7 @@ export async function runTuiExecCommand(
         : new TuiExecError('runtime', error instanceof Error ? error.message : String(error), {
             cause: error,
           });
-    writeError(`mcode exec failed: ${formatTuiExecFailure(normalized)}\n`);
+    writeError(`Shards Code exec failed: ${formatTuiExecFailure(normalized)}\n`);
     processRef.exitCode = exitCodeForExecError(normalized);
   } finally {
     processRef.off('SIGINT', cancelInvocation);

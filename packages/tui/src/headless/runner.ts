@@ -399,7 +399,7 @@ export async function runTuiExec(
     exitCode = exitCodeForExecError(normalized);
     if (exitCode !== MINIMAX_CODE_EXEC_EXIT_CODES.brokenPipe) {
       diagnostics.push(
-        `mcode exec failed: ${formatTuiExecFailure(normalized)}\n`,
+        `Shards Code exec failed: ${formatTuiExecFailure(normalized)}\n`,
       );
     }
   } finally {
@@ -415,7 +415,7 @@ export async function runTuiExec(
         shutdownFailure = "Runtime shutdown did not complete cleanly.";
     } catch (error) {
       shutdownFailure = formatTuiActionFailure(error, {
-        summary: "mcode exec shutdown failed.",
+        summary: "Shards Code exec shutdown failed.",
         nextStep: "Verify no process is still running.",
       });
     }
@@ -458,7 +458,7 @@ export async function runTuiExec(
         exitCode = exitCodeForExecResult(terminal.result);
         if (terminal.result.status !== "succeeded") {
           diagnostics.push(
-            `mcode exec ${terminal.result.status}: ${formatTuiExecResultFailure(terminal.result)}\n`,
+            `Shards Code exec ${terminal.result.status}: ${formatTuiExecResultFailure(terminal.result)}\n`,
           );
         }
       } catch (error) {
@@ -466,7 +466,7 @@ export async function runTuiExec(
         exitCode = exitCodeForExecError(normalized);
         if (exitCode !== MINIMAX_CODE_EXEC_EXIT_CODES.brokenPipe) {
           diagnostics.push(
-            `mcode exec failed: ${formatTuiExecFailure(normalized)}\n`,
+            `Shards Code exec failed: ${formatTuiExecFailure(normalized)}\n`,
           );
         }
       }

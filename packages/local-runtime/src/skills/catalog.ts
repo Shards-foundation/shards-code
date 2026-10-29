@@ -2,7 +2,7 @@ import { createDefaultTokenEstimator, type TokenEstimator } from '@mavis/context
 
 export const LOCAL_SKILL_CATALOG_MAX_BUDGET_TOKENS = 5_000;
 export const LOCAL_SKILL_DESCRIPTION_MAX_CODE_POINTS = 1_024;
-const PROTECTED_SKILL_NAMES = new Set(['mcode-tools-master', 'minimax-code-product']);
+const PROTECTED_SKILL_NAMES = new Set(['mcode-tools-master', 'shards-code-product']);
 
 const PARTIAL_DESCRIPTION_NOTICE =
   'Skill descriptions were shortened to fit the catalog budget.';

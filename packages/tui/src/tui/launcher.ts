@@ -177,7 +177,7 @@ export async function launchTui(
     );
   }
   if (!options.terminal && (!process.stdin.isTTY || !process.stdout.isTTY)) {
-    throw new Error('Minimax Code interactive mode requires a TTY.');
+    throw new Error('Shards Code interactive mode requires a TTY.');
   }
 
   const homeDirectory = options.homeDir ?? homedir();
@@ -504,7 +504,7 @@ export async function launchTui(
         report: (error) => {
           try {
             process.stderr.write(
-              `Minimax Code TUI stopped unexpectedly: ${tuiErrorDiagnostic(error)}. Restart MCode; if it keeps happening, report it through an available support channel.\n`,
+              `Shards Code TUI stopped unexpectedly: ${tuiErrorDiagnostic(error)}. Restart Shards Code; if it keeps happening, include this message when opening a project issue.\n`,
             );
           } catch {
             // The terminal may already be disconnected.
@@ -889,7 +889,7 @@ export function resolveRestartArguments(
   }
   const entryFile = argv[1];
   if (!entryFile || !isExistingFile(entryFile)) {
-    throw new Error('Unable to restart MCode because its Node.js entry file is unavailable.');
+    throw new Error('Unable to restart Shards Code because its Node.js entry file is unavailable.');
   }
   return [entryFile, ...environmentArgs, ...systemPromptArgs, ...resumeArgs, ...promptArgs];
 }

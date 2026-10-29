@@ -39,22 +39,26 @@ export async function runMcodeUpdate(
   if (plan.kind === 'current') {
     write(
       plan.source === 'managed-installer'
-        ? `MCode ${plan.currentVersion} is current on ${plan.channel}.\n`
-        : `MCode ${plan.currentVersion} is current on @${plan.packageTag}.\n`,
+        ? `Shards Code ${plan.currentVersion} is current on ${plan.channel}.\n`
+        : `Shards Code ${plan.currentVersion} is current on @${plan.packageTag}.\n`,
     );
     return;
   }
   if (plan.kind === 'ahead') {
     write(
-      `MCode ${plan.currentVersion} is newer than ${
+      `Shards Code ${plan.currentVersion} is newer than ${
         plan.source === 'managed-installer' ? plan.channel : `@${plan.packageTag}`
       } ${plan.latestVersion}; no update was applied.\n`,
     );
     return;
   }
   if (plan.kind === 'manual') {
+    if (plan.source === 'managed-installer') {
+      write(`${plan.message}\n`);
+      return;
+    }
     write(
-      'MCode could not identify the owner of this installation. ' +
+      'Shards Code could not identify the owner of this installation. ' +
         `Update manually with:\n  ${plan.command}\n`,
     );
     return;
@@ -153,7 +157,7 @@ class McodeUpdateCliProgress {
     const outputActivity = this.latestOutputAtMs
       ? `; last output ${Math.max(0, Math.floor((Date.now() - this.latestOutputAtMs) / 1000))}s ago`
       : '; waiting for output';
-    const phase = this.phase ? phaseLabel(this.phase) : 'Updating MCode';
+    const phase = this.phase ? phaseLabel(this.phase) : 'Updating Shards Code';
     this.writePersistent(
       `${this.processLabel} is still running (${elapsedSeconds}s elapsed${outputActivity}) · ${phase}.`,
     );
@@ -170,7 +174,7 @@ class McodeUpdateCliProgress {
     const elapsed = elapsedSeconds > 0 ? ` · ${elapsedSeconds}s` : '';
     const phase = this.phase ? ` · ${phaseLabel(this.phase)}` : '';
     const output = this.latestOutput ? ` · ${this.latestOutput}` : '';
-    this.write(`\r\u001B[2K${frame} Updating MCode${phase}${elapsed}${output}`);
+    this.write(`\r\u001B[2K${frame} Updating Shards Code${phase}${elapsed}${output}`);
   }
 }
 
@@ -202,12 +206,12 @@ function renderAvailableUpdate(
 ): string {
   if (plan.kind === 'available') {
     return (
-      `MCode ${plan.latestVersion} is available on ${plan.channel} ` +
+      `Shards Code ${plan.latestVersion} is available on ${plan.channel} ` +
       `(current ${plan.currentVersion}).\n`
     );
   }
   return (
-    `MCode ${plan.latestVersion} is available on @${plan.packageTag} ` +
+    `Shards Code ${plan.latestVersion} is available on @${plan.packageTag} ` +
     `(current ${plan.currentVersion}, installed through ${plan.source.replace('-global', '')}).\n` +
     `Command: ${plan.command.display}\n`
   );

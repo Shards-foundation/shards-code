@@ -1,6 +1,6 @@
 # TUI capability coverage
 
-The current capability target is **TUI 0.6.3**; see [version and evidence baseline](open-source-status.md#version-and-evidence-baseline) for the separate workspace and embedded-tool versions. “Restored” below describes implementation and assembly, not acceptance of every account or online service.
+The root and TUI package versions in this source snapshot are **0.6.5**. This guide describes source-level behavior; see [verification records](verification.md) for checks run against the local Shards revision. Provider, account and online-service availability is not implied.
 
 ## Output speed
 
@@ -27,18 +27,18 @@ results remain reported when the TUI exits. Reports contain only `state`, `kind`
 `app`, and are sent on changes, without a heartbeat or capability query, as
 permitted by protocol revision 0.4. Supporting terminals decide how to display
 them; other terminals should ignore the sequence. The protocol treats each
-multiplexer pane as its own terminal, so MCode does not wrap reports for tmux
+multiplexer pane as its own terminal, so Shards Code does not wrap reports for tmux
 passthrough; the multiplexer must implement OSC 7501 for its panes. Redirected
 output, headless exec and ACP do not emit these reports. Set
 `tui.programStatus: false` to disable them. Existing title and notification
 settings remain independent of program status.
 
-Terminal titles show the current state, session name and MCode, for example
-`Needs approval | Fix login | MCode`, or `Needs login` while sign-in is required. Renaming or switching a session updates the
+Terminal titles show the current state, session name and Shards Code, for example
+`Needs approval | Fix login | Shards Code`, or `Needs login` while sign-in is required. Renaming or switching a session updates the
 title. Unnamed sessions use the project name and a short session ID. Titles are
-cleared when MCode exits or suspends and reapplied when it resumes.
+cleared when Shards Code exits or suspends and reapplied when it resumes.
 
-Configure these presentation settings in the MCode data directory's `config.yaml`:
+Configure these presentation settings in the Shards Code data directory's `config.yaml`:
 
 ```yaml
 tui:
@@ -54,7 +54,7 @@ Title items can be ordered or omitted; `project-name` is also available. Set
 `terminalTitle` to `null` or `[]` to disable title updates. Unknown items are ignored.
 Notification `when` accepts `unfocused`, `always` or `never`; `method` accepts
 `auto`, `osc9`, `osc777` or `bel`. Omitting `events` enables all four events; `[]`
-disables them. Apply configuration changes by restarting MCode.
+disables them. Apply configuration changes by restarting Shards Code.
 
 Notifications identify the session and suppress duplicates. Completion waits for
 the session's queue to finish; failed turns and requests for input can notify
@@ -64,7 +64,7 @@ Automatic delivery uses the detected terminal's notification protocol or falls
 back to a bell. The existing Windows toast bridge is restricted to local Windows
 or WSL interop. Terminal settings and OS notification permissions still apply.
 
-VS Code normally displays a process name in its terminal tabs. To display MCode's
+VS Code normally displays a process name in its terminal tabs. To display Shards Code's
 session titles, use this VS Code setting:
 
 ```json
@@ -77,24 +77,7 @@ terminal-tab indicator, not a guarantee of a desktop notification. See the
 Inside tmux, OSC notifications require passthrough and support from the outer
 terminal; use `method: bel` for a bell fallback.
 
-The evidence column summarizes the historical TUI 0.3.11 restoration record from 2026-09-11. It does not claim fresh TUI 0.6.3 live-service acceptance. Use [current verification status](verification.md#current-source-verification-status) for checks run against the updated source and explicit NOT RUN boundaries.
-
-| Capability | Implementation | Evidence |
-| --- | --- | --- |
-| MiniMax login, logout, Token Plan, quota, check-in | OAuth Core, account clients, and TUI / CLI entry points restored | Login-state, auth-command, check-in, provider, and ACP tests; production Token Plan session and resume passed |
-| BYOK / custom models | Retained; headless model overrides no longer inherit the default Token Plan login requirement | Local protocol server drives runtime, resume, and file tools; live BYOK session passed; managed models still reject unauthenticated requests |
-| mcode-tools | Public package's unchanged 0.0.4 artifact, launcher, and short-lived token leases restored | Archive SHA-512, CLI SHA-256, real CLI startup, lease and host integration tests; production shared-broker authentication passed |
-| Search and Matrix image / audio / video tools | Matrix MCP and tool assembly restored; search is independent of mcode-tools | MCP configuration and auth-isolation tests; actual search passed; generation requests not run |
-| Official and local plugins; runtime GitHub importer | `/plugins` and `mcode plugin` manage official installations and discovered local packages; arbitrary marketplace registration and GitHub URL import are not exposed in the CLI/TUI. See [plugin management](examples.md#4-manage-plugins) | Plugin application, source-page, and offline local CLI tests; actual official catalog read passed |
-| Managed connectors | Cloud client, permissions, and invocation adapters restored | Connector runtime and cloud transport tests; actual tool discovery passed; business writes not run |
-| Updates | Update entry points, install-source detection, and signature verification restored; public packages use public npm | Update application and service tests; no real installation / upgrade on the development machine |
-| Feedback and diagnostic uploads | Reviewed feedback text and minimized diagnostic summaries | Synthetic fixtures exercise session collection and capture/decode the final ZIP upload; no live uploads or real content |
-| Automatic LLM error reports | Disabled by default; requires `telemetry.diagnostics` opt-in; bounded diagnostic facts minimized before encryption | Synthetic provider errors and native Headers; final HTTP batches captured and decrypted locally |
-| Telemetry | Usage, metrics, and diagnostics each disabled by default with separate opt-ins; `MCODE_DISABLE_TELEMETRY` / `DO_NOT_TRACK` override all channels; usage-event identifiers removed | Privacy regression tests intercept and decode requests locally; no live upload |
-| Auto permissions | Cloud classifier restored; local rules and confirmation on failure retained | Classifier client, permission facade, and sandbox tests |
-| Model catalog | Online catalog and bundled snapshot fallback restored | Actual build boundary checks and offline startup; online catalog contents not accepted |
-| Files, shell, subagents, sessions, headless, ACP | Actual runtime retained | BYOK, file reads, session resume, ACP, sandbox, and status protocol tests |
-| Built-in skills, MCP, plugin tools | Original TUI assets and activation conditions retained | Asset build, plugin, and MCP tests; no claim that every skill has passed a real task |
+The descriptions below explain behavior present in the source; they are not a historical upstream release audit or a live-service acceptance record. Automatic telemetry, diagnostics and feedback-upload pathways are under review separately because they target MiniMax-operated product services rather than model-provider APIs. See [release audit status](release-audit.md) and [verification records](verification.md).
 
 ## Model request timeouts
 
@@ -133,7 +116,7 @@ value and the built-in trigger, so the setting can start compaction earlier but
 never later, and has no lower bound: a value below what remains after compaction
 compacts before every request. Other values, such as `1.5`, are ignored with a
 warning in the runtime log. Automatic compaction cannot be disabled; `/compact`
-remains available at any time. Apply changes by restarting MCode.
+remains available at any time. Apply changes by restarting Shards Code.
 
 ## Local Bash execution
 
@@ -234,19 +217,19 @@ The regression tests use temporary synthetic data and intercepted HTTP only. The
 
 ## Launch-scoped system prompt overrides
 
-The interactive TUI, `exec`, `exec review`, and `mcode acp` can replace or extend the main Agent identity prompt:
+The interactive TUI, `exec`, `exec review`, and `shards-code acp` can replace or extend the main Agent identity prompt:
 
 ```bash
 # Replace the identity section; runtime rules, project instructions, Environment, Memory, and Skills stay
-mcode --system-prompt-file ./identity.md
+shards-code --system-prompt-file ./identity.md
 
 # Append text after the identity section
-mcode exec --append-system-prompt "List the files you will change first." "Complete this task."
+shards-code exec --append-system-prompt "List the files you will change first." "Complete this task."
 ```
 
 Use either `--system-prompt` or `--system-prompt-file`, and either `--append-system-prompt` or
 `--append-system-prompt-file`; replace and append can be combined. Each form is one slot, and the
-slot written closest to the subcommand wins: `mcode --system-prompt-file a.md exec --system-prompt "..."`
+slot written closest to the subcommand wins: `shards-code --system-prompt-file a.md exec --system-prompt "..."`
 uses the inline text and does not read `a.md`. The flags are also accepted before `exec`, `exec review`,
 or `acp`. Other subcommands, such as `login` or `init`, reject them instead of ignoring them.
 
@@ -269,8 +252,8 @@ failed-run path.
 
 ## Interactive startup model
 
-Use `mcode -m <provider-id>/<model-id>` or
-`mcode "Fix the failing tests" --model <provider-id>/<model-id>` to select the
+Use `shards-code -m <provider-id>/<model-id>` or
+`shards-code "Fix the failing tests" --model <provider-id>/<model-id>` to select the
 model for the startup Session. References use the same syntax as `exec --model`,
 including `custom_provider:<id>/<model-id>`, model IDs containing `/`, and the
 optional `#variant` suffix. The provider must already be configured and the model
@@ -322,7 +305,7 @@ final. If they do not fit, the screen shows their latest rows under a
 `↑ N more lines above · still updating` line, and the full rows enter history in
 order once final. Long turns extend their visible steps instead of re-folding or
 dropping earlier steps, so ordinary progress never needs reconstruction. To keep
-long sessions responsive, MCode stops retaining final rows that are far above
+long sessions responsive, Shards Code stops retaining final rows that are far above
 the screen; they remain in the terminal's own scrollback. A later reconstruction,
 such as after a resize, redraws only the retained recent rows.
 

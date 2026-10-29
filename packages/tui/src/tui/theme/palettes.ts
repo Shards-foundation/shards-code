@@ -21,7 +21,7 @@ function palette(
 }
 
 /**
- * Default MCode palette. The values are frozen in place so a theme switch can
+ * Default Shards Code palette. The values are frozen in place so a theme switch can
  * never mutate a palette another theme still references.
  */
 export const MINIMAX_CODE_DARK_THEME = palette(
@@ -90,7 +90,7 @@ export function defaultPalette(appearance: TuiResolvedAppearance) {
 // ---------------------------------------------------------------------------
 
 /**
- * Midnight keeps the MCode blue but deepens the background toward a blue-black
+ * Midnight keeps the Shards Code blue but deepens the background toward a blue-black
  * and lifts foreground contrast, which suits high-DPI and OLED terminals.
  */
 const MIDNIGHT: TuiThemeDefinition = Object.freeze({
@@ -370,8 +370,8 @@ export const DEFAULT_THEME_ID = 'minimax';
  */
 export const DEFAULT_THEME: TuiThemeDefinition = Object.freeze({
   id: MINIMAX_CODE_DARK_THEME.id,
-  label: 'MCode',
-  description: 'The default MCode blue palette',
+  label: 'Shards Code',
+  description: 'The default Shards Code blue palette',
   source: 'builtin',
   dark: MINIMAX_CODE_DARK_THEME,
   light: MINIMAX_CODE_LIGHT_THEME,

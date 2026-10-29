@@ -99,7 +99,7 @@ export class QuestionnaireContinuation {
     if (!finished) {
       this.updateTranscript(questionnaire.request.id, {
         status: 'resolved',
-        detail: 'Answer sent · MCode is continuing…',
+        detail: 'Answer sent · Shards Code is continuing…',
         updatedAtMs: Date.now(),
       });
     }

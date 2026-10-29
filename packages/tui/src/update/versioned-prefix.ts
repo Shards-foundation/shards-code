@@ -69,7 +69,7 @@ export function acquireMcodeVersionedPrefixUpdateLock(activePrefix: string): () 
             (claim.pid < process.pid ||
               (claim.pid === process.pid && claim.name.localeCompare(claimName) < 0)))),
     );
-    if (blocked) throw new Error('Another MCode update is already running.');
+    if (blocked) throw new Error('Another Shards Code update is already running.');
   } catch (error) {
     rmSync(claimFile, { force: true });
     throw error;
@@ -134,7 +134,7 @@ function readExpectedMetadata(
   const metadata = readMcodePrefixPackageMetadata(prefix, activation.packageName, platform);
   if (metadata.version !== activation.expectedVersion) {
     throw new Error(
-      `MCode release contains ${metadata.version}; expected ${activation.expectedVersion}.`,
+      `Shards Code release contains ${metadata.version}; expected ${activation.expectedVersion}.`,
     );
   }
   return metadata;
@@ -154,7 +154,7 @@ function assertVersionedRelease(
   );
   for (const [file, contents] of expected) {
     if (readFileSync(file, 'utf8') !== contents) {
-      throw new Error(`MCode release launcher is invalid: ${file}`);
+      throw new Error(`Shards Code release launcher is invalid: ${file}`);
     }
   }
 }
@@ -184,11 +184,11 @@ function versionedReleaseLauncherContents(
   const platformPath = platformPathFor(platform);
   const launchers = new Map<string, string>();
   if (!existsSync(runtimeExecutable)) {
-    throw new Error('MCode versioned launcher runtime is missing.');
+    throw new Error('Shards Code versioned launcher runtime is missing.');
   }
   for (const command of versionedCommands(metadata)) {
     if (!command.binEntry) {
-      throw new Error(`MCode versioned ${command.name} package entry is missing.`);
+      throw new Error(`Shards Code versioned ${command.name} package entry is missing.`);
     }
     const entryFile = platformPath.join(metadata.packageRoot, ...command.binEntry.split('/'));
     const relativeEntry = platformPath.relative(releasePrefix, entryFile);
@@ -198,7 +198,7 @@ function versionedReleaseLauncherContents(
       platformPath.isAbsolute(relativeEntry) ||
       !existsSync(entryFile)
     ) {
-      throw new Error(`MCode versioned ${command.name} launcher path is invalid.`);
+      throw new Error(`Shards Code versioned ${command.name} launcher path is invalid.`);
     }
 
     if (platform === 'win32') {
@@ -215,7 +215,7 @@ function versionedReleaseLauncherContents(
 
     launchers.set(
       platformPath.join(releasePrefix, command.releaseLauncher),
-      `#!/bin/sh\nset -eu\nroot=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)\nnode=${quoteShell(runtimeExecutable)}\nif [ ! -x "$node" ]; then\n  printf "%s\\n" "MCode: Node runtime is missing: $node" "MCode: a system upgrade such as brew upgrade may have removed it." "MCode: re-run the MCode installer to repair this installation." >&2\n  exit 127\nfi\nexec "$node" "$root/${escapeDoubleQuoted(relativeEntry)}" "$@"\n`,
+      `#!/bin/sh\nset -eu\nroot=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)\nnode=${quoteShell(runtimeExecutable)}\nif [ ! -x "$node" ]; then\n  printf "%s\\n" "Shards Code: Node runtime is missing: $node" "Shards Code: a system upgrade such as brew upgrade may have removed it." "Shards Code: re-run the Shards Code installer to repair this installation." >&2\n  exit 127\nfi\nexec "$node" "$root/${escapeDoubleQuoted(relativeEntry)}" "$@"\n`,
     );
   }
   return launchers;
@@ -252,7 +252,7 @@ function versionedRootLauncherContents(
       );
       launchers.set(
         platformPath.join(activePrefix, `${command.name}.ps1`),
-        `#!/usr/bin/env pwsh\r\n$release = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'current') -Raw).Trim()\r\nif ($release -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') { throw 'Invalid MCode current release pointer.' }\r\n& (Join-Path $PSScriptRoot "releases\\$release\\${command.releaseLauncher}.ps1") @args\r\nexit $LASTEXITCODE\r\n`,
+        `#!/usr/bin/env pwsh\r\n$release = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'current') -Raw).Trim()\r\nif ($release -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') { throw 'Invalid Shards Code current release pointer.' }\r\n& (Join-Path $PSScriptRoot "releases\\$release\\${command.releaseLauncher}.ps1") @args\r\nexit $LASTEXITCODE\r\n`,
       );
     }
     return launchers;
@@ -260,15 +260,15 @@ function versionedRootLauncherContents(
   for (const command of versionedCommands()) {
     launchers.set(
       platformPath.join(activePrefix, 'bin', command.name),
-      `#!/bin/sh\nset -eu\nroot=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)\nrelease=$(tr -d "\\r\\n" < "$root/current")\ncase "$release" in ""|*[!0-9A-Za-z._-]*) echo "Invalid MCode current release pointer." >&2; exit 1;; esac\nexec "$root/releases/$release/${command.releaseLauncher}" "$@"\n`,
+      `#!/bin/sh\nset -eu\nroot=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)\nrelease=$(tr -d "\\r\\n" < "$root/current")\ncase "$release" in ""|*[!0-9A-Za-z._-]*) echo "Invalid Shards Code current release pointer." >&2; exit 1;; esac\nexec "$root/releases/$release/${command.releaseLauncher}" "$@"\n`,
     );
   }
   return launchers;
 }
 
 interface McodeVersionedCommand {
-  readonly name: 'mcode' | 'mcode-tools';
-  readonly releaseLauncher: '.mcode-launcher' | '.mcode-tools-launcher';
+  readonly name: 'shards-code' | 'mcode' | 'mcode-tools';
+  readonly releaseLauncher: '.shards-code-launcher' | '.mcode-launcher' | '.mcode-tools-launcher';
   readonly binEntry?: string;
 }
 
@@ -280,6 +280,11 @@ function versionedCommands(
       name: 'mcode',
       releaseLauncher: '.mcode-launcher',
       ...(metadata ? { binEntry: metadata.binEntry } : {}),
+    },
+    {
+      name: 'shards-code',
+      releaseLauncher: '.shards-code-launcher',
+      ...(metadata ? { binEntry: metadata.shardsCodeBinEntry } : {}),
     },
     {
       name: 'mcode-tools',
@@ -296,7 +301,7 @@ function writeVersionedInstallReceipt(
   const platformPath = platformPathFor(platform);
   const receipt = {
     schemaVersion: 2,
-    product: 'minimax-code',
+    product: activation.packageName === '@shards-foundation/shards-code' ? 'shards-code' : 'minimax-code',
     updateOwner: 'npm-prefix',
     packageManager: 'npm',
     packageName: activation.packageName,

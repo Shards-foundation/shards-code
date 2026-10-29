@@ -15,7 +15,7 @@ jobs:
   label-product:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    if: ${{ github.repository == 'MiniMax-AI/minimax-code' && github.event.repository.private == false && !github.event.issue.pull_request }}
+    if: ${{ github.repository == 'Shards-foundation/shards-code' && github.event.repository.private == false && !github.event.issue.pull_request }}
     steps:
       - name: Synchronize product labels
         env:
@@ -47,21 +47,20 @@ jobs:
             const body = (issue.body || '').replace(/\r\n/g, '\n');
             const product = body.match(/^### Product or interface\n+([^\n]+)\n*(?=### |$)/m)?.[1].trim();
             const products = new Map([
-              ['Desktop app', 'desktop'],
-              ['CLI - interactive TUI', 'tui'],
-              ['CLI - headless', null],
-              ['CLI - ACP', null],
-              ['Source build or repository tooling', null],
+              ['CLI - interactive TUI', ['cli', 'tui']],
+              ['CLI - headless', ['cli']],
+              ['CLI - ACP', ['cli']],
+              ['Source build or repository tooling', ['cli']],
             ]);
             // Leave manually triaged issues alone when no valid form answer exists.
             if (!products.has(product)) return;
             const desired = products.get(product);
             const labels = issue.labels.map(label => label.name);
-            if (desired && !labels.includes(desired)) {
-              await request(`${issuePath}/labels`, 'POST', { labels: [desired] });
+            for (const label of desired) {
+              if (!labels.includes(label)) await request(`${issuePath}/labels`, 'POST', { labels: [label] });
             }
-            for (const label of ['desktop', 'tui']) {
-              if (label !== desired && labels.includes(label)) {
+            for (const label of ['desktop', 'cli', 'tui']) {
+              if (!desired.includes(label) && labels.includes(label)) {
                 await request(`${issuePath}/labels/${label}`, 'DELETE');
               }
             }

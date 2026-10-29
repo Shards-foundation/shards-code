@@ -22,7 +22,7 @@ export async function extractSourceArchive(
       const parts = name.split("/");
       const key = process.platform === "win32" ? name.toLowerCase() : name;
       if (
-        parts[0] !== "minimax-code" ||
+        parts[0] !== "shards-code" ||
         parts.some((p) => !p || p === "." || p === ".." || p === ".git") ||
         /[\\:\x00]/u.test(name) ||
         !["File", "Directory"].includes(entry.type) ||

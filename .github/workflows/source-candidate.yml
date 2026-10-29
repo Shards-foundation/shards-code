@@ -32,8 +32,8 @@ jobs:
         shell: bash
         run: |
           mkdir "$RUNNER_TEMP/candidate"
-          node scripts/export-source-preview.mjs --out "$RUNNER_TEMP/candidate/minimax-code-source.tar.gz"
-          node scripts/source-candidate.mjs unpack --archive "$RUNNER_TEMP/candidate/minimax-code-source.tar.gz" --revision "$REVISION" --destination "$RUNNER_TEMP/source-audit"
+          node scripts/export-source-preview.mjs --out "$RUNNER_TEMP/candidate/shards-code-source.tar.gz"
+          node scripts/source-candidate.mjs unpack --archive "$RUNNER_TEMP/candidate/shards-code-source.tar.gz" --revision "$REVISION" --destination "$RUNNER_TEMP/source-audit"
         env:
           REVISION: ${{ env.MCODE_CANDIDATE_REVISION }}
       - uses: ./.github/actions/setup-gitleaks
@@ -74,15 +74,15 @@ jobs:
           path: ${{ runner.temp }}/candidate
       - name: Authenticate and unpack into a fresh directory
         shell: bash
-        run: node scripts/source-candidate.mjs unpack --archive "$RUNNER_TEMP/candidate/minimax-code-source.tar.gz" --revision "$REVISION" --destination "$RUNNER_TEMP/candidate-source"
+        run: node scripts/source-candidate.mjs unpack --archive "$RUNNER_TEMP/candidate/shards-code-source.tar.gz" --revision "$REVISION" --destination "$RUNNER_TEMP/candidate-source"
         env:
           REVISION: ${{ env.MCODE_CANDIDATE_REVISION }}
       - name: Cold install from the exported source
-        working-directory: ${{ runner.temp }}/candidate-source/minimax-code
+        working-directory: ${{ runner.temp }}/candidate-source/shards-code
         shell: bash
         run: pnpm install --frozen-lockfile --store-dir "$RUNNER_TEMP/candidate-store" --registry https://registry.npmjs.org/
       - name: Verify the exported source
-        working-directory: ${{ runner.temp }}/candidate-source/minimax-code
+        working-directory: ${{ runner.temp }}/candidate-source/shards-code
         run: pnpm verify --profile archive
         env:
           MCODE_VERIFY_REPORT_DIR: ${{ runner.temp }}/candidate-report
@@ -92,7 +92,7 @@ jobs:
       - name: Scan the candidate Linux distribution
         if: runner.os == 'Linux'
         shell: bash
-        run: gitleaks dir "$RUNNER_TEMP/candidate-source/minimax-code/dist" --redact --config .gitleaks.toml
+        run: gitleaks dir "$RUNNER_TEMP/candidate-source/shards-code/dist" --redact --config .gitleaks.toml
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ always() }}
         timeout-minutes: 2
@@ -125,7 +125,7 @@ jobs:
           path: ${{ runner.temp }}/candidate/reports
       - name: Require matching Linux and macOS validation reports
         shell: bash
-        run: node scripts/source-candidate.mjs finalize --archive "$RUNNER_TEMP/candidate/minimax-code-source.tar.gz" --revision "$REVISION" --reports "$RUNNER_TEMP/candidate/reports"
+        run: node scripts/source-candidate.mjs finalize --archive "$RUNNER_TEMP/candidate/shards-code-source.tar.gz" --revision "$REVISION" --reports "$RUNNER_TEMP/candidate/reports"
         env:
           REVISION: ${{ env.MCODE_CANDIDATE_REVISION }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

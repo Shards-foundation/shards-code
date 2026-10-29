@@ -99,8 +99,8 @@ export class TuiPermissionPicker implements Component, Focusable {
         value: 'deny',
         label:
           request.allowAlwaysSupported === false
-            ? '2 Deny and guide MCode'
-            : '3 Deny and guide MCode',
+            ? '2 Deny and guide Shards Code'
+            : '3 Deny and guide Shards Code',
       },
     ];
     this.decisions = decisions.map((item) => item.value);
@@ -311,7 +311,7 @@ export class TuiPermissionPicker implements Component, Focusable {
         evidence: context.lines,
         trailing: [
           '',
-          chalk.hex(colors.muted)('Add guidance for MCode, or leave this blank.'),
+          chalk.hex(colors.muted)('Add guidance for Shards Code, or leave this blank.'),
           ...this.denyInput
             .render(Math.max(1, contentWidth))
             .map((line) => fitLine(line, contentWidth)),
@@ -497,7 +497,7 @@ function formatPendingPermissionDecision(decision: TuiPermissionDecision): strin
 function permissionDecisionDetail(decision: TuiPermissionDecision): string {
   if (decision === 'allowAlways') return 'Review the exact saved scope next';
   if (decision === 'deny') return 'Add guidance before denying this action';
-  return 'MCode asks again in a new conversation';
+  return 'Shards Code asks again in a new conversation';
 }
 
 function permissionSelectTheme(): SelectListTheme {
@@ -531,7 +531,7 @@ function fitPermissionDecisionLabel(
             `${prefix} Always allow matching`,
             `${prefix} Always allow`,
           ]
-        : [`${prefix} Deny and guide MCode`, `${prefix} Deny and guide`, `${prefix} Deny`];
+        : [`${prefix} Deny and guide Shards Code`, `${prefix} Deny and guide`, `${prefix} Deny`];
   return (
     candidates.find((candidate) => visibleWidth(candidate) <= width) ??
     truncateToWidth(candidates.at(-1) ?? prefix, Math.max(1, width), '')

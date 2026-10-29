@@ -1,21 +1,18 @@
 # Security
 
-This project is a source preview. Maintainers prioritize security issues on the default branch; no support period for older versions or response SLA has been committed.
+Shards Code is an independent fork and is not affiliated with or endorsed by MiniMax. This source snapshot does not define a Shards security inbox or promise a response time. Do not send vulnerability details to MiniMax or publish exploit details, credentials, or real user data in a public issue.
 
-Report vulnerabilities privately by emailing [security.mcode@minimax.io](mailto:security.mcode@minimax.io). You can send reproduction details and redacted evidence directly to this address without opening a public issue first. Do not put credentials, exploit details, or real user data in public issues or community chats.
+If GitHub's **Private vulnerability reporting** feature is enabled for the Shards Code repository, use that private channel. If it is unavailable, ask the repository owner for a private reporting route before sharing sensitive details. The owner should configure and test a private reporting channel before advertising a public release. No response SLA is currently promised.
 
-If **Security → Advisories → Report a vulnerability** is available on GitHub, you can also use that private reporting channel. If it is unavailable, use the security email above.
-
-The release coordinator, @hetaoBackend, coordinates security triage; see [Maintainers](docs/maintainers.md). No response SLA is currently promised.
-
-Include the affected version, operating system and Node.js version, a minimal reproduction, expected and actual permission boundaries, and necessary redacted evidence. Use synthetic files and dedicated test accounts; do not test other people's accounts or infrastructure.
+Include the affected revision, operating system and Node.js version, a minimal reproduction, the expected and actual permission boundaries, and only necessary redacted evidence. Use synthetic files and dedicated test accounts; do not test other people's accounts or infrastructure.
 
 ## Data and service boundaries
 
-- The active data directory stores login state, provider configuration (including API keys in `config.yaml`), and sessions. Builds from this repository and the published npm CLI `@minimax-ai/code@0.6.9` default to `~/.minimax` (or `~/.minimax-<profile>` when a profile is selected). Environment overrides can select another directory. Follow [Accounts and data](docs/installation.md#accounts-and-data) to identify it; the installer location alone does not identify stored credentials. Restrict local access to every data directory you have used and keep them out of Git, including old profiles. They are not shareable project configuration.
-- Models, official plugins, connectors, search, media, feedback, and telemetry may contact external services. Those services continue to control authorization and credits; source access does not grant access to accounts or third-party resources.
-- mcode-tools obtains short-lived access tokens through the host's lease broker. Never pass refresh tokens to tool processes.
-- Permissions and sandboxing do not replace review of untrusted plugins, MCP servers, and shell commands. If automatic permission classification is unavailable, retain user confirmation rather than allowing operations by default.
+- The default account-data directory remains `~/.minimax` for compatibility and can contain login state, provider configuration (including API keys in `config.yaml`), caches and sessions. Environment overrides and profiles may select another location. Follow [Accounts and data](docs/installation.md#minimax-account-and-api-compatibility) to identify it; installation directories do not identify stored credentials. Restrict local access to every data directory you have used and keep them out of Git.
+- MiniMax models, account features and API endpoints remain provider integrations. Requests to those services are governed by MiniMax's terms and authorization; source access does not grant an account or third-party resources.
+- Models, plugins, connectors, search, media, feedback and telemetry may contact external services. Review the configured destination and data flow before enabling an integration.
+- `mcode-tools` obtains short-lived access tokens through the host's lease broker. Never pass refresh tokens to tool processes.
+- Permissions and sandboxing do not replace review of untrusted plugins, MCP servers and shell commands. If automatic permission classification is unavailable, retain user confirmation rather than allowing operations by default.
 - If credentials leak, revoke or rotate them with the service first, then remediate files and Git history. Deleting the current file does not remove historical copies.
 
-Scan source, Git history, and build artifacts separately. A passing scan does not guarantee the absence of unknown vulnerabilities.
+Scan source, Git history and build artifacts separately. A passing scan does not guarantee the absence of unknown vulnerabilities.

@@ -248,7 +248,7 @@ export class TuiQuestionnairePicker implements Component, Focusable {
           meta: progressMeta,
           body: [
             chalk.bold.hex(colors.text)('Sending answers…'),
-            chalk.hex(colors.muted)('Waiting for MiniMax Code to continue the conversation.'),
+            chalk.hex(colors.muted)('Waiting for Shards Code to continue the conversation.'),
           ],
         },
         safeWidth,
@@ -263,7 +263,7 @@ export class TuiQuestionnairePicker implements Component, Focusable {
           body: [
             chalk.bold.hex(colors.text)('Closing question…'),
             fitLine(
-              chalk.hex(colors.muted)('Waiting for MiniMax Code to dismiss the pending request.'),
+              chalk.hex(colors.muted)('Waiting for Shards Code to dismiss the pending request.'),
               contentWidth,
             ),
           ],

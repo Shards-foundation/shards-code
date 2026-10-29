@@ -608,7 +608,7 @@ export async function createTuiRuntime(
     if (cleanupFailures.length > 0) {
       throw new AggregateError(
         [error, ...cleanupFailures],
-        'Minimax Code Runtime startup cleanup failed.',
+        'Shards Code runtime startup cleanup failed.',
       );
     }
     throw error;

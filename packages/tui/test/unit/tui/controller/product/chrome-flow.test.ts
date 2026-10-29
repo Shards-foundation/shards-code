@@ -263,7 +263,7 @@ describe("TuiChromeFlow agent status sequence", () => {
 
     flow.update(snapshot("session-1"));
     flow.update(snapshot("session-1"));
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Ready | workspace (session-) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Ready | workspace (session-) | Shards Code");
     expect(shells.at(-1)).toMatchObject({
       agentSeq: "0",
       agentStatus: "ready",
@@ -298,7 +298,7 @@ describe("TuiChromeFlow agent status sequence", () => {
       activeTurnId: "turn-1",
     };
     flow.update(interactingSnapshot);
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Needs approval | workspace (session-) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Needs approval | workspace (session-) | Shards Code");
     expect(setProgramStatus).toHaveBeenLastCalledWith("perm");
     expect(shells.at(-1)).toMatchObject({
       agentSeq: "4",
@@ -309,7 +309,7 @@ describe("TuiChromeFlow agent status sequence", () => {
     interaction = { ...interaction, submitting: true };
     flow.update(interactingSnapshot);
     flow.update(interactingSnapshot);
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Working | workspace (session-) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Working | workspace (session-) | Shards Code");
     expect(setProgramStatus).toHaveBeenLastCalledWith("run");
     expect(shells.at(-1)).toMatchObject({
       agentSeq: "5",
@@ -353,7 +353,7 @@ describe("TuiChromeFlow agent status sequence", () => {
       agentStatus: "done",
       agentRunId: "turn-queued",
     });
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Done | workspace (session-) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Done | workspace (session-) | Shards Code");
 
     flow.update({
       ...snapshot("session-2"),
@@ -389,7 +389,7 @@ describe("TuiChromeFlow agent status sequence", () => {
     // The machine line keeps its fatal-error contract; human-facing outputs say why.
     expect(shells.at(-1)).toMatchObject({ agentStatus: "error" });
     expect(shells.at(-1)?.agentRunId).toBeUndefined();
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Needs login | workspace (session-) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Needs login | workspace (session-) | Shards Code");
     const authenticated = {
       ...snapshot("session-3"),
       account: {
@@ -401,7 +401,7 @@ describe("TuiChromeFlow agent status sequence", () => {
     flow.update(authenticated);
     expect(setProgramStatus).toHaveBeenLastCalledWith("ready");
     expect(shells.at(-1)).toMatchObject({ agentStatus: "ready" });
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Ready | workspace (session-) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Ready | workspace (session-) | Shards Code");
     flow.update({ ...authenticated, status: "running", activeTurnId: "after-login" });
     expect(setProgramStatus).toHaveBeenLastCalledWith("run");
     flow.update({
@@ -422,6 +422,6 @@ describe("TuiChromeFlow agent status sequence", () => {
       account: { status: "needs-login", authMode: "managed-login" } as TuiChatSnapshot["account"],
     });
     expect(setProgramStatus).toHaveBeenLastCalledWith("error");
-    expect(setTerminalTitle).toHaveBeenLastCalledWith("Error | workspace (fatal-se) | MCode");
+    expect(setTerminalTitle).toHaveBeenLastCalledWith("Error | workspace (fatal-se) | Shards Code");
   });
 });

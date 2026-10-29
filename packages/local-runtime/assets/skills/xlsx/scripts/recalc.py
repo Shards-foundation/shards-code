@@ -1,6 +1,6 @@
 """xlsx formula recalculation using LibreOffice and openpyxl, returning a JSON error list.
 
-Part of the MiniMax xlsx skill (MIT). See LICENSE for terms.
+Part of the Shards Code xlsx skill (MIT). See LICENSE for terms.
 
 The CLI retains the upstream contract:
 

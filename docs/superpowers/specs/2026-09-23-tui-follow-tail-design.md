@@ -1,7 +1,7 @@
 # TUI Follow-Tail Preservation Design
 
 Date: 2026-09-23
-Issue: https://github.com/MiniMax-AI/minimax-code/issues/320
+Project context: preserved as a technical design note for the Shards Code TUI; no upstream issue tracker is used for Shards support.
 
 ## Summary
 

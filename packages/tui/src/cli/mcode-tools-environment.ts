@@ -45,7 +45,7 @@ export function activateTuiMcodeToolsHostEnvironment(
   },
 ): TuiMcodeToolsHostEnvironmentActivation {
   if (!path.isAbsolute(options.runtimeExecutable)) {
-    throw new Error('The MCode mcode-tools runtime executable must be absolute.');
+    throw new Error('The Shards Code mcode-tools runtime executable must be absolute.');
   }
   const assigned: ProcessEnvironment = {
     [HOST_ENVIRONMENT_KEYS.runtimeExecutable]: options.runtimeExecutable,
@@ -101,7 +101,7 @@ export function configureMcodeToolsChildEnvironment(
   const hostValues = [runtimeExecutable, brokerEndpoint, brokerCapabilityFile, configDir, region];
   if (hostValues.every((value) => !value)) return false;
   if (hostValues.some((value) => !value) || (region !== 'cn' && region !== 'en')) {
-    throw new Error('The MCode mcode-tools host environment is incomplete. Restart MCode.');
+    throw new Error('The Shards Code mcode-tools host environment is incomplete. Restart Shards Code.');
   }
 
   stripRuntimeBoundaryKeysFrom(environment, 'agent-runtime');

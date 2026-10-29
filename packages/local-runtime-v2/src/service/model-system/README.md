@@ -11,7 +11,7 @@ preparation 接收该 resolver，Session 建立后再组装 `ModelProviderApplic
 DTO 映射、AgentHost lifecycle 和 Session persistence 仍由各自边界持有。
 
 OpenRouter 使用官方 `https://openrouter.ai` endpoint 时，Model
-System 会在真实推理、连接测试和模型发现请求中统一加入 MiniMax Code 的 app attribution
+System 会在真实推理、连接测试和模型发现请求中统一加入 Shards Code 的 app attribution
 headers：`HTTP-Referer`、`X-OpenRouter-Title` 和
 `X-OpenRouter-Categories`。这些产品身份字段由 Runtime 按 header
 name 大小写不敏感地覆盖，用户自定义 Provider headers 不能改变归因身份；其他 endpoint 不受影响。
@@ -65,7 +65,7 @@ Official OpenCode Go HTTPS endpoints under `https://opencode.ai/zen/go` receive 
 `AuthStorage` 的刷新机制和宿主 `fetch`，请求
 `https://chatgpt.com/backend-api/codex/models?client_version=0.162.0`。
 `connectivity/codex-model-discovery.ts` 负责这个独立的 Codex 协议。兼容版本来自已验证的
-Codex 客户端协议，与 MiniMax Code 产品版本独立；模型 ID 和思考等级由响应提供。OAuth 解析复用可配置思考协议，将远端等级原样映射到请求；
+Codex 客户端协议，与 Shards Code 产品版本独立；模型 ID 和思考等级由响应提供。OAuth 解析复用可配置思考协议，将远端等级原样映射到请求；
 `ultra` 等新增等级不依赖 Pi 的静态等级枚举。
 
 只导入 `visibility=list` 的模型，ChatGPT OAuth 不用 `supported_in_api` 过滤。模型名称、

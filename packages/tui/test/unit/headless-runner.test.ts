@@ -478,7 +478,7 @@ describe('runTuiExec', () => {
       status: 'failed',
       error: { code: 'REVIEW_RESULT_INVALID' },
     });
-    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('mcode exec failed'));
+    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('Shards Code exec failed'));
   });
 
   it('writes the raw final message and reports durable per-Turn model and usage facts', async () => {
@@ -607,7 +607,7 @@ describe('runTuiExec', () => {
     expect(runtime.createSession).not.toHaveBeenCalled();
     expect(runtime.sendMessage).not.toHaveBeenCalled();
     expect(stderr).toHaveBeenCalledWith(
-      'mcode exec failed: Sign in to MiniMax to use Agent features. Run `mcode login`, then retry.\n',
+      'Shards Code exec failed: Sign in to MiniMax to use Agent features. Run `shards-code login`, then retry.\n',
     );
   });
 

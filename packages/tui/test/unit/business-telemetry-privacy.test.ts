@@ -9,8 +9,13 @@ import {
 import { createTuiProgram } from '../../src/cli/program.js';
 import { runMcodeTelemetryCommand } from '../../src/cli/telemetry-command.js';
 import { createConfiguredTuiBusinessTelemetry } from '../../src/tui/launcher.js';
+import { MINIMAX_CODE_VERSION } from '../../src/build-info.js';
 
 describe('business telemetry privacy', () => {
+  it('resolves the package version from the Shards Code manifest', () => {
+    expect(MINIMAX_CODE_VERSION).toMatch(/^\d+\.\d+\.\d+$/u);
+  });
+
   it('is disabled until configured and honors both environment opt-outs', () => {
     expect(resolveMcodeBusinessTelemetryPolicy({ environment: {} })).toEqual({
       enabled: false,

@@ -1,7 +1,7 @@
 {
   "name": "@mavis/oauth-core",
   "version": "0.2.1-beta.7",
-  "description": "Shared local OAuth state, credential store, and cross-process coordination for MCode hosts.",
+  "description": "Shared local OAuth state, credential store, and cross-process coordination for Shards Code hosts.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

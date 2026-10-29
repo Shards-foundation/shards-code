@@ -42,6 +42,7 @@ import { modelSupportsVariant } from './model-selection.js';
 import { TuiAcpPromptContinuation } from './prompt-continuation.js';
 import { TuiAcpUpdateProjector } from './updates.js';
 
+// Existing ACP clients key authentication on this ID; keep it as a wire alias.
 const AUTH_METHOD_ID = 'minimax-code-login';
 const AVAILABLE_COMMANDS_RETRY_DELAY_MS = 100;
 const ACP_HISTORY_PAGE_SIZE = 100;
@@ -100,7 +101,7 @@ export function createTuiAcpAgent(options: CreateTuiAcpAgentOptions): acp.AgentA
   let clientCapabilities: acp.ClientCapabilities = {};
   let pendingPermissionBroadcast: readonly (readonly [string, AcpSession])[] | undefined;
   let permissionBroadcastRunning = false;
-  const app = acp.agent({ name: 'minimax-code' });
+  const app = acp.agent({ name: 'shards-code' });
 
   const advertiseAvailableCommands = (client: acp.AgentContext, sessionId: string): void => {
     const attachment = sessions.get(sessionId);
@@ -356,7 +357,7 @@ export function createTuiAcpAgent(options: CreateTuiAcpAgentOptions): acp.AgentA
 
   app.onConnect((connection) => {
     if (hasConnected) {
-      connection.close(new Error('MCode ACP supports exactly one Client connection per process.'));
+      connection.close(new Error('Shards Code ACP supports exactly one Client connection per process.'));
       return;
     }
     hasConnected = true;
@@ -462,15 +463,15 @@ export function createTuiAcpAgent(options: CreateTuiAcpAgentOptions): acp.AgentA
               {
                 type: 'terminal' as const,
                 id: AUTH_METHOD_ID,
-                name: 'Sign in to MiniMax Code',
+                name: 'Sign in to Shards Code',
                 args: ['login'],
               },
             ],
           }
         : {}),
       agentInfo: {
-        name: 'minimax-code',
-        title: 'MiniMax Code',
+        name: 'shards-code',
+        title: 'Shards Code',
         version: options.version,
       },
       _meta: {
@@ -961,7 +962,7 @@ export function createTuiAcpAgent(options: CreateTuiAcpAgentOptions): acp.AgentA
       if (typeof params.value !== 'string') {
         throw acp.RequestError.invalidParams(
           undefined,
-          'MiniMax Code ACP configuration options are select controls.',
+          'Shards Code ACP configuration options are select controls.',
         );
       }
 
@@ -1210,8 +1211,8 @@ export function createTuiAcpAgent(options: CreateTuiAcpAgentOptions): acp.AgentA
       throw acp.RequestError.internalError(
         undefined,
         result.error
-          ? `MiniMax Code Runtime failed: ${result.error}`
-          : 'MiniMax Code Runtime failed.',
+          ? `Shards Code Runtime failed: ${result.error}`
+          : 'Shards Code Runtime failed.',
       );
     } finally {
       context.signal.removeEventListener('abort', cancel);
@@ -1696,7 +1697,7 @@ function assertNoAdditionalDirectories(directories: readonly string[] | undefine
   if (!directories?.length) return;
   throw acp.RequestError.invalidParams(
     undefined,
-    'Additional directories are not supported by MiniMax Code ACP.',
+    'Additional directories are not supported by Shards Code ACP.',
   );
 }
 
@@ -2055,8 +2056,8 @@ async function followQuestionnaireContinuations(options: {
         throw acp.RequestError.internalError(
           undefined,
           transition.message
-            ? `MiniMax Code Runtime continuation failed: ${transition.message}`
-            : 'MiniMax Code Runtime continuation failed.',
+            ? `Shards Code Runtime continuation failed: ${transition.message}`
+            : 'Shards Code Runtime continuation failed.',
         );
       }
 
@@ -2081,7 +2082,7 @@ async function followQuestionnaireContinuations(options: {
     if (error instanceof acp.RequestError) throw error;
     throw acp.RequestError.internalError(
       undefined,
-      `MiniMax Code Runtime continuation failed: ${error instanceof Error ? error.message : String(error)}`,
+      `Shards Code Runtime continuation failed: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }
@@ -2112,7 +2113,7 @@ async function assertAuthenticated(runtime: TuiAcpRuntime): Promise<void> {
     await requireTuiAgentAccess(runtime);
   } catch (error) {
     if (error instanceof TuiLoginRequiredError) {
-      throw acp.RequestError.authRequired(undefined, 'Run `mcode login` and try again.');
+      throw acp.RequestError.authRequired(undefined, 'Run `shards-code login` and try again.');
     }
     throw error;
   }

@@ -1,6 +1,6 @@
 # 项目级 MCP 配置
 
-本地 Runtime 按当前 session 的主工作目录读取 `.mcp.json`，Desktop、MCode 交互式 TUI、`mcode exec`、`mcode acp` 和使用同一 Runtime 的 CLI 共用这一能力。无需导入，也不设置 MCP 专属批准或配置摘要授权。
+本地 Runtime 按当前 session 的主工作目录读取 `.mcp.json`，Desktop、Shards Code 交互式 TUI、`mcode exec`、`mcode acp` 和使用同一 Runtime 的 CLI 共用这一能力。无需导入，也不设置 MCP 专属批准或配置摘要授权。
 
 ```json
 {

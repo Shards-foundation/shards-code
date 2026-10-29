@@ -418,7 +418,7 @@ export class TuiRuntimeAdapter implements TuiRuntime {
     sessionId?: string;
   }): Promise<TuiFeedbackPreview> {
     if (!this.feedback)
-      throw new Error("MiniMax Code feedback is unavailable.");
+      throw new Error("Shards Code feedback is unavailable.");
     return this.feedback.prepare(input);
   }
   submitFeedback(
@@ -426,7 +426,7 @@ export class TuiRuntimeAdapter implements TuiRuntime {
     options?: TuiFeedbackSubmitOptions,
   ): Promise<TuiFeedbackReceipt> {
     if (!this.feedback)
-      return Promise.reject(new Error("MiniMax Code feedback is unavailable."));
+      return Promise.reject(new Error("Shards Code feedback is unavailable."));
     return this.feedback.submit(draftId, options);
   }
   cancelFeedback(draftId: string): Promise<boolean> {

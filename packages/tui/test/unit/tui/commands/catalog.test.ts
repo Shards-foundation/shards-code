@@ -4,7 +4,7 @@ import {
   type TuiCommandContext,
 } from "../../../../src/tui/commands/catalog.js";
 
-describe("MiniMax Code TUI command catalog in side conversations", () => {
+describe("Shards Code TUI command catalog in side conversations", () => {
   const sideContext: TuiCommandContext = {
     hasSession: true,
     hasParentSession: true,

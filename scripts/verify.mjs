@@ -35,7 +35,7 @@ if (profile === 'package' && !['darwin', 'linux'].includes(process.platform))
 const temporary = values.list
   ? undefined
   : mkdtempSync(path.join(tmpdir(), "mcode-verify-"));
-const preview = path.join(temporary ?? tmpdir(), "minimax-code-source.tar.gz");
+const preview = path.join(temporary ?? tmpdir(), "shards-code-source.tar.gz");
 
 const steps = [
   { name: "check:source", script: "check:source", docs: true, windows: true },

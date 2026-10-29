@@ -2,22 +2,22 @@ import { visibleWidth } from '../../rendering/text.js';
 import { tuiChalk as chalk, tuiColors as colors } from '../../theme/runtime.js';
 import { centerToWidth } from '../frame.js';
 import {
-  MINIMAX_CODE_TERMINAL_MEDIUM_WORDMARK,
-  MINIMAX_CODE_TERMINAL_MICRO_WORDMARK,
-  MINIMAX_CODE_TERMINAL_WORDMARK,
-  MINIMAX_CODE_WELCOME_DESIGN,
+  SHARDS_CODE_TERMINAL_MEDIUM_WORDMARK,
+  SHARDS_CODE_TERMINAL_MICRO_WORDMARK,
+  SHARDS_CODE_TERMINAL_WORDMARK,
+  SHARDS_CODE_WELCOME_DESIGN,
 } from './design.js';
 
 export function renderTuiWelcomeHero(width: number): string[] {
   const { fullMinWidth, mediumMinWidth, microMinWidth, fallbackTitle } =
-    MINIMAX_CODE_WELCOME_DESIGN.hero;
+    SHARDS_CODE_WELCOME_DESIGN.hero;
   const source =
     width >= fullMinWidth
-      ? MINIMAX_CODE_TERMINAL_WORDMARK
+      ? SHARDS_CODE_TERMINAL_WORDMARK
       : width >= mediumMinWidth
-        ? MINIMAX_CODE_TERMINAL_MEDIUM_WORDMARK
+        ? SHARDS_CODE_TERMINAL_MEDIUM_WORDMARK
         : width >= microMinWidth
-          ? MINIMAX_CODE_TERMINAL_MICRO_WORDMARK
+          ? SHARDS_CODE_TERMINAL_MICRO_WORDMARK
           : [fallbackTitle];
   const isCharacterWordmark = source.length > 1;
   const sourceWidth = Math.max(...source.map((line) => visibleWidth(line)));

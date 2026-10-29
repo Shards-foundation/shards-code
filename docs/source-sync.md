@@ -1,34 +1,9 @@
-# Source synchronization
+# Working with upstream-derived source
 
-`release/extraction.json` pins the source revision and package scope; `release/public-source.json` is the reviewed public file inventory. Maintain internal implementation and public distribution adaptations separately. Do not configure the internal repository as a mergeable upstream or cherry-pick internal commits into public history.
+Shards Code is an independent fork based on the public MiniMax Code repository at upstream revision [`da22f11c55d4748155d7162c1030414228a00565`](https://github.com/MiniMax-AI/minimax-code/commit/da22f11c55d4748155d7162c1030414228a00565). No automatic upstream synchronization or private source feed is part of this project.
 
-## Generate candidates
+When adapting a later public upstream change, record the source repository and full commit hash in the review. Inspect the full diff, including deletions and generated files, for license obligations, third-party material, credentials, account data, internal addresses or protocols, and changes that are not appropriate to this fork. Preserve Shards-specific behavior and do not overwrite it as a mechanical sync.
 
-Run the following from this repository. The source repository must contain both the recorded baseline and the target revision. The output directory must not exist and must be outside both repositories.
+The presence of an upstream commit link does not establish that a change is compatible, legally reusable, safe to distribute, or tested by Shards. Do not include another project's private review documents, private Git history, unreleased material or credentials. Keep the required MIT attribution and third-party notices; keep MiniMax names only where required by law or where they truthfully identify provider/API compatibility.
 
-```bash
-node scripts/prepare-source-sync.mjs --source /path/to/source-repository \
-  --ref <reviewed-upstream-commit> --out /path/to/new-private-review-directory
-```
-
-The tool reads Git objects, not the source working tree or credentials. For source files in the public inventory, it compares the old source, target source, and current public version to produce three-way merge candidates that preserve public changes. Conflicts keep their markers; deletions are reported without deleting files. New upstream files are reported by path and require separate review before inclusion. Selecting a revision does not automatically advance the recorded baseline.
-
-Output includes `report.json`, `candidates/`, and `.private-review`. Candidates are **unreviewed internal material**: do not upload them directly to GitHub, attach them to a PR, or copy the entire directory into the public repository. The tool never changes the current repository, runs upstream scripts, or carries internal commit authors, messages, or history.
-
-## Review and apply
-
-1. Inspect conflicts, deletions, new files, non-regular files, and missing source files. Include new files only when actual dependencies require them; do not recursively copy whole packages.
-2. Review internal addresses, generated IDL, credentials, prompt / asset licenses, and service contracts. Preserve in-process boundaries and public environment configuration.
-3. Apply approved files individually to a public feature branch. Resolve all conflicts, then update `sourceRevision` in `release/extraction.json` to the report's `targetRevision`. Do not advance the baseline before reviewing all differences.
-4. Regenerate the dependency license inventory if dependencies changed, then review and update the public source inventory. Run source, standalone, type, build, and explicitly selected affected tests.
-5. Scan complete history and current source before creating the public PR. Include public changes, validation results, and capability descriptions, never private review reports.
-
-After accepted public changes are ported back, subsequent three-way comparisons should show them as synchronized or cleanly mergeable while retaining standalone adaptations. Synchronization is not a blind overwrite: conflicts, missing source, and new files require maintainer judgment.
-
-## Selective release updates
-
-A bounded release update can port reviewed behavior without adopting unrelated
-runtime ownership migrations or private service integrations. Keep the existing
-three-way baseline until the entire target revision has been reviewed; record
-the selected revision, included behavior and excluded boundaries separately.
-See the [0.5.5 review](source-sync-0.5.5.md) for the current selective update.
+After a selective upstream-derived change, update the source inventory if paths changed, regenerate generated metadata only through its documented scripts, and run the verification profile and secret/license scans required for the changed surface. Record Shards results separately from upstream evidence. The [release audit status](release-audit.md) and [verification records](verification.md) explain the current evidence boundary.

@@ -1,15 +1,16 @@
-> Thanks for your interest in contributing. For now, code and documentation pull requests are accepted only from repository collaborators. If you are not a collaborator, please [open an issue](https://github.com/MiniMax-AI/minimax-code/issues/new/choose) so we can discuss your idea.
+> Shards Code is an independent fork and is not affiliated with or endorsed by MiniMax. Please use the repository's current contribution policy and preserve all applicable notices.
 
 ## Change
 
 Describe the user-visible problem and resulting behavior. Link a public issue when applicable.
 
-- PR labels: change type (`bug`, `enhancement`, `documentation` or `dependencies`) and affected product (`cli`, `tui` together with `cli`, or `desktop`) where applicable; see the [label guide](https://github.com/MiniMax-AI/minimax-code/blob/main/docs/maintainers.md#pull-request-labels).
+- PR labels: change type (`bug`, `enhancement`, `documentation` or `dependencies`) and affected product (`cli`, `tui` together with `cli`) where applicable; see the [label guide](https://github.com/Shards-foundation/shards-code/blob/main/docs/maintainers.md#pull-request-labels).
 
 ## Validation
 
 - Checks run and results (include the revision/profile where relevant):
-- Performance: basic / `perf:full` (see [requirements](https://github.com/MiniMax-AI/minimax-code/blob/main/CONTRIBUTING.md#performance-checks)); for full coverage, link a passing run for the latest PR head and intended base:
+- Test pass/fail/skip counts where applicable:
+- Performance: basic / `perf:full` (see [requirements](https://github.com/Shards-foundation/shards-code/blob/main/CONTRIBUTING.md#performance-checks)); for full coverage, link a passing run for the latest PR head and intended base:
 - NOT RUN, platform limitations and live-service boundaries:
 
 ## Publication and contribution checks
@@ -22,5 +23,3 @@ Describe the user-visible problem and resulting behavior. Link a public issue wh
 ## Maintainer handoff
 
 Publication scope or license changes (if any):
-
-Shared-source port: not needed / pending / complete. Record public PR references only; keep private links and review material out of this PR.

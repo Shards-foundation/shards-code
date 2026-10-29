@@ -45,7 +45,7 @@ writeFileSync(join(data, 'config.yaml'), [
 ].join('\n'));
 const cfg = loadPerfConfig([
   '--script', input.script, '--exhausted', 'stop', '--work-dir', workspace,
-  '--out-dir', join(input.directory, 'raw'), '--harness', 'minimax-code',
+  '--out-dir', join(input.directory, 'raw'), '--harness', 'shards-code',
   '--port', String(port), '--interval-ms', String(input.intervalMs),
   '--timeout-ms', String(input.scenario.timeoutMs), '--sampler', 'rusage',
   '--prompt', '压测：请持续用只读命令检查当前目录状态',

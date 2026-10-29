@@ -68,7 +68,7 @@ describe('TUI mode settings', () => {
     expect(readTuiModeSetting(dataDir)).toBe('regular');
   });
 
-  it('persists the selected fullscreen mode in the MCode data directory', async () => {
+  it('persists the selected fullscreen mode in the Shards Code data directory', async () => {
     const dataDir = await temporaryDataDir();
 
     writeTuiModeSetting(dataDir, 'fullscreen');

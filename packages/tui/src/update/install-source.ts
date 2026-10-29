@@ -11,11 +11,15 @@ const REGISTRY_FETCH_TIMEOUT_MS = 30_000;
 const MCODE_PACKAGE_BASENAME = 'code';
 const MCODE_INTERNAL_SCOPE = '@minimax';
 const MCODE_PUBLIC_SCOPE = '@minimax-ai';
+const SHARDS_PUBLIC_PACKAGE_NAME = '@shards-foundation/shards-code';
 // Public packaging rewrites this marker together with the bundled package identity.
-const MCODE_EMBEDDED_PACKAGE_NAME = '@minimax-ai/code' as McodeNpmPackageName;
+const MCODE_EMBEDDED_PACKAGE_NAME = SHARDS_PUBLIC_PACKAGE_NAME as McodeNpmPackageName;
 
 export type McodeNpmDistTag = 'latest' | 'test' | 'preview';
-export type McodeNpmPackageName = '@minimax/code' | '@minimax-ai/code';
+export type McodeNpmPackageName =
+  | '@minimax/code'
+  | '@minimax-ai/code'
+  | '@shards-foundation/shards-code';
 type TuiBuildEnvironment = 'test' | 'staging' | 'prod';
 
 declare const __TUI_BUILD_ENV__: TuiBuildEnvironment | undefined;
@@ -75,7 +79,10 @@ export function isManagedMcodeInstallRoot(installRoot: string): boolean {
   const metadataFile = path.join(installRoot, 'install.json');
   try {
     const metadata = JSON.parse(readFileSync(metadataFile, 'utf8')) as Record<string, unknown>;
-    return metadata.product === 'minimax-code' && metadata.updateOwner === 'mcode-installer';
+    return (
+      (metadata.product === 'minimax-code' || metadata.product === 'shards-code') &&
+      metadata.updateOwner === 'mcode-installer'
+    );
   } catch {
     return false;
   }
@@ -116,21 +123,21 @@ export function classifyMcodeInstallPath(
 ): McodePackageManagerInstallSource | undefined {
   const normalized = packageRoot.replaceAll('\\', '/').toLocaleLowerCase();
   if (
-    /\/pnpm\/global\/(?:v11\/[^/]+|[^/]+)\/node_modules\/@minimax(?:-ai)?\/code$/u.test(normalized)
+    /\/pnpm\/global\/(?:v11\/[^/]+|[^/]+)\/node_modules\/(?:@minimax(?:-ai)?\/code|@shards-foundation\/shards-code)$/u.test(normalized)
   ) {
     return 'pnpm-global';
   }
   if (
-    /\/(?:\.config\/yarn|\.yarn)\/global\/node_modules\/@minimax(?:-ai)?\/code$/u.test(normalized)
+    /\/(?:\.config\/yarn|\.yarn)\/global\/node_modules\/(?:@minimax(?:-ai)?\/code|@shards-foundation\/shards-code)$/u.test(normalized)
   ) {
     return 'yarn-global';
   }
-  if (/\/\.bun\/install\/global\/node_modules\/@minimax(?:-ai)?\/code$/u.test(normalized)) {
+  if (/\/\.bun\/install\/global\/node_modules\/(?:@minimax(?:-ai)?\/code|@shards-foundation\/shards-code)$/u.test(normalized)) {
     return 'bun-global';
   }
   if (
-    /\/lib\/node_modules\/@minimax(?:-ai)?\/code$/u.test(normalized) ||
-    /\/npm\/node_modules\/@minimax(?:-ai)?\/code$/u.test(normalized)
+    /\/lib\/node_modules\/(?:@minimax(?:-ai)?\/code|@shards-foundation\/shards-code)$/u.test(normalized) ||
+    /\/npm\/node_modules\/(?:@minimax(?:-ai)?\/code|@shards-foundation\/shards-code)$/u.test(normalized)
   ) {
     return 'npm-global';
   }
@@ -146,9 +153,12 @@ export function resolveMcodeNpmDistribution(
     if (resolvedRegistry === MCODE_INTERNAL_NPM_REGISTRY) {
       return { packageName, registry: resolvedRegistry };
     }
-    throw new Error(`Unsupported MCode npm registry: ${resolvedRegistry}`);
+    throw new Error(`Unsupported Shards Code npm registry: ${resolvedRegistry}`);
   }
-  if (packageName === mcodePackageName(MCODE_PUBLIC_SCOPE)) {
+  if (
+    packageName === mcodePackageName(MCODE_PUBLIC_SCOPE) ||
+    packageName === SHARDS_PUBLIC_PACKAGE_NAME
+  ) {
     const resolvedRegistry = registry ? new URL(registry).href : MCODE_PUBLIC_NPM_REGISTRY;
     if (
       resolvedRegistry === MCODE_PUBLIC_NPM_REGISTRY ||
@@ -156,9 +166,9 @@ export function resolveMcodeNpmDistribution(
     ) {
       return { packageName, registry: resolvedRegistry };
     }
-    throw new Error(`Unsupported MCode npm registry: ${resolvedRegistry}`);
+    throw new Error(`Unsupported Shards Code npm registry: ${resolvedRegistry}`);
   }
-  throw new Error(`Unsupported MCode npm package: ${String(packageName)}`);
+  throw new Error(`Unsupported Shards Code npm package: ${String(packageName)}`);
 }
 
 export function resolveMcodeNpmDistTag(
@@ -215,12 +225,12 @@ export function buildMcodePackageManagerCommand(
   const npmInstallDisplay = npmInstallArgs.join(' ');
   switch (source) {
     case 'npm-prefix': {
-      if (!prefixInstall) throw new Error('MCode npm prefix ownership metadata is missing.');
+      if (!prefixInstall) throw new Error('Shards Code npm prefix ownership metadata is missing.');
       if (
         prefixInstall.packageName !== distribution.packageName ||
         new URL(prefixInstall.registry).href !== distribution.registry
       ) {
-        throw new Error('MCode npm prefix ownership does not match the installed package.');
+        throw new Error('Shards Code npm prefix ownership does not match the installed package.');
       }
       return {
         executable: prefixInstall.executable,
@@ -299,16 +309,16 @@ export async function resolveLatestMcodeRegistryVersion(
   }
   if (Array.isArray(version)) {
     if (version.length !== 1) {
-      throw new Error('MCode registry returned an invalid latest version.');
+      throw new Error('Shards Code registry returned an invalid latest version.');
     }
     version = version[0];
   }
   if (typeof version !== 'string') {
-    throw new Error('MCode registry returned an invalid latest version.');
+    throw new Error('Shards Code registry returned an invalid latest version.');
   }
   const parsed = parseMcodeVersion(version);
   if (tag === 'latest' && parsed.includes('-')) {
-    throw new Error('MCode latest must resolve to a stable semantic version.');
+    throw new Error('Shards Code latest must resolve to a stable semantic version.');
   }
   return parsed;
 }
@@ -487,7 +497,7 @@ export function resolveMcodeNpmPrefixInstall(
     return receipt;
   }
 
-  if (platformPath.basename(packagePrefix).toLocaleLowerCase() !== '.minimax-code')
+  if (!['.minimax-code', '.shards-code'].includes(platformPath.basename(packagePrefix).toLocaleLowerCase()))
     return undefined;
   const adjacentNpm = platformPath.join(
     platformPath.dirname(nodeExecutable),
@@ -596,6 +606,8 @@ function readNpmPrefixReceipt(
       currentFile?: unknown;
     };
     const packageName = parseMcodePackageName(value.packageName);
+    const expectedProduct =
+      packageName === SHARDS_PUBLIC_PACKAGE_NAME ? 'shards-code' : 'minimax-code';
     const legacyLayout = value.schemaVersion === 1 && value.layoutVersion === undefined;
     const versionedLayout =
       value.schemaVersion === 2 &&
@@ -604,7 +616,7 @@ function readNpmPrefixReceipt(
       value.currentFile === 'current';
     if (
       (!legacyLayout && !versionedLayout) ||
-      value.product !== 'minimax-code' ||
+      value.product !== expectedProduct ||
       value.updateOwner !== 'npm-prefix' ||
       value.packageManager !== 'npm' ||
       !packageName ||
@@ -714,6 +726,7 @@ function isResolvedPathInside(
 }
 
 function parseMcodePackageName(value: unknown): McodeNpmPackageName | undefined {
+  if (value === SHARDS_PUBLIC_PACKAGE_NAME) return value as McodeNpmPackageName;
   if (value === mcodePackageName(MCODE_INTERNAL_SCOPE)) return value as McodeNpmPackageName;
   if (value === mcodePackageName(MCODE_PUBLIC_SCOPE)) return value as McodeNpmPackageName;
   return undefined;
@@ -726,8 +739,10 @@ function mcodePackageName(scope: string): McodeNpmPackageName {
 function mcodePackageNameFromPath(packageRoot: string): McodeNpmPackageName | undefined {
   const normalized = packageRoot.replaceAll('\\', '/');
   const segments = normalized.split('/');
-  if (segments.at(-1) !== MCODE_PACKAGE_BASENAME) return undefined;
-  return parseMcodePackageName(`${segments.at(-2)}/${MCODE_PACKAGE_BASENAME}`);
+  const packageName = segments.at(-1);
+  const scope = segments.at(-2);
+  if (!packageName || !scope) return undefined;
+  return parseMcodePackageName(`${scope}/${packageName}`);
 }
 
 function normalizeResolvedPath(value: string, platform: NodeJS.Platform): string {

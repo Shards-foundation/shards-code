@@ -7,7 +7,7 @@ import {
   resolveTuiObservabilityDirectory,
 } from '../../src/observability/local-observability.js';
 
-describe('Minimax Code observability', () => {
+describe('Shards Code observability', () => {
   it('persists typed local-only events and deduplicates stable access decisions', async () => {
     let nowMs = 1_000;
     const writes: Array<{ path: string; content: string }> = [];

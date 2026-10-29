@@ -196,7 +196,7 @@ export function createTuiAccountStatusInspection(
   const quotaRows = createTokenPlanQuotaRows(account).filter((row) => row.label !== 'Video');
   if (quotaRows.length > 0) sections.push({ title: 'Quota', rows: quotaRows });
   return {
-    title: `MCode status${options.version ? ` · v${safeInline(options.version)}` : ''}`,
+    title: `Shards Code status${options.version ? ` · v${safeInline(options.version)}` : ''}`,
     badge: options.accountLoading
       ? { label: 'Loading account…', tone: 'neutral' }
       : accountStatusBadge(status),
@@ -418,7 +418,7 @@ export function createTuiRuntimeInspection(
               rows: [
                 {
                   label: 'Current run',
-                  value: 'MCode may use built-in defaults until the config is fixed and restarted.',
+                  value: 'Shards Code may use built-in defaults until the config is fixed and restarted.',
                   tone: 'warning' as const,
                 },
               ],
@@ -442,15 +442,15 @@ export function createTuiRuntimeInspection(
 function configurationNextStep(diagnostics: TuiRuntimeDiagnostics): string {
   const path = safe(diagnostics.configPath ?? 'the config file');
   if (diagnostics.warnings.some((issue) => issue.includes('does not exist'))) {
-    return `Create or restore ${path}, restart MCode, then run /doctor again.`;
+    return `Create or restore ${path}, restart Shards Code, then run /doctor again.`;
   }
   if (diagnostics.warnings.some((issue) => issue.includes('cannot be read'))) {
-    return `Check access to ${path}, restart MCode, then run /doctor again.`;
+    return `Check access to ${path}, restart Shards Code, then run /doctor again.`;
   }
   if (diagnostics.warnings.some((issue) => issue.includes('defaultModel'))) {
-    return `Set defaultModel in ${path} to an available provider/model, restart MCode, then run /doctor again.`;
+    return `Set defaultModel in ${path} to an available provider/model, restart Shards Code, then run /doctor again.`;
   }
-  return `Fix ${path}, restart MCode, then run /doctor again.`;
+  return `Fix ${path}, restart Shards Code, then run /doctor again.`;
 }
 
 export function createTuiConfigInspection(

@@ -213,7 +213,7 @@ export interface MarkdownTheme {
 	highlightCode?: (code: string, lang?: string) => string[];
 	/** Prefix applied to each rendered code block line (default: "  ") */
 	codeBlockIndent?: string;
-	/** MCode product chrome for fenced code blocks (default: "fence"). */
+	/** Shards Code product chrome for fenced code blocks (default: "fence"). */
 	codeBlockChrome?: "fence" | "plain";
 }
 

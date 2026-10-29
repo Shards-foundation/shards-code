@@ -17,7 +17,7 @@ The unused `@mavis/team` cycle engine is excluded from this projection. TUI dele
 
 ## Managed capabilities and tool integration
 
-The TUI continues to use the same runtime through local applications and services. MiniMax OAuth Core manages profile credentials, refresh, and logout. mcode-tools-host provides short-lived access tokens to tool subprocesses through a local lease broker. Official plugins, connectors, accounts, and search use their public service clients without restoring DesktopService or an HTTP front door.
+The TUI continues to use the same runtime through local applications and services. MiniMax account authentication manages MiniMax credentials, refresh and logout; it is a separate service integration, not a Shards Foundation identity service. The third-party `mcode-tools` component provides short-lived access tokens to tool subprocesses through a local lease broker. MiniMax catalog, connector, account and search features use their external service clients without restoring DesktopService or an HTTP front door.
 
 Headless model overrides are passed to a read-only account-state check so authentication requirements follow the model selected for that run. The check does not change global configuration or the session model; execution still uses the existing model resolver, permissions, and tools.
 

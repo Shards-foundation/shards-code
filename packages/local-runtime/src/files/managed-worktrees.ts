@@ -122,7 +122,7 @@ function pathBelongsToWorktree(worktreePath: string, candidatePath: string): boo
  * `git worktree remove`: it may only reclaim clean, unlocked linked worktrees
  * belonging to the current repository. This keeps the main checkout, all
  * active session worktrees, and uncommitted work intact while allowing users to
- * reclaim worktrees created by MCode, Codex, or Git directly.
+ * reclaim worktrees created by Shards Code, Codex, or Git directly.
  */
 export async function removeManagedWorktree(
   workspace: string,

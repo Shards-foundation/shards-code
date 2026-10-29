@@ -17,7 +17,7 @@ mcode TUI 的配色由**具名主题**决定，每个主题同时提供深色和
 
 | 主题 ID | 名称 | 特点 |
 | --- | --- | --- |
-| `minimax` | MCode | 默认主题。MiniMax 蓝 + Catppuccin 语法高亮 |
+| `minimax` | Shards Code | 默认主题。MiniMax 蓝 + Catppuccin 语法高亮 |
 | `midnight` | Midnight | 更深的蓝黑背景，抬高了前景对比度 |
 | `graphite` | Graphite | 中性低彩度表面，长输出更安静 |
 | `aurora` | Aurora | 偏青绿的次级色阶 |
@@ -46,7 +46,7 @@ mcode TUI 的配色由**具名主题**决定，每个主题同时提供深色和
 
 ## 自定义主题文件
 
-MCode 从运行时数据目录下的 `tui/themes/*.json` 读取用户主题。
+Shards Code 从运行时数据目录下的 `tui/themes/*.json` 读取用户主题。
 
 - 一个文件提供一种外观。`aurora.json` 提供深色，`aurora-light.json` 提供浅色；两个文件的
   `name` 相同即组成一个可选主题。
@@ -61,7 +61,7 @@ MCode 从运行时数据目录下的 `tui/themes/*.json` 读取用户主题。
 {
   "name": "my-theme",
   "label": "My Theme",
-  "description": "A custom MCode palette",
+  "description": "A custom Shards Code palette",
   "appearance": "dark",
   "vars": {
     "brand": "#68c0ff",

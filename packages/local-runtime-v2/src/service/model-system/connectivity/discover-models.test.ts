@@ -53,7 +53,7 @@ describe('ModelDiscoveryClient', () => {
     },
   );
 
-  it('attributes OpenRouter model discovery to MiniMax Code', async () => {
+  it('attributes OpenRouter model discovery to Shards Code', async () => {
     const fetchImpl = vi.fn(
       async () => new Response(JSON.stringify({ data: [] }), { status: 200 }),
     );
@@ -67,8 +67,8 @@ describe('ModelDiscoveryClient', () => {
 
     const calls = fetchImpl.mock.calls as unknown as Array<[string, RequestInit]>;
     const headers = new Headers(calls[0]?.[1]?.headers);
-    expect(headers.get('http-referer')).toBe('https://agent.minimax.io/');
-    expect(headers.get('x-openrouter-title')).toBe('MiniMax Code');
+    expect(headers.get('http-referer')).toBe('https://github.com/Shards-foundation/shards-code');
+    expect(headers.get('x-openrouter-title')).toBe('Shards Code');
     expect(headers.get('x-openrouter-categories')).toBe('cli-agent');
   });
 

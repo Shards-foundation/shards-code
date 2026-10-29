@@ -4,6 +4,12 @@ export const MINIMAX_CODE_MIN_NODE_VERSION = '22.19.0';
 export const MINIMAX_CODE_SUPPORTED_NODE_VERSIONS = '22.19+, 24, 25, or 26';
 export const TUI_BUILD_PROFILE = 'tui';
 export const MINIMAX_CODE_PACKAGE_NAME = '@minimax-ai/code';
+const SHARDS_CODE_PACKAGE_NAME = '@shards-foundation/shards-code';
+const SUPPORTED_TUI_PACKAGE_NAMES = new Set([
+  SHARDS_CODE_PACKAGE_NAME,
+  MINIMAX_CODE_PACKAGE_NAME,
+  '@minimax/code',
+]);
 
 interface PackageManifest {
   name: string;
@@ -17,7 +23,8 @@ export function resolveTuiPackageVersion(moduleUrl: string | URL = import.meta.u
         readFileSync(new URL(relativePath, moduleUrl), 'utf8'),
       ) as Partial<PackageManifest>;
       if (
-        (manifest.name === MINIMAX_CODE_PACKAGE_NAME || manifest.name === '@minimax/code') &&
+        typeof manifest.name === 'string' &&
+        SUPPORTED_TUI_PACKAGE_NAMES.has(manifest.name) &&
         typeof manifest.version === 'string' &&
         manifest.version.length > 0
       ) {
@@ -27,7 +34,7 @@ export function resolveTuiPackageVersion(moduleUrl: string | URL = import.meta.u
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
   }
-  throw new Error(`Cannot resolve ${MINIMAX_CODE_PACKAGE_NAME} package version`);
+  throw new Error(`Cannot resolve ${SHARDS_CODE_PACKAGE_NAME} package version`);
 }
 
 function parseVersion(version: string): number[] | undefined {

@@ -1,6 +1,6 @@
 ---
 name: cli-guide
-description: Navigate and change the MiniMax Code command tree, interactive TUI, headless exec, ACP adapters, or their in-process runtime connection. Use when implementing or debugging CLI behavior in this repository.
+description: Navigate and change the Shards Code command tree, interactive TUI, headless exec, ACP adapters, or their in-process runtime connection. Use when implementing or debugging CLI behavior in this repository.
 ---
 
 # CLI Architecture Guide

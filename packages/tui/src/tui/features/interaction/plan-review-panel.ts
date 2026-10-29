@@ -150,7 +150,7 @@ export class TuiPlanReviewPanel implements Component, Focusable {
         {
           title: 'Add context',
           body: [
-            renderTuiActionHint('Tell MiniMax Code what to adjust, then press Enter.'),
+            renderTuiActionHint('Tell Shards Code what to adjust, then press Enter.'),
             ...this.input.render(contentWidth),
           ],
           footer: 'Enter send · Esc back',

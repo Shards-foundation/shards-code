@@ -103,7 +103,7 @@ export class TuiChangelogPanel implements Component {
     return renderPanelFrame(
       {
         title: "What's New",
-        meta: `MCode ${this.options.version}`,
+        meta: `Shards Code ${this.options.version}`,
         body,
         footer,
       },

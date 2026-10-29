@@ -26,7 +26,7 @@ import {
   tuiStreamingMarkdownTheme,
 } from '../../../../src/tui/theme/runtime.js';
 
-describe('MCode terminal theme palettes', () => {
+describe('Shards Code terminal theme palettes', () => {
   it.each([MINIMAX_CODE_DARK_THEME, MINIMAX_CODE_LIGHT_THEME])(
     'enforces readable semantic colors for the $appearance palette',
     (palette) => {
@@ -149,7 +149,7 @@ describe('MCode terminal theme palettes', () => {
   });
 });
 
-describe('MCode terminal appearance detection', () => {
+describe('Shards Code terminal appearance detection', () => {
   it('uses the final COLORFGBG component, including the ANSI 256 grayscale ramp', () => {
     expect(parseColorFgBgAppearance('15;0')).toBe('dark');
     expect(parseColorFgBgAppearance('0;15')).toBe('light');

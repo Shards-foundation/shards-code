@@ -26,7 +26,7 @@ export function formatTuiTranscriptMarkdown(
   );
   const messages = cells.filter((cell) => cell.kind === 'user' || cell.kind === 'assistant');
   const title = cleanMarkdownText(
-    redactTuiCredentials(metadata.title?.trim() || 'MCode Transcript'),
+    redactTuiCredentials(metadata.title?.trim() || 'Shards Code Transcript'),
   );
   const lines = [`# ${title}`, ''];
   if (metadata.sessionId) {
@@ -56,7 +56,7 @@ export function formatTuiSessionMarkdown(
   const visibleMessages = messages.filter(isUserFacingSessionMessage);
   const turns = groupSessionMessages(visibleMessages);
   const title = cleanMarkdownText(
-    redactTuiCredentials(metadata.title?.trim() || 'MCode Session Export'),
+    redactTuiCredentials(metadata.title?.trim() || 'Shards Code Session Export'),
   );
   const lines = [
     '---',

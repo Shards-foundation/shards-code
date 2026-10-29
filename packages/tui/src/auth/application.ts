@@ -130,7 +130,7 @@ export class McodeAuthApplication implements McodeAuthPort {
       logoutUrl,
       message:
         result.status === 'logout_pending'
-          ? `Signed out locally from ${formatRegion(this.scope.region)} across MCode. Server revocation is pending until the network recovers.`
+          ? `Signed out locally from ${formatRegion(this.scope.region)} across Shards Code. Server revocation is pending until the network recovers.`
           : `Signed out of ${formatRegion(this.scope.region)} on Desktop, CLI/TUI, and embedded mcode-tools.`,
     };
   }

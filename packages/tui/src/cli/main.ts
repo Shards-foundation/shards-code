@@ -91,7 +91,7 @@ export async function runTuiCli(dependencies: RunTuiCliDependencies = {}): Promi
     dependencies.supportsNodeVersion ?? ((version: string) => supportsTuiNodeVersion(version));
   if (!supportsNodeVersion(processRef.versions.node)) {
     processRef.stderr.write(
-      `Minimax Code supports Node.js ${MINIMAX_CODE_SUPPORTED_NODE_VERSIONS}; current version is ${processRef.versions.node}.\n`,
+      `Shards Code supports Node.js ${MINIMAX_CODE_SUPPORTED_NODE_VERSIONS}; current version is ${processRef.versions.node}.\n`,
     );
     processRef.exitCode = 1;
     return;
@@ -226,7 +226,7 @@ async function formatTuiCliError(error: unknown): Promise<string> {
     await import('../update/install-source.js');
   if (resolveMcodeNpmPrefixInstall()) {
     return [
-      'MCode could not load its native SQLite dependency.',
+      'Shards Code could not load its native SQLite dependency.',
       'The Node runtime recorded by this installation no longer loads it (for example after a Homebrew Node upgrade).',
       'Reinstall with the original installer to repair this installation.',
       '',
@@ -235,7 +235,7 @@ async function formatTuiCliError(error: unknown): Promise<string> {
   }
   const command = buildMcodePackageManagerCommand('npm-global', MINIMAX_CODE_VERSION);
   return [
-    'MCode could not load its native SQLite dependency.',
+    'Shards Code could not load its native SQLite dependency.',
     'If npm reported blocked install scripts, the installation needs explicit script approval.',
     'Reinstall with the original installer. For npm installations, run:',
     `  ${command.display} --foreground-scripts`,

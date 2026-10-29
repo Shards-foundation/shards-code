@@ -74,7 +74,7 @@ export class TuiPermissionModePicker implements Component {
         ...(safeWidth >= 42 ? { meta: `Current · ${currentMode}` } : {}),
         body: [
           chalk.hex(colors.muted)(
-            compact ? 'Choose a tool access policy.' : 'Choose how MCode handles tool access.',
+            compact ? 'Choose a tool access policy.' : 'Choose how Shards Code handles tool access.',
           ),
           '',
           ...MINIMAX_CODE_PERMISSION_MODES.flatMap((mode, index) =>

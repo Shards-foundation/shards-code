@@ -170,6 +170,24 @@ describe('installer-owned npm runtime binding', () => {
 });
 
 describe('McodeUpdateApplication', () => {
+  it('does not query a managed release service when no Shards feed is configured', async () => {
+    const createManagedService = vi.fn(() => {
+      throw new Error('unexpected MiniMax release feed access');
+    });
+    const application = createApplication(
+      { detectInstallSource: async () => 'managed-installer', createManagedService },
+      { environment: {} },
+    );
+
+    await expect(application.inspect()).resolves.toMatchObject({
+      kind: 'manual',
+      source: 'managed-installer',
+      currentVersion: '1.2.3',
+      message: expect.stringMatching(/Shards Code release feed is not configured/i),
+    });
+    expect(createManagedService).not.toHaveBeenCalled();
+  });
+
   it('keeps signed managed-installer check and apply behind one product intent', async () => {
     const check = vi.fn(async () => ({
       status: 'available' as const,
@@ -186,7 +204,7 @@ describe('McodeUpdateApplication', () => {
     const application = createApplication({
       detectInstallSource: async () => 'managed-installer',
       createManagedService: () => ({ check, apply }),
-    });
+    }, { environment: { SHARDS_CODE_RELEASE_BASE_URL: 'https://updates.example.invalid' } });
 
     const plan = await application.inspect();
 
@@ -201,7 +219,7 @@ describe('McodeUpdateApplication', () => {
     const onPhase = vi.fn();
     await expect(application.apply(plan, { signal, onPhase })).resolves.toMatchObject({
       applied: true,
-      message: 'MCode 1.2.4 is installed. Restart running MCode sessions to use it.',
+      message: 'Shards Code 1.2.4 is installed. Restart running Shards Code sessions to use it.',
     });
     expect(apply).toHaveBeenCalledWith({
       channel: 'stable',
@@ -238,12 +256,12 @@ describe('McodeUpdateApplication', () => {
         args: [
           'add',
           '--global',
-          '@minimax-ai/code@1.2.4',
+          '@shards-foundation/shards-code@1.2.4',
           '--registry',
           'https://registry.npmjs.org/',
         ],
         display:
-          'pnpm add --global @minimax-ai/code@1.2.4 --registry https://registry.npmjs.org/',
+          'pnpm add --global @shards-foundation/shards-code@1.2.4 --registry https://registry.npmjs.org/',
       },
     });
     const onOutput = vi.fn();
@@ -251,7 +269,7 @@ describe('McodeUpdateApplication', () => {
     const signal = new AbortController().signal;
     await expect(application.apply(plan, { onOutput, onPhase, signal })).resolves.toMatchObject({
       applied: true,
-      message: 'MCode 1.2.4 was installed through pnpm. Restart MCode to use the installed version.',
+      message: 'Shards Code 1.2.4 was installed through pnpm. Restart Shards Code to use the installed version.',
     });
     expect(createManagedService).not.toHaveBeenCalled();
     expect(resolveLatestPackageVersion).toHaveBeenCalledWith('test');
@@ -322,16 +340,16 @@ describe('McodeUpdateApplication', () => {
         args: [
           'install',
           '--global',
-          '@minimax-ai/code@0.0.1-beta.1786162945.e3fdada2',
+          '@shards-foundation/shards-code@0.0.1-beta.1786162945.e3fdada2',
           '--ignore-scripts=false',
           '--include=optional',
-          '--allow-scripts=@minimax-ai/code,better-sqlite3',
+          '--allow-scripts=@shards-foundation/shards-code,better-sqlite3',
           '--registry',
           'https://registry.npmjs.org/',
         ],
         display:
-          'npm install --global @minimax-ai/code@0.0.1-beta.1786162945.e3fdada2 ' +
-          '--ignore-scripts=false --include=optional --allow-scripts=@minimax-ai/code,better-sqlite3 ' +
+          'npm install --global @shards-foundation/shards-code@0.0.1-beta.1786162945.e3fdada2 ' +
+          '--ignore-scripts=false --include=optional --allow-scripts=@shards-foundation/shards-code,better-sqlite3 ' +
           '--registry https://registry.npmjs.org/',
       },
     });
@@ -375,8 +393,8 @@ describe('McodeUpdateApplication', () => {
       kind: 'manual',
       source: 'unsupported',
       command:
-        'npm install --global @minimax-ai/code@latest ' +
-        '--ignore-scripts=false --include=optional --allow-scripts=@minimax-ai/code,better-sqlite3 ' +
+        'npm install --global @shards-foundation/shards-code@latest ' +
+        '--ignore-scripts=false --include=optional --allow-scripts=@shards-foundation/shards-code,better-sqlite3 ' +
         '--registry https://registry.npmjs.org/',
     });
     await expect(application.apply(plan)).rejects.toThrow(/cannot be applied automatically/i);
@@ -513,12 +531,12 @@ describe('McodeUpdateApplication', () => {
     const plan = await application.inspect();
 
     await expect(application.apply(plan)).rejects.toThrow(
-      'MCode update installed 1.2.3; expected 1.2.4.',
+      'Shards Code update installed 1.2.3; expected 1.2.4.',
     );
   });
 });
 
-describe('MCode update install-source commands', () => {
+describe('Shards Code update install-source commands', () => {
   it.each([
     ['/opt/homebrew/lib/node_modules/@minimax-ai/code', 'npm-global'],
     ['C:\\Users\\demo\\AppData\\Roaming\\npm\\node_modules\\@minimax\\code', 'npm-global'],
@@ -556,28 +574,28 @@ describe('MCode update install-source commands', () => {
       args: [
         'install',
         '--global',
-        '@minimax-ai/code@1.2.4',
+        '@shards-foundation/shards-code@1.2.4',
         '--ignore-scripts=false',
         '--include=optional',
-        '--allow-scripts=@minimax-ai/code,better-sqlite3',
+        '--allow-scripts=@shards-foundation/shards-code,better-sqlite3',
         '--registry',
         'https://registry.npmjs.org/',
       ],
       display:
-        'npm install --global @minimax-ai/code@1.2.4 --ignore-scripts=false --include=optional ' +
-        '--allow-scripts=@minimax-ai/code,better-sqlite3 --registry https://registry.npmjs.org/',
+        'npm install --global @shards-foundation/shards-code@1.2.4 --ignore-scripts=false --include=optional ' +
+        '--allow-scripts=@shards-foundation/shards-code,better-sqlite3 --registry https://registry.npmjs.org/',
     });
     expect(buildMcodePackageManagerCommand('bun-global', '1.2.4', 'win32')).toEqual({
       executable: 'bun.exe',
       args: [
         'add',
         '--global',
-        '@minimax-ai/code@1.2.4',
+        '@shards-foundation/shards-code@1.2.4',
         '--registry',
         'https://registry.npmjs.org/',
       ],
       display:
-        'bun add --global @minimax-ai/code@1.2.4 --registry https://registry.npmjs.org/',
+        'bun add --global @shards-foundation/shards-code@1.2.4 --registry https://registry.npmjs.org/',
     });
   });
 
@@ -648,7 +666,7 @@ describe('MCode update install-source commands', () => {
     ]);
     expect(() =>
       resolveMcodeNpmDistribution('@minimax-ai/code', 'https://registry.example.com/'),
-    ).toThrow('Unsupported MCode npm registry');
+    ).toThrow('Unsupported Shards Code npm registry');
   });
 
   it('uses the active package manifest entry when argv points at the npm bin shim', async () => {
@@ -689,7 +707,7 @@ describe('MCode update install-source commands', () => {
       applied: true,
       restartRequired: false,
       message:
-        'MCode 1.2.4 is installed. New MCode sessions will use it; running sessions can continue normally.',
+        'Shards Code 1.2.4 is installed. New Shards Code sessions will use it; running sessions can continue normally.',
     });
     expect(activateVersionedPrefix).toHaveBeenCalledWith({
       stagingPrefix: '/opt/minimax/releases/.staging-1.2.4',
@@ -741,7 +759,7 @@ describe('MCode update install-source commands', () => {
       );
 
       await expect(application.inspect()).rejects.toThrow(
-        `MCode pending update metadata is invalid at ${pendingFile}.`,
+        `Shards Code pending update metadata is invalid at ${pendingFile}.`,
       );
     } finally {
       rmSync(prefix, { recursive: true, force: true });
@@ -801,7 +819,7 @@ describe('MCode update install-source commands', () => {
       );
 
       await expect(application.inspect()).rejects.toThrow(
-        `MCode pending update file is outside its active prefix: ${pendingFile}`,
+        `Shards Code pending update file is outside its active prefix: ${pendingFile}`,
       );
     } finally {
       rmSync(prefix, { recursive: true, force: true });
@@ -810,84 +828,90 @@ describe('MCode update install-source commands', () => {
     }
   });
 
-  it('resumes a valid staged update without checking for a newer registry version', async () => {
-    const prefix = mkdtempSync(path.join(os.tmpdir(), 'mcode-update-valid-pending-'));
-    const stagingPrefix = path.join(path.dirname(prefix), `.${path.basename(prefix)}.staging`);
-    const packageRoot = path.join(resolveMcodePrefixModulesRoot(prefix), '@minimax-ai/code');
-    const stagedPackageRoot = path.join(resolveMcodePrefixModulesRoot(stagingPrefix), '@minimax-ai/code');
-    const entryFile = path.join(packageRoot, 'dist/index.js');
-    try {
-      mkdirSync(path.dirname(entryFile), { recursive: true });
-      mkdirSync(path.join(stagedPackageRoot, 'dist'), { recursive: true });
-      mkdirSync(path.join(prefix, 'bin'), { recursive: true });
-      mkdirSync(path.join(stagingPrefix, 'bin'), { recursive: true });
-      writeFileSync(entryFile, '');
-      writeFileSync(
-        path.join(packageRoot, 'package.json'),
-        JSON.stringify({ name: '@minimax-ai/code', version: '1.2.3', bin: { mcode: 'dist/index.js' } }),
+  it.each(['@minimax-ai/code', '@shards-foundation/shards-code'] as const)(
+    'resumes a valid staged %s update without checking for a newer registry version',
+    async (packageName) => {
+      const prefix = mkdtempSync(path.join(os.tmpdir(), 'mcode-update-valid-pending-'));
+      const stagingPrefix = path.join(path.dirname(prefix), `.${path.basename(prefix)}.staging`);
+      const packageRoot = path.join(resolveMcodePrefixModulesRoot(prefix), ...packageName.split('/'));
+      const stagedPackageRoot = path.join(
+        resolveMcodePrefixModulesRoot(stagingPrefix),
+        ...packageName.split('/'),
       );
-      writeFileSync(
-        path.join(stagedPackageRoot, 'package.json'),
-        JSON.stringify({ name: '@minimax-ai/code', version: '1.2.4', bin: { mcode: 'dist/index.js' } }),
-      );
-      writeFileSync(path.join(prefix, process.platform === 'win32' ? 'mcode' : 'bin/mcode'), '1.2.3');
-      writeFileSync(path.join(stagingPrefix, process.platform === 'win32' ? 'mcode' : 'bin/mcode'), '1.2.4');
-      for (const pair of resolveMcodePrefixLauncherPairs(prefix, stagingPrefix)) {
-        mkdirSync(path.dirname(pair.activePath), { recursive: true });
-        mkdirSync(path.dirname(pair.stagedPath), { recursive: true });
-        writeFileSync(pair.activePath, '1.2.3');
-        writeFileSync(pair.stagedPath, '1.2.4');
-      }
-      writeFileSync(
-        path.join(prefix, 'install.json'),
-        JSON.stringify({ updateOwner: 'npm-prefix', prefix }),
-      );
-      const activeModulesRoot = resolveMcodePrefixModulesRoot(prefix, process.platform);
-      writeMcodePrefixUpdatePending({
-        stagingPrefix,
-        activePrefix: prefix,
-        activeModulesRoot,
-        stagedModulesRoot: resolveMcodePrefixModulesRoot(stagingPrefix, process.platform),
-        backupModulesRoot: `${activeModulesRoot}.mcode-update-backup`,
-        packageName: '@minimax-ai/code',
-        expectedVersion: '1.2.4',
-        launchers: resolveMcodePrefixLauncherPairs(prefix, stagingPrefix, process.platform),
-      });
+      const entryFile = path.join(packageRoot, 'dist/index.js');
+      try {
+        mkdirSync(path.dirname(entryFile), { recursive: true });
+        mkdirSync(path.join(stagedPackageRoot, 'dist'), { recursive: true });
+        mkdirSync(path.join(prefix, 'bin'), { recursive: true });
+        mkdirSync(path.join(stagingPrefix, 'bin'), { recursive: true });
+        writeFileSync(entryFile, '');
+        writeFileSync(
+          path.join(packageRoot, 'package.json'),
+          JSON.stringify({ name: packageName, version: '1.2.3', bin: { mcode: 'dist/index.js' } }),
+        );
+        writeFileSync(
+          path.join(stagedPackageRoot, 'package.json'),
+          JSON.stringify({ name: packageName, version: '1.2.4', bin: { mcode: 'dist/index.js' } }),
+        );
+        writeFileSync(path.join(prefix, process.platform === 'win32' ? 'mcode' : 'bin/mcode'), '1.2.3');
+        writeFileSync(path.join(stagingPrefix, process.platform === 'win32' ? 'mcode' : 'bin/mcode'), '1.2.4');
+        for (const pair of resolveMcodePrefixLauncherPairs(prefix, stagingPrefix)) {
+          mkdirSync(path.dirname(pair.activePath), { recursive: true });
+          mkdirSync(path.dirname(pair.stagedPath), { recursive: true });
+          writeFileSync(pair.activePath, '1.2.3');
+          writeFileSync(pair.stagedPath, '1.2.4');
+        }
+        writeFileSync(
+          path.join(prefix, 'install.json'),
+          JSON.stringify({ updateOwner: 'npm-prefix', prefix }),
+        );
+        const activeModulesRoot = resolveMcodePrefixModulesRoot(prefix, process.platform);
+        writeMcodePrefixUpdatePending({
+          stagingPrefix,
+          activePrefix: prefix,
+          activeModulesRoot,
+          stagedModulesRoot: resolveMcodePrefixModulesRoot(stagingPrefix, process.platform),
+          backupModulesRoot: `${activeModulesRoot}.mcode-update-backup`,
+          packageName,
+          expectedVersion: '1.2.4',
+          launchers: resolveMcodePrefixLauncherPairs(prefix, stagingPrefix, process.platform),
+        });
 
-      const resolveLatestPackageVersion = vi.fn(async () => '1.2.5');
-      const application = new McodeUpdateApplication(
-        {
-          currentVersion: '1.2.3',
-          entryFile,
-          environment: {},
-          installRoot: prefix,
-          platform: process.platform,
-          prefixInstall: {
-            executable: path.join(prefix, process.platform === 'win32' ? 'runtime/node/npm.cmd' : 'runtime/node/bin/npm'),
-            packageName: '@minimax-ai/code',
-            prefix,
-            registry: 'https://registry.npmjs.org/',
+        const resolveLatestPackageVersion = vi.fn(async () => '1.2.5');
+        const application = new McodeUpdateApplication(
+          {
+            currentVersion: '1.2.3',
+            entryFile,
+            environment: {},
+            installRoot: prefix,
+            platform: process.platform,
+            prefixInstall: {
+              executable: path.join(prefix, process.platform === 'win32' ? 'runtime/node/npm.cmd' : 'runtime/node/bin/npm'),
+              packageName,
+              prefix,
+              registry: 'https://registry.npmjs.org/',
+            },
           },
-        },
-        {
-          detectInstallSource: async () => 'npm-prefix',
-          resolveLatestPackageVersion,
-        },
-      );
+          {
+            detectInstallSource: async () => 'npm-prefix',
+            resolveLatestPackageVersion,
+          },
+        );
 
-      const plan = await application.inspect();
+        const plan = await application.inspect();
 
-      expect(resolveLatestPackageVersion).not.toHaveBeenCalled();
-      await expect(application.apply(plan)).resolves.toEqual({
-        applied: false,
-        restartRequired: true,
-        message: 'MCode 1.2.4 is already staged. It will activate after this process exits.',
-      });
-    } finally {
-      rmSync(prefix, { recursive: true, force: true });
-      rmSync(stagingPrefix, { recursive: true, force: true });
-    }
-  });
+        expect(resolveLatestPackageVersion).not.toHaveBeenCalled();
+        await expect(application.apply(plan)).resolves.toEqual({
+          applied: false,
+          restartRequired: true,
+          message: 'Shards Code 1.2.4 is already staged. It will activate after this process exits.',
+        });
+      } finally {
+        rmSync(prefix, { recursive: true, force: true });
+        rmSync(stagingPrefix, { recursive: true, force: true });
+      }
+    },
+  );
 
   it('rejects a pending update whose staged package and launchers are missing', async () => {
     const prefix = mkdtempSync(path.join(os.tmpdir(), 'mcode-update-missing-staging-'));
@@ -940,7 +964,7 @@ describe('MCode update install-source commands', () => {
       );
 
       await expect(application.inspect()).rejects.toThrow(
-        `MCode pending update artifacts are incomplete at ${pendingFile}.`,
+        `Shards Code pending update artifacts are incomplete at ${pendingFile}.`,
       );
     } finally {
       rmSync(prefix, { recursive: true, force: true });
@@ -1015,7 +1039,7 @@ describe('MCode update install-source commands', () => {
       await expect(application.apply(plan)).resolves.toEqual({
         applied: false,
         restartRequired: true,
-        message: 'MCode 1.2.4 is already active. Restarting will finish update cleanup.',
+        message: 'Shards Code 1.2.4 is already active. Restarting will finish update cleanup.',
       });
     } finally {
       rmSync(prefix, { recursive: true, force: true });
@@ -1165,11 +1189,11 @@ describe('MCode update install-source commands', () => {
     ['pnpm-global', 'pnpm add --global'],
     ['yarn-global', 'yarn global add'],
     ['bun-global', 'bun add --global'],
-  ] as const)('pins %s updates to the internal registry', (source, prefix) => {
+  ] as const)('pins %s updates to the public npm registry', (source, prefix) => {
     const command = buildMcodePackageManagerCommand(source, '1.2.4', 'linux');
     const scriptOptions =
       source === 'npm-global'
-        ? ' --ignore-scripts=false --include=optional --allow-scripts=@minimax-ai/code,better-sqlite3'
+        ? ' --ignore-scripts=false --include=optional --allow-scripts=@shards-foundation/shards-code,better-sqlite3'
         : '';
 
     expect(command.args.slice(-2)).toEqual([
@@ -1177,11 +1201,11 @@ describe('MCode update install-source commands', () => {
       'https://registry.npmjs.org/',
     ]);
     expect(command.display).toBe(
-      `${prefix} @minimax-ai/code@1.2.4${scriptOptions} --registry https://registry.npmjs.org/`,
+      `${prefix} @shards-foundation/shards-code@1.2.4${scriptOptions} --registry https://registry.npmjs.org/`,
     );
   });
 
-  it('resolves the target version from the internal registry with npm shipped by Node', async () => {
+  it('resolves the target version from the public registry with npm shipped by Node', async () => {
     const run = vi.fn(async () => '"1.2.4"');
 
     await expect(
@@ -1189,7 +1213,7 @@ describe('MCode update install-source commands', () => {
     ).resolves.toBe('1.2.4');
     expect(run).toHaveBeenCalledWith('npm', [
       'view',
-      '@minimax-ai/code@test',
+      '@shards-foundation/shards-code@test',
       'version',
       '--json',
       '--registry',
@@ -1276,6 +1300,21 @@ describe('MCode update install-source commands', () => {
     });
   });
 
+  it('resolves the Shards Code public package on npm and recognizes its global install path', () => {
+    const distribution = resolveMcodeNpmDistribution('@shards-foundation/shards-code');
+
+    expect(distribution).toEqual({
+      packageName: '@shards-foundation/shards-code',
+      registry: 'https://registry.npmjs.org/',
+    });
+    expect(
+      classifyMcodeInstallPath('/usr/local/lib/node_modules/@shards-foundation/shards-code'),
+    ).toBe('npm-global');
+    expect(
+      buildMcodePackageManagerCommand('npm-global', '1.2.4', 'linux', distribution).args,
+    ).toContain('@shards-foundation/shards-code@1.2.4');
+  });
+
   it('does not fall back to the internal registry when the public package is absent', async () => {
     const distribution = resolveMcodeNpmDistribution('@minimax-ai/code');
     const run = vi.fn(async () => {
@@ -1336,11 +1375,12 @@ function createApplication(
   dependencies: Partial<McodeUpdateApplicationDependencies>,
   options: {
     currentVersion?: string;
+    environment?: NodeJS.ProcessEnv;
     packageTag?: 'latest' | 'test' | 'preview';
-    packageName?: '@minimax-ai/code' | '@minimax-ai/code';
+    packageName?: '@minimax-ai/code' | '@shards-foundation/shards-code';
     prefixInstall?: {
       executable: string;
-      packageName: '@minimax-ai/code' | '@minimax-ai/code';
+      packageName: '@minimax-ai/code' | '@shards-foundation/shards-code';
       prefix: string;
       registry: string;
     };

@@ -44,13 +44,13 @@ describe('TuiThemePicker', () => {
     const rendered = stripAnsi(picker.render(100).join('\n'));
 
     expect(rendered).toContain('Theme');
-    expect(rendered).toContain('MCode');
+    expect(rendered).toContain('Shards Code');
     expect(rendered).toContain('Midnight');
     expect(rendered).toContain('Aurora');
     expect(rendered).toContain('Mine');
     expect(rendered).toContain('current');
     // The cursor starts on the theme that is already active.
-    expect(rendered).toContain('› MCode');
+    expect(rendered).toContain('› Shards Code');
   });
 
   it('previews the focused theme while navigating', () => {

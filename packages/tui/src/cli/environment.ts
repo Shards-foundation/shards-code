@@ -115,7 +115,7 @@ export function resolveTuiStartupEnvironmentOption(
   }
   if (values.length === 0) return undefined;
   if (!internalPackage) {
-    throw new Error('--env is only available in the internal MCode package.');
+    throw new Error('--env is only available in the internal Shards Code package.');
   }
   if (values.length > 1) throw new Error('--env may only be specified once.');
   return parseTuiStartupEnvironment(values[0] ?? '');

@@ -2,7 +2,7 @@
 set -eu
 runtime_executable=${__MAVIS_MCODE_TOOLS_RUNTIME_EXECUTABLE:-}
 if [ -z "$runtime_executable" ]; then
-  echo "MCode mcode-tools runtime is unavailable. Restart MCode." >&2
+  echo "Shards Code mcode-tools runtime is unavailable. Restart Shards Code." >&2
   exit 1
 fi
 mcode_tools_bin_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

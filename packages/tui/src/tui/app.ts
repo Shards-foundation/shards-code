@@ -257,7 +257,7 @@ export function createTuiApp(options: CreateTuiAppOptions): TuiApp {
     deliverPermissionFeedback: async (feedback) => {
       const disposition = await commandFlow.submit(feedback);
       if (disposition === 'retained')
-        throw new Error('MCode kept the guidance in the composer instead of sending it.');
+        throw new Error('Shards Code kept the guidance in the composer instead of sending it.');
     },
     onChanged: () => {
       updateChrome(controller.snapshot());

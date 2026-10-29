@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { TuiCommandFlow } from "../../../../../src/tui/controller/product/command-flow.js";
 import {
-  MINIMAX_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
+  SHARDS_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
   TuiLoginRequiredError,
 } from "../../../../../src/application/login-gate.js";
 
@@ -1276,7 +1276,7 @@ describe("TuiCommandFlow", () => {
       submit: vi.fn(async () => {
         throw new TuiLoginRequiredError(
           { status: "needs-login", managedTokenPresent: false, warnings: [] },
-          MINIMAX_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
+          SHARDS_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
         );
       }),
       requireLoginForAgentAction: vi.fn(async () => undefined),
@@ -1322,7 +1322,7 @@ describe("TuiCommandFlow", () => {
     expect(composerDraft.restoreSubmission).toHaveBeenCalledWith(draft);
     expect(composerDraft.completeSubmission).not.toHaveBeenCalled();
     expect(append).toHaveBeenCalledWith(
-      MINIMAX_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
+      SHARDS_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
       "warning",
     );
   });
@@ -1537,7 +1537,7 @@ describe("TuiCommandFlow", () => {
         managedTokenPresent: false,
         warnings: [],
       },
-      MINIMAX_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
+      SHARDS_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
     );
     const append = vi.fn();
     const queueFlow = { enqueue: vi.fn(async () => undefined) };
@@ -1608,7 +1608,7 @@ describe("TuiCommandFlow", () => {
     expect(featureFlow.compactSession).not.toHaveBeenCalled();
     expect(activeRunFlow.handle).toHaveBeenCalledWith("/steer focus here");
     expect(append).toHaveBeenCalledWith(
-      MINIMAX_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
+      SHARDS_CODE_TUI_LOGIN_REQUIRED_MESSAGE,
       "warning",
     );
   });

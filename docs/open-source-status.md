@@ -1,32 +1,19 @@
-# Source status
+# Shards Code source status
 
-The current source target is **TUI 0.6.3**. This repository contains the terminal TUI, headless CLI, ACP implementation, and the public distribution tooling around them.
+Shards Code is an independently maintained fork by Shards Foundation. It is not affiliated with, endorsed by, or an official product of MiniMax. The current source is based on the public [MiniMax-AI/minimax-code](https://github.com/MiniMax-AI/minimax-code) repository at upstream commit [`da22f11c55d4748155d7162c1030414228a00565`](https://github.com/MiniMax-AI/minimax-code/commit/da22f11c55d4748155d7162c1030414228a00565).
 
-## Version and evidence baseline
+The planned destination is `Shards-foundation/shards-code`. This local rebrand does not create that repository, publish source, or establish that the planned URL is available. The root and TUI versions in this snapshot are **0.6.5**; the intended CLI package name is `@shards-foundation/shards-code`, and the ACP helper name is `@shards-foundation/shards-code-acp`. The workspace manifests are private, and no Shards npm release, installer, or archive is currently available.
 
-| Concern | Current value | Source of truth |
-| --- | --- | --- |
-| TUI capability version | 0.6.3 | `packages/tui/package.json` |
-| Root workspace version | 0.6.3, aligned with the TUI | Root `package.json` |
-| Published npm observation | `@minimax-ai/code@0.6.9`; npm `latest` was 0.6.9 on 2026-10-13 | Public npm registry |
-| Shared-source baseline | `9b9885e42a3cf1a3df1cfa52a46e4fdb034cfcee` | `release/extraction.json` |
-| Embedded mcode-tools | 0.0.4, extracted from public `@minimax-ai/code@0.3.11` | `scripts/lib/mcode-tools-artifact.mjs` |
-| Historical live-service acceptance and demo | TUI 0.3.11, recorded 2026-09-11 | `docs/verification.md`, `docs/release-audit.md`, `docs/demo.md` |
+## Included source
 
-The product, TUI, and root workspace use the same 0.6.3 version. The embedded tool has its own version. Workspace and local-build manifests remain `private: true` to prevent accidental npm publication. Matching version strings do not prove that this source tree reproduces the published npm tarball.
+The project contains an interactive terminal interface, headless CLI, Agent Client Protocol (ACP) server, build/release tooling, tests, examples and documentation. It is not the MiniMax Desktop product or its support service.
 
-## Source boundary
+MiniMax model catalog entries, authentication and API endpoints remain available as provider compatibility. These integrations still communicate with MiniMax systems under the user's own account and authorization. The default `~/.minimax` data layout and `MINIMAX_DATA_DIR` / `MAVIS_DATA_DIR` settings remain for compatibility; see [Installation](installation.md#minimax-account-and-api-compatibility).
 
-- MiniMax OAuth and Token Plan, BYOK, accounts, quota views, the official plugin marketplace, managed connectors, search, mcode-tools, updates, feedback, and bounded diagnostic clients are included.
-- The in-process runtime, public workspace dependencies, tools, and sandbox are included. Internal generated IDL, the Desktop HTTP front door, and cloud-executor-only implementations are excluded.
-- mcode-tools is extracted from a pinned public npm package with archive and file-hash verification. Only the host holds refresh tokens.
-- Source checks permit reviewed public service API paths while rejecting internal addresses, generated protocols, and obvious credentials.
-- Internal Git history stays outside this repository. Shared-source updates use the reviewed process in [Source synchronization](source-sync.md).
+The pinned `mcode-tools` 0.0.4 component is extracted from public `@minimax-ai/code@0.3.11` and remains unchanged with its notices. The root MIT license and NOTICE retain the legally required original attribution. Other dependencies, vendored code and assets remain governed by their own licenses and notices; see [License status](../LICENSE-STATUS.md) and [Third-party notices](../THIRD_PARTY_NOTICES.md).
 
-See [TUI capability coverage](tui-capabilities.md) for individual features, [Verification records](verification.md) for evidence, and [Publication scope](publication-authorization.md) for the repository boundary.
+## Publication and evidence
 
-## Repository baseline
+This is a local rebrand branch based on the upstream revision above. No GitHub credentials have been used, no Shards repository has been created, and no push or release has occurred. Before publication, the owner must review the exact final diff, commit, test report and publication scope and explicitly approve the public write. See [Publication scope](publication-authorization.md).
 
-The initial CLI source snapshot was imported into `MiniMax-AI/minimax-code` on 2026-09-18 at commit `c59cf5377045aa1a3e699c242d089b73b7cdc2ad`. Commit `4e2e7bb5f771e9c42b2edefb1046483819b9032f` restored the Desktop image above the download links. The import preserved the repository's Desktop issue history and support workflow while adding the CLI source without internal Git history.
-
-Open dependency upgrades remain separate changes and require their own review and validation. Current test results and untested service boundaries are recorded in [Verification records](verification.md).
+Upstream test, product-demo, support and live-service records are not Shards acceptance evidence. Current Shards verification results must identify the exact local commit, environment, gate results and test pass/fail/skip counts in [Verification records](verification.md). Cross-platform, provider-live and account-specific behavior must be marked not run unless it was actually tested.

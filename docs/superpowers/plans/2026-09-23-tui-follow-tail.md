@@ -6,7 +6,7 @@
 
 **Architecture:** Keep `ScrollView.isFollowingEnd` as the single follow-tail state. Make `TuiChatLayout.followBottom()` conditional on that state, expose `forceFollowBottom()` for explicit user/Session intent, and wire only submission and Session transitions to the force path.
 
-**Tech Stack:** TypeScript, Vitest, MiniMax Code TUI, `ScrollView`, `TuiChatLayout`, `TuiAltScreen`.
+**Tech Stack:** TypeScript, Vitest, Shards Code TUI, `ScrollView`, `TuiChatLayout`, `TuiAltScreen`.
 
 ## Global Constraints
 

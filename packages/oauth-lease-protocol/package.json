@@ -1,7 +1,7 @@
 {
   "name": "@mavis/oauth-lease-protocol",
   "version": "0.1.0-beta.0",
-  "description": "Credential-minimal local OAuth access-token lease protocol for MCode hosts and consumers.",
+  "description": "Credential-minimal local OAuth access-token lease protocol for Shards Code hosts and consumers.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

@@ -9,7 +9,7 @@ export const EN_RUNTIME_TRANSLATIONS = {
   'questionnaire.noAnswer': 'No answer',
   'questionnaire.others': 'Others',
   'update.versionedInstalled':
-    'MCode {version} is installed. New MCode sessions will use it; running sessions can continue normally.',
+    'Shards Code {version} is installed. New Shards Code sessions will use it; running sessions can continue normally.',
 } as const;
 
 export type RuntimeTranslationKey = keyof typeof EN_RUNTIME_TRANSLATIONS;

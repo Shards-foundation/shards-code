@@ -90,6 +90,12 @@ export type McodeUpdatePlan =
       readonly source: 'unsupported';
       readonly currentVersion: string;
       readonly command: string;
+    }
+  | {
+      readonly kind: 'manual';
+      readonly source: 'managed-installer';
+      readonly currentVersion: string;
+      readonly message: string;
     };
 
 export interface McodeUpdateOutcome {
@@ -172,7 +178,7 @@ export class McodeUpdateApplication {
       : environment;
     this.packageTag = options.packageTag ?? resolveMcodeNpmDistTag();
     this.distribution = resolveMcodeNpmDistribution(
-      options.packageName,
+      options.packageName ?? this.prefixInstall?.packageName,
       this.prefixInstall?.registry,
     );
     this.dependencies = {
@@ -244,6 +250,15 @@ export class McodeUpdateApplication {
   async inspect(): Promise<McodeUpdatePlan> {
     const source = await this.dependencies.detectInstallSource();
     if (source === 'managed-installer') {
+      if (!this.environment.SHARDS_CODE_RELEASE_BASE_URL?.trim()) {
+        return {
+          kind: 'manual',
+          source,
+          currentVersion: this.currentVersion,
+          message:
+            'Shards Code release feed is not configured for this build. Follow docs/installation.md to build from source until a Shards release feed is available.',
+        };
+      }
       const result = await this.dependencies.createManagedService().check();
       return {
         kind: result.status,
@@ -327,7 +342,7 @@ export class McodeUpdateApplication {
     options: McodeUpdateApplyOptions = {},
   ): Promise<McodeUpdateOutcome> {
     if (plan.kind === 'manual' || plan.kind === 'current' || plan.kind === 'ahead') {
-      throw new Error(`MCode update plan ${plan.kind} cannot be applied automatically.`);
+      throw new Error(`Shards Code update plan ${plan.kind} cannot be applied automatically.`);
     }
     if (plan.kind === 'available') {
       const result = await this.dependencies.createManagedService().apply({
@@ -339,12 +354,12 @@ export class McodeUpdateApplication {
         ? {
             applied: true,
             message:
-              `MCode ${result.latestVersion} is installed. ` +
-              'Restart running MCode sessions to use it.',
+              `Shards Code ${result.latestVersion} is installed. ` +
+              'Restart running Shards Code sessions to use it.',
           }
         : {
             applied: false,
-            message: `MCode ${result.currentVersion} is already active.`,
+            message: `Shards Code ${result.currentVersion} is already active.`,
           };
     }
 
@@ -357,15 +372,15 @@ export class McodeUpdateApplication {
     const installedVersion = this.dependencies.readInstalledPackageVersion();
     if (installedVersion !== plan.latestVersion) {
       throw new Error(
-        `MCode update installed ${installedVersion || '<unknown>'}; expected ${plan.latestVersion}.`,
+        `Shards Code update installed ${installedVersion || '<unknown>'}; expected ${plan.latestVersion}.`,
       );
     }
     reportMcodeUpdatePhase(options, 'completed', false);
     return {
       applied: true,
       message:
-        `MCode ${plan.latestVersion} was installed through ${packageManagerName(plan.source)}. ` +
-        'Restart MCode to use the installed version.',
+        `Shards Code ${plan.latestVersion} was installed through ${packageManagerName(plan.source)}. ` +
+        'Restart Shards Code to use the installed version.',
     };
   }
 

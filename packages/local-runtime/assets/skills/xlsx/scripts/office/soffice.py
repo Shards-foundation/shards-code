@@ -15,7 +15,7 @@ Public API (identical to upstream, outside this rewrite's scope)::
     env = get_soffice_env()
     subprocess.run(["soffice", ...], env=env)
 
-Part of the MiniMax xlsx skill (MIT). See LICENSE for terms.
+Part of the Shards Code xlsx skill (MIT). See LICENSE for terms.
 """
 
 import os

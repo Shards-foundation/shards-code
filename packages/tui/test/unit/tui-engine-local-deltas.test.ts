@@ -101,7 +101,7 @@ function createMutableChatParts(surface: 'welcome' | 'conversation') {
   return parts;
 }
 
-describe('MCode Pi Engine local deltas', () => {
+describe('Shards Code Pi Engine local deltas', () => {
   describe.each([
     ['xterm', RecordingVirtualTerminal],
     ['clear-to-scrollback host', ClearToScrollbackTerminal],

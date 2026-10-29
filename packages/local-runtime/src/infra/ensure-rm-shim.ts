@@ -45,7 +45,7 @@ import { resolveBashEnvPolicy, type BashEnvPolicy } from '@mavis/agent-core/bash
  * (`-f`, `-r`/`-R`, `-rf`, `--`) and mirrors `rm -f`'s empty-operand success.
  */
 export const RM_SHIM_CONTENT = `#!/bin/bash
-# Managed by MiniMax Code. Do not edit.
+# Managed by Shards Code. Do not edit.
 #
 # Recoverable-delete shim: resolves ahead of /bin/rm on the agent's PATH so
 # every delete — including those reached through xargs, find -exec, or a
@@ -102,7 +102,7 @@ export function resolveAgentBashEnvPolicy(
         throw new Error(
           `The recoverable-delete rm shim at ${shimPath} is missing or not executable and could not be re-seeded. ` +
             'Refusing to start bash, because deletes would bypass the trash and become unrecoverable. ' +
-            'Check that the MiniMax Code data directory is writable, then restart the app to re-seed the shim.',
+            'Check that the Shards Code data directory is writable, then restart the app to re-seed the shim.',
           { cause },
         );
       }

@@ -31,7 +31,7 @@ export class AuthRequiredError extends Error {
   readonly code = 'AUTH_REQUIRED';
 
   constructor(options?: ErrorOptions) {
-    super('MCode authentication is required.', options);
+    super('Shards Code authentication is required.', options);
     this.name = 'AuthRequiredError';
   }
 }
@@ -40,7 +40,7 @@ export class AuthLoginCancelledError extends Error {
   readonly code = 'AUTH_LOGIN_CANCELLED';
 
   constructor() {
-    super('MCode OAuth device authorization was cancelled.');
+    super('Shards Code OAuth device authorization was cancelled.');
     this.name = 'AuthLoginCancelledError';
   }
 }
@@ -66,7 +66,7 @@ export class AuthScopeUpgradeRequiredError extends Error {
   readonly code = 'AUTH_SCOPE_UPGRADE_REQUIRED';
 
   constructor(readonly missingScopes: string[]) {
-    super('The current MCode authorization does not include the required scope.');
+    super('The current Shards Code authorization does not include the required scope.');
     this.name = 'AuthScopeUpgradeRequiredError';
   }
 }
@@ -75,7 +75,7 @@ export class AuthResourceContractMismatchError extends Error {
   readonly code = 'AUTH_RESOURCE_CONTRACT_MISMATCH';
 
   constructor() {
-    super('The stored credential does not match the MCode resource contract.');
+    super('The stored credential does not match the Shards Code resource contract.');
     this.name = 'AuthResourceContractMismatchError';
   }
 }
@@ -96,7 +96,7 @@ export class AuthDomainConflictError extends Error {
     readonly requested: Pick<AuthNamespace, 'buildEnv' | 'region'>,
   ) {
     super(
-      `MCode is signed in to ${active.buildEnv}/${active.region}; sign out before using ${requested.buildEnv}/${requested.region}.`,
+      `Shards Code is signed in to ${active.buildEnv}/${active.region}; sign out before using ${requested.buildEnv}/${requested.region}.`,
     );
     this.name = 'AuthDomainConflictError';
   }

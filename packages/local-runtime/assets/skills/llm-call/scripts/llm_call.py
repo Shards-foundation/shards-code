@@ -2,9 +2,10 @@
 """
 Multi-protocol LLM caller.
 
-Reads provider config from the active MiniMax Code data directory and calls LLM APIs using the
+Reads provider config from the active Shards Code data directory and calls LLM APIs using the
 correct protocol (Messages, OpenAI Chat Completions, or Gemini
-generateContent) based on the provider's `npm` field.
+generateContent) based on the provider's `npm` field. Existing `MINIMAX_DATA_DIR` and `~/.minimax`
+configuration paths remain supported for compatibility.
 
 Dependencies: httpx, pyyaml
     pip install httpx pyyaml
@@ -367,7 +368,7 @@ class LLMCaller:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Call LLM APIs using config from the active MiniMax Code data directory",
+        description="Call LLM APIs using config from Shards Code's active data directory",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -378,7 +379,7 @@ Examples:
         """,
     )
     parser.add_argument("--config", type=str, default=None,
-                        help="Path to config.yaml (default: active dataDir/config.yaml, normally ~/.minimax/config.yaml)")
+                        help="Path to config.yaml (default: active dataDir/config.yaml; legacy ~/.minimax/config.yaml remains supported)")
     parser.add_argument("--model", "-m", type=str, default=None,
                         help="Model in provider/model format")
     parser.add_argument("--prompt", "-p", type=str, default=None,

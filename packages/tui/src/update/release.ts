@@ -23,7 +23,7 @@ type McodeReleaseManifestV1Targets = Record<
 
 export interface McodeReleaseManifestV1 {
   schemaVersion: 1;
-  product: 'minimax-code';
+  product: 'shards-code' | 'minimax-code';
   channel: McodeUpdateChannel | string;
   version: string;
   publishedAt: string;
@@ -46,14 +46,14 @@ const TARGETS = [...REQUIRED_V1_TARGETS, 'windows-arm64'] as const;
 
 export function parseMcodeUpdateChannel(value: string): McodeUpdateChannel {
   if (!CHANNEL_PATTERN.test(value)) {
-    throw new Error(`Unsupported MCode update channel: ${JSON.stringify(value)}`);
+    throw new Error(`Unsupported Shards Code update channel: ${JSON.stringify(value)}`);
   }
   return value as McodeUpdateChannel;
 }
 
 export function parseMcodeVersion(value: string): string {
   if (!VERSION_PATTERN.test(value)) {
-    throw new Error(`Invalid MCode version: ${JSON.stringify(value)}`);
+    throw new Error(`Invalid Shards Code version: ${JSON.stringify(value)}`);
   }
   return value;
 }
@@ -68,43 +68,43 @@ export function parseAndVerifyMcodeReleaseManifest(
   try {
     authentic = verify(null, manifestBytes, createPublicKey(publicKeyPem), signature);
   } catch (error) {
-    throw new Error(`MCode release signature could not be verified: ${errorMessage(error)}`);
+    throw new Error(`Shards Code release signature could not be verified: ${errorMessage(error)}`);
   }
-  if (!authentic) throw new Error('MCode release signature verification failed.');
+  if (!authentic) throw new Error('Shards Code release signature verification failed.');
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(Buffer.from(manifestBytes).toString('utf8'));
   } catch (error) {
-    throw new Error(`MCode release manifest is not valid JSON: ${errorMessage(error)}`);
+    throw new Error(`Shards Code release manifest is not valid JSON: ${errorMessage(error)}`);
   }
   return validateManifest(parsed);
 }
 
 function validateManifest(value: unknown): McodeReleaseManifestV1 {
-  if (!isRecord(value)) throw new Error('MCode release manifest must be an object.');
+  if (!isRecord(value)) throw new Error('Shards Code release manifest must be an object.');
   if (value.schemaVersion !== 1) {
-    throw new Error(`Unsupported MCode release schema: ${String(value.schemaVersion)}`);
+    throw new Error(`Unsupported Shards Code release schema: ${String(value.schemaVersion)}`);
   }
-  if (value.product !== 'minimax-code') {
+  if (value.product !== 'shards-code' && value.product !== 'minimax-code') {
     throw new Error(`Unexpected release product: ${String(value.product)}`);
   }
   const channel =
     typeof value.channel === 'string' && /^[0-9A-Za-z][0-9A-Za-z._-]*$/u.test(value.channel)
       ? value.channel
       : undefined;
-  if (!channel) throw new Error('MCode release channel is invalid.');
+  if (!channel) throw new Error('Shards Code release channel is invalid.');
   const version = typeof value.version === 'string' ? parseMcodeVersion(value.version) : undefined;
-  if (!version) throw new Error('MCode release version is missing.');
+  if (!version) throw new Error('Shards Code release version is missing.');
   if (typeof value.publishedAt !== 'string' || !Number.isFinite(Date.parse(value.publishedAt))) {
-    throw new Error('MCode release publishedAt is invalid.');
+    throw new Error('Shards Code release publishedAt is invalid.');
   }
   if (typeof value.minNodeVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(value.minNodeVersion)) {
-    throw new Error('MCode release minNodeVersion is invalid.');
+    throw new Error('Shards Code release minNodeVersion is invalid.');
   }
   const registry = readHttpsUrl(value.registry, 'registry');
   const installArtifact = readArtifact(value.installArtifact, true, 'installArtifact');
-  if (!isRecord(value.targets)) throw new Error('MCode release targets are missing.');
+  if (!isRecord(value.targets)) throw new Error('Shards Code release targets are missing.');
   const targets: McodeReleaseManifestV1Targets = {
     'darwin-arm64': readArtifact(value.targets['darwin-arm64'], false, 'targets.darwin-arm64'),
     'darwin-x64': readArtifact(value.targets['darwin-x64'], false, 'targets.darwin-x64'),
@@ -120,7 +120,7 @@ function validateManifest(value: unknown): McodeReleaseManifestV1 {
   }
   return {
     schemaVersion: 1,
-    product: 'minimax-code',
+    product: value.product,
     channel,
     version,
     publishedAt: value.publishedAt,
@@ -170,10 +170,10 @@ function readHttpsUrl(value: unknown, name: string): string {
 function readBase64Signature(value: string): Buffer {
   const normalized = value.trim();
   if (!/^[A-Za-z0-9+/]+={0,2}$/u.test(normalized)) {
-    throw new Error('MCode release signature is not valid base64.');
+    throw new Error('Shards Code release signature is not valid base64.');
   }
   const signature = Buffer.from(normalized, 'base64');
-  if (signature.length !== 64) throw new Error('MCode release signature has an invalid length.');
+  if (signature.length !== 64) throw new Error('Shards Code release signature has an invalid length.');
   return signature;
 }
 
@@ -185,7 +185,7 @@ export function resolveMcodeReleaseTarget(
   if ((TARGETS as readonly string[]).includes(candidate)) {
     return candidate as McodeReleaseTarget;
   }
-  throw new Error(`Unsupported MCode update host: ${platform}-${arch}`);
+  throw new Error(`Unsupported Shards Code update host: ${platform}-${arch}`);
 }
 
 export function assertMcodeReleaseTargetAvailable(
@@ -193,7 +193,7 @@ export function assertMcodeReleaseTargetAvailable(
   target: McodeReleaseTarget,
 ): void {
   if (manifest.targets[target]) return;
-  throw new Error(`MCode ${manifest.version} does not provide a release for ${target}.`);
+  throw new Error(`Shards Code ${manifest.version} does not provide a release for ${target}.`);
 }
 
 interface ParsedVersion {

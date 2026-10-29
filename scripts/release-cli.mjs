@@ -45,7 +45,7 @@ function createVersionPullRequest({ root, branch, version, tag }) {
     const body = path.join(temporary, 'body.md');
     writeFileSync(body, `Update the root and TUI source versions to ${version}.\n\nTag \`${tag}\` points to this version commit. The tag-triggered CLI release workflow builds and validates the npm installation archive. Merge this PR to carry the released source version back to main; do not move or recreate the release tag.\n`);
     execFileSync(githubCli(root), ['pr', 'create', '--base', 'main', '--head', branch,
-      '--title', `chore: release MiniMax Code ${version}`, '--body-file', body], { cwd: root, stdio: 'inherit' });
+      '--title', `chore: release Shards Code ${version}`, '--body-file', body], { cwd: root, stdio: 'inherit' });
   } finally { rmSync(temporary, { recursive: true, force: true }); }
 }
 
@@ -80,11 +80,11 @@ export function releaseCli({ root, version, dryRun = false, openPullRequest = cr
     writeFileSync(file, JSON.stringify(manifest, null, 2) + '\n');
   }
   git('add', '--', ...versionFiles);
-  git('commit', '-m', `chore: release MiniMax Code ${version}`);
+  git('commit', '-m', `chore: release Shards Code ${version}`);
   if (git('status', '--porcelain')) throw new Error('Working tree changed during the version commit; inspect it before tagging.');
   if (git('diff', '--name-only', base, 'HEAD') !== [...versionFiles].sort().join('\n')) throw new Error('Version commit must change only the two package manifests.');
   cliBuildVersion(root, tag);
-  git('tag', '-a', tag, '-m', `MiniMax Code ${version}`);
+  git('tag', '-a', tag, '-m', `Shards Code ${version}`);
   // Push both refs or neither. Never force an existing tag or update main.
   git('push', '--atomic', '--set-upstream', 'origin', `refs/heads/${branch}:refs/heads/${branch}`, `refs/tags/${tag}:refs/tags/${tag}`);
   console.log(`Pushed ${branch} and ${tag}; CI will build and publish the archive after validation.`);

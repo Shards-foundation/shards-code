@@ -9,7 +9,7 @@
  */
 
 /** Default bot display name shown in every card header. */
-export const DEFAULT_BOT_NAME = 'MiniMax Code';
+export const DEFAULT_BOT_NAME = 'Shards Code';
 
 /**
  * Build a Card 2.0 `header` object with the standard `(title, template,

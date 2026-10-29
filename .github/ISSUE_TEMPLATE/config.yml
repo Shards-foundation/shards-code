@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Contribution policy
-    url: https://github.com/MiniMax-AI/minimax-code/blob/main/CONTRIBUTING.md
-    about: Everyone may report issues and suggest improvements. Pull requests are accepted only from repository collaborators; external PRs are not accepted.
-  - name: CLI quick start and troubleshooting
-    url: https://agent.minimax.io/docs/cli/quick-start
-    about: Installation, account regions, first tasks, and links to troubleshooting.
+  - name: Contribution and review policy
+    url: https://github.com/Shards-foundation/shards-code/blob/main/CONTRIBUTING.md
+    about: Read the Shards Code contribution, review, verification and licensing guidance.
+  - name: Installation and data compatibility
+    url: https://github.com/Shards-foundation/shards-code/blob/main/docs/installation.md
+    about: Check current source-build instructions and understand the preserved MiniMax data directory.
   - name: Report a vulnerability privately
-    url: https://github.com/MiniMax-AI/minimax-code/blob/main/SECURITY.md
-    about: Follow the security reporting process. Do not disclose vulnerabilities or sensitive data in public issues.
+    url: https://github.com/Shards-foundation/shards-code/blob/main/SECURITY.md
+    about: Read the private-reporting guidance; do not disclose vulnerabilities or sensitive data in public issues.

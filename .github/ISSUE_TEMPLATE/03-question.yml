@@ -1,5 +1,5 @@
 name: Usage or repository policy question
-description: Ask about the Desktop app, CLI, source builds, or contribution policy.
+description: Ask about Shards Code usage, source builds, or contribution policy.
 title: "[Question]: "
 labels: ["question", "needs-triage"]
 body:
@@ -7,9 +7,8 @@ body:
     id: product
     attributes:
       label: Product or interface
-      description: Leave blank if unsure or asking about repository policy. Desktop app and interactive TUI reports automatically receive the desktop or tui label.
+      description: Leave blank if unsure or asking about repository policy. Interactive TUI questions receive both cli and tui labels; other Shards Code questions receive cli.
       options:
-        - Desktop app
         - CLI - interactive TUI
         - CLI - headless
         - CLI - ACP

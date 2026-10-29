@@ -15,7 +15,7 @@ export const MCODE_TOOLS_ARTIFACT = Object.freeze({
 // Extract unchanged artifacts from the public release package without running package scripts or extracting other files to disk.
 export async function extractMcodeToolsArtifact(bytes) {
   if (createHash('sha512').update(bytes).digest('base64') !== MCODE_TOOLS_ARTIFACT.integrity)
-    throw new Error('Public MCode archive integrity mismatch.');
+    throw new Error('MiniMax mcode-tools archive integrity mismatch.');
   const files = new Map();
   const prefix = 'package/embedded/mcode-tools/';
   await new Promise((resolve, reject) => {

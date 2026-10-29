@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Public Plugin manifest validator for the MiniMax Code Plugin format V1.
+// Public Plugin manifest validator for the MiniMax-compatible Plugin format V1.
 //
 // This is the entry point an external author runs to check a Plugin package
 // before submitting it. It validates the parts of the V1 contract that are

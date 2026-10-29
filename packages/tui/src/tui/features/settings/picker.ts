@@ -11,7 +11,7 @@ const TUI_MODES = ['regular', 'fullscreen'] as const satisfies readonly TuiMode[
 
 const TUI_MODE_DESCRIPTIONS: Record<TuiMode, string> = {
   regular: 'Uses terminal scrollback, selection, and copy.',
-  fullscreen: 'Keeps MCode in a fixed viewport with in-app scrolling.',
+  fullscreen: 'Keeps Shards Code in a fixed viewport with in-app scrolling.',
 };
 
 export class TuiSettingsPicker implements Component {
@@ -67,8 +67,8 @@ export class TuiSettingsPicker implements Component {
         body: [
           chalk.hex(colors.muted)(
             compact
-              ? 'Choose how MCode fills this terminal.'
-              : 'Choose how MCode uses this terminal.',
+              ? 'Choose how Shards Code fills this terminal.'
+              : 'Choose how Shards Code uses this terminal.',
           ),
           '',
           ...TUI_MODES.flatMap((mode, index) =>

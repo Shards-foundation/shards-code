@@ -28,6 +28,12 @@ test('the built mcode-tools CLI starts independently and exposes its commands', 
   assert.match(result.stdout, /mcode-tools/);
 });
 
+test('the built package identifies Shards Code and exposes both CLI names', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../dist/package.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.name, '@shards-foundation/shards-code');
+  assert.deepEqual(manifest.bin, { 'shards-code': 'cli.js', mcode: 'cli.js' });
+});
+
 test('the built image preview worker processes a synthetic PNG and exits cleanly', { timeout: 15000 }, async (t) => {
   const { Worker } = await import('node:worker_threads');
   const worker = new Worker(new URL('../dist/image-preview-worker.js', import.meta.url), {

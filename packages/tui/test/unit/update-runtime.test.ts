@@ -1,6 +1,7 @@
 import {
   chmodSync,
   copyFileSync,
+  existsSync,
   linkSync,
   mkdirSync,
   mkdtempSync,
@@ -18,10 +19,26 @@ import {
   createMcodeNpmRuntimeEnvironment,
   resolveMcodeNpmPrefixInstall,
 } from '../../src/update/install-source.js';
+import { resolveMcodePrefixLauncherPairs } from '../../src/update/prefix-update.js';
 
 const roots: string[] = [];
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
+
+describe('Shards Code npm-prefix launchers', () => {
+  it('keeps shards-code canonical while preserving mcode on Unix and Windows', () => {
+    expect(
+      resolveMcodePrefixLauncherPairs('/prefix', '/staging', 'linux').map((pair) =>
+        path.posix.basename(pair.activePath),
+      ),
+    ).toEqual(['mcode', 'shards-code']);
+    expect(
+      resolveMcodePrefixLauncherPairs('C:\\prefix', 'C:\\staging', 'win32').map((pair) =>
+        path.win32.basename(pair.activePath),
+      ),
+    ).toEqual(['mcode.cmd', 'mcode.ps1', 'shards-code.cmd', 'shards-code.ps1']);
+  });
 });
 
 describe('npm-prefix runtime consistency', () => {
@@ -88,9 +105,9 @@ const lifecycle = require('node:child_process').spawnSync('node', ['-p', 'proces
 if (lifecycle.status !== 0 || lifecycle.stdout.trim() !== process.execPath) throw new Error('Wrong lifecycle Node');
 if (process.argv.includes('view')) { console.log(JSON.stringify('1.2.4')); process.exit(0); }
 const prefix = process.argv[process.argv.indexOf('--prefix') + 1];
-const root = path.join(prefix, process.platform === 'win32' ? 'node_modules/@minimax-ai/code' : 'lib/node_modules/@minimax-ai/code');
+const root = path.join(prefix, process.platform === 'win32' ? 'node_modules/@shards-foundation/shards-code' : 'lib/node_modules/@shards-foundation/shards-code');
 fs.mkdirSync(path.join(root, 'node_modules/better-sqlite3'), { recursive: true });
-fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({name:'@minimax-ai/code',version:'1.2.4',bin:{mcode:'cli.js','mcode-tools':'tools.js'}}));
+fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({name:'@shards-foundation/shards-code',version:'1.2.4',bin:{'shards-code':'cli.js',mcode:'cli.js','mcode-tools':'tools.js'}}));
 fs.writeFileSync(path.join(root, 'cli.js'), 'console.log("1.2.4");');
 fs.writeFileSync(path.join(root, 'tools.js'), 'console.log("mcode-tools 1.2.4");');
 fs.writeFileSync(path.join(root, 'node_modules/better-sqlite3/index.js'), ${JSON.stringify(sqlite)});
@@ -111,7 +128,7 @@ fs.writeFileSync(path.join(root, 'node_modules/better-sqlite3/index.js'), ${JSON
           prefixInstall: {
             executable: npm,
             prefix,
-            packageName: '@minimax-ai/code',
+            packageName: '@shards-foundation/shards-code',
             registry: 'https://registry.npmjs.org/',
           },
         },
@@ -129,6 +146,11 @@ fs.writeFileSync(path.join(root, 'node_modules/better-sqlite3/index.js'), ${JSON
         expect(
           JSON.parse(readFileSync(path.join(prefix, 'install.json'), 'utf8')).nodeExecutable,
         ).toBe(process.execPath);
+        const receipt = JSON.parse(readFileSync(path.join(prefix, 'install.json'), 'utf8'));
+        expect(receipt.product).toBe('shards-code');
+        const launcherSuffix = process.platform === 'win32' ? '.cmd' : '';
+        expect(existsSync(path.join(prefix, 'bin', `shards-code${launcherSuffix}`))).toBe(true);
+        expect(existsSync(path.join(prefix, 'bin', `mcode${launcherSuffix}`))).toBe(true);
       }
       expect(environment.PATH.startsWith(shadowBin)).toBe(true);
     },
@@ -228,7 +250,7 @@ fs.writeFileSync(path.join(root, 'node_modules/better-sqlite3/index.js'), 'modul
     const missing = spawnSync(releaseLauncher, ['--version']);
     expect(missing.status).toBe(127);
     expect(missing.stderr.toString()).toMatch(/Node runtime is missing/u);
-    expect(missing.stderr.toString()).toMatch(/re-run the MCode installer/u);
+    expect(missing.stderr.toString()).toMatch(/re-run the Shards Code installer/u);
   });
 
   it('heals receipts pinned to a Homebrew Cellar keg via the stable opt path', async () => {

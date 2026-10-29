@@ -1,16 +1,16 @@
 # Contributing
 
-This repository contains the standalone MiniMax Code TUI, headless CLI, and ACP source. Start with the [architecture](docs/architecture.md), [capability coverage](docs/tui-capabilities.md), and [installation guide](docs/installation.md).
+Shards Code is an independent fork maintained by Shards Foundation. It contains a terminal coding agent, headless CLI and ACP server. Start with the [architecture](docs/architecture.md), [capability coverage](docs/tui-capabilities.md), and [installation guide](docs/installation.md). The project is not affiliated with or endorsed by MiniMax.
 
-Thanks for your interest in contributing. For now, we only accept code and documentation contributions from repository collaborators. If you are not a collaborator but have an idea or proposal, please [open an issue](https://github.com/MiniMax-AI/minimax-code/issues/new/choose) so we can discuss it.
+Thanks for your interest in contributing. Use the [Shards Code issue tracker](https://github.com/Shards-foundation/shards-code/issues) to discuss bugs, proposals and project policy. Pull requests are reviewed under the rules and repository settings maintained by Shards Foundation; opening an issue or submitting a PR does not guarantee acceptance.
 
-Repository collaborators should submit pull requests from feature branches; do not push directly to the default branch. Describe user-visible changes, checks you ran, live-service or platform validation you did not run, and documentation impact. Preserve real author identities and existing copyright notices.
+Submit pull requests from feature branches; do not push directly to the default branch. Describe user-visible changes, checks you ran, live-service or platform validation you did not run, and documentation impact. Preserve real author identities and existing copyright notices.
 
 Apply the relevant change-type and product labels using the [pull request label guide](docs/maintainers.md#pull-request-labels). Add `perf:full` separately when the [performance rules](#performance-checks) require the full suite.
 
 ## Maintainers and review
 
-See [Maintainers](docs/maintainers.md) for review ownership, independent approval, security/release routing and the public-to-internal contribution flow. The [PR template](.github/PULL_REQUEST_TEMPLATE.md) records checks, untested boundaries and permission to contribute under the existing applicable licenses. CODEOWNERS routes reviews; required checks and approvals must also be enabled in repository settings.
+See [Maintainers](docs/maintainers.md) for review ownership, independent approval, security and release routing. The [PR template](.github/PULL_REQUEST_TEMPLATE.md) records checks, untested boundaries and permission to contribute under the existing applicable licenses. CODEOWNERS routes reviews; required checks and approvals must also be enabled in repository settings.
 
 ## Documentation language
 
@@ -49,7 +49,7 @@ Existing README files, `CONTRIBUTING.md`, `.github/PULL_REQUEST_TEMPLATE.md`, Ma
 
 `Node compatibility` runs weekly and on demand against macOS and Linux with Node 22.19.0, 24.2.0, 25 and 26. Windows remains excluded from this matrix; the PR Windows contract is a focused Node 24 check, not a substitute for the full compatibility matrix. It does not run automatically on PRs. Dispatch it on the selected branch for changes to supported Node versions, native dependencies or compatibility-sensitive verification tooling, and before a source release. This covers the minimum versions of the two supported ranges and the additional supported majors. Deferring those versions from ordinary PR checks can delay regression discovery; a known failure in a supported version still needs resolution before release. Dependabot proposes weekly Actions and npm updates, grouping Actions and development-tool minor/patch updates. External Actions use reviewed full commit SHAs, while local actions and reusable workflows come from the same checked-out revision.
 
-Source candidates are requested independently through the `Source candidate` workflow; ordinary PRs and main pushes do not produce them. Its Linux/macOS archive validation is described in [Releasing](docs/releasing.md). `CLI release` builds npm-installable tar.gz packages from version tags and validates the same archive before attaching it to a GitHub Release. Its `package` verification profile tests installation of an existing archive; it does not replace full source verification. npm registry and official installer publication remain separate release processes.
+Source candidates are requested independently through the `Source candidate` workflow; ordinary PRs and main pushes do not produce them. Its Linux/macOS archive validation is described in [Releasing](docs/releasing.md). `CLI release` builds Shards Code tar.gz packages from version tags and validates the same archive before attaching it to a GitHub Release. Its `package` verification profile tests installation of an existing archive; it does not replace full source verification. Optional ACP companion-package publication is a separate, explicitly opt-in npm release step. No Shards installer or release is implied by the source snapshot.
 
 Source export reports separate archive creation, extraction, inventory validation, hashing, and cleanup timings in `export.json`. Windows uses native `tar` after complete archive preflight; other systems use the Node extractor. The preflight rejects traversal, links, duplicate entries and Git metadata before writing files. A machine without native `tar` falls back to Node. Set `MCODE_SOURCE_EXTRACTOR=node` or `native` when comparing extractors locally.
 
@@ -88,10 +88,10 @@ and raw evidence.
 
 ## Capability boundaries
 
-Preserve MiniMax OAuth, Token Plan, BYOK, mcode-tools, search, plugins, connectors, updates, and feedback. Do not solve standalone-build problems by removing capabilities. Managed services use public clients; internal HTTP services, generated IDL, and cloud executor implementations are outside this repository.
+Preserve MiniMax account and API compatibility, Token Plan, BYOK, the separately noticed mcode-tools component, search, plugins, connectors, updates, and feedback unless a separately reviewed change explicitly alters those capabilities. Do not solve standalone-build problems by removing them. Managed services use public clients; internal HTTP services, generated IDL, and cloud executor implementations are outside this repository.
 
 Do not commit account data, logs, sessions, API keys, or real user content. Use temporary data directories and synthetic inputs for tests. Do not attach unredacted diagnostic bundles to issues; follow the [security reporting process](SECURITY.md).
 
-## Synchronizing with the source repository
+## Working with upstream-derived code
 
-The internal product repository remains the source of shared implementation. This repository maintains standalone distribution adaptations and a reviewed public projection. Use the [source synchronization process](docs/source-sync.md) to generate candidates, review them, validate changes, and submit a PR. Never merge internal Git history. Changes should land through pull requests before maintainers port them back internally; subsequent synchronization must preserve public adaptations.
+This repository is an independent fork. When adapting upstream-derived code, identify the public source and revision, preserve applicable licenses and notices, and review the full change for credentials, private protocols, internal services and third-party material. Do not import another repository's Git history or private review artifacts. Keep Shards-specific changes intact and document any MiniMax references that remain for factual provider/API compatibility.

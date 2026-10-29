@@ -4,7 +4,7 @@ All automatic telemetry uploads are disabled by default and each requires its ow
 
 ## Turn it on or off
 
-Add this to the active profile's `config.yaml`, then restart MCode. Builds from this repository and the published npm CLI `@minimax-ai/code@0.6.9` default to `~/.minimax/config.yaml` (or `~/.minimax-<profile>/config.yaml` when a profile is selected). Overrides can change this path; see [Accounts and data](installation.md#accounts-and-data) to locate it. The telemetry controls below describe this repository's source build and are not a guarantee of feature parity with that npm release.
+Add this to the active profile's `config.yaml`, then restart Shards Code. This source build defaults to `~/.minimax/config.yaml` (or `~/.minimax-<profile>/config.yaml` when a profile is selected); the legacy data path is retained for compatibility. Overrides can change this path; see [MiniMax account and API compatibility](installation.md#minimax-account-and-api-compatibility) to locate it. The upstream `@minimax-ai/code` npm package is a separate MiniMax product, not a Shards Code distribution; this source snapshot has no published Shards npm package.
 
 ```yaml
 telemetry:
@@ -16,11 +16,11 @@ telemetry:
 Remove a setting or set it to `false` to turn that channel off. Either environment variable below turns **all channels** off and takes precedence over the config file:
 
 ```sh
-MCODE_DISABLE_TELEMETRY=1 mcode
-DO_NOT_TRACK=1 mcode
+MCODE_DISABLE_TELEMETRY=1 pnpm shards-code
+DO_NOT_TRACK=1 pnpm shards-code
 ```
 
-Inspect the effective setting of every channel with `mcode telemetry status`. Run `mcode telemetry preview` to see a representative decoded usage-event request. Preview does not send a request. When usage telemetry is disabled, preview shows `request: null`, independently of the metrics and diagnostics settings.
+Inspect the effective setting of every channel with `pnpm shards-code telemetry status`. Run `pnpm shards-code telemetry preview` to see a representative decoded usage-event request. Preview does not send a request. When usage telemetry is disabled, preview shows `request: null`, independently of the metrics and diagnostics settings.
 
 ## Usage-event data sent
 
@@ -39,7 +39,7 @@ The decoded JSON envelope contains:
 | `distinct_id`                    | The same fresh random ID                      |
 | `lib.$lib`                       | `js`                                          |
 | `lib.$lib_method`                | `code`                                        |
-| `lib.$lib_version`               | MCode version                                 |
+| `lib.$lib_version`               | Shards Code version                                 |
 | `properties`                     | Common and event-specific fields listed below |
 | `type`                           | `track`                                       |
 | `event`                          | Event name from the table below               |
@@ -53,7 +53,7 @@ Every `properties` object includes:
 | `os`          | Node.js platform name, such as `darwin`, `linux`, or `win32` |
 | `region`      | `cn` or `en`                                                 |
 | `build_env`   | `dev`, `test`, `staging`, or `prod`                          |
-| `app_version` | MCode version                                                |
+| `app_version` | Shards Code version                                                |
 
 Event-specific fields are limited to:
 
@@ -66,9 +66,9 @@ Event-specific fields are limited to:
 - `slash_command_click`: `chat_type`; `command_type` (`skill`, `new_chat`, `summarize`, `plan_mode`, `goal_mode`, `other`).
 - `at_command_click`: `chat_type`; `command_type` (`plugins`, `goal_mode`, `plan_mode`, `file`, `directory`).
 
-MCode does not send account IDs, device IDs, workspace paths or names, session IDs, model names, prompts, responses, filenames, command text, plugin names, or credentials through this channel. The receiver requires an identity-shaped envelope, so the client creates a fresh random event ID for each request. It is never persisted or reused and cannot link two events on its own. MCode does not add an account authorization header to these requests.
+Shards Code usage telemetry does not send account IDs, device IDs, workspace paths or names, session IDs, model names, prompts, responses, filenames, command text, plugin names, or credentials through this channel. The receiver requires an identity-shaped envelope, so the client creates a fresh random event ID for each request. It is never persisted or reused and cannot link two events on its own. Shards Code usage telemetry does not add an account authorization header to these requests.
 
-As with any network request, the receiving server can observe transport metadata such as the source IP address. The client does not add that value to the event payload. `mcode telemetry preview` displays the decoded envelope.
+As with any network request, the receiving server can observe transport metadata such as the source IP address. The client does not add that value to the event payload. `pnpm shards-code telemetry preview` displays the decoded envelope.
 
 ## Usage-event destinations
 

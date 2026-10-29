@@ -436,6 +436,8 @@ test('release command bumps source before tagging, pushes a release branch and o
   assert.equal(f.git('branch', '--show-current'), 'release/v1.2.4');
   assert.equal(f.git('cat-file', '-t', 'v1.2.4'), 'tag');
   assert.equal(f.git('rev-parse', 'v1.2.4^{commit}'), result.revision);
+  assert.equal(f.git('show', '-s', '--format=%s', 'v1.2.4^{commit}'), 'chore: release Shards Code 1.2.4');
+  assert.match(f.git('for-each-ref', '--format=%(contents)', 'refs/tags/v1.2.4'), /Shards Code 1\.2\.4/u);
   assert.equal(f.git('rev-parse', 'origin/main'), f.base);
   assert.equal(f.git('rev-parse', 'origin/release/v1.2.4'), result.revision);
   for (const name of ['package.json', 'packages/tui/package.json'])
@@ -486,7 +488,11 @@ test('npm release manifests require native SQLite and pin installed external dep
   const manifest = releaseManifest([f.root], '0.4.13');
   assert.equal(manifest.version, '0.4.13');
   assert.equal(manifest.private, true);
+  assert.equal(manifest.name, '@shards-foundation/shards-code');
+  assert.match(manifest.description, /not affiliated with (?:or endorsed by )?MiniMax/i);
+  assert.equal(manifest.bin['shards-code'], 'cli.js');
   assert.equal(manifest.bin.mcode, 'cli.js');
+  assert.equal(manifest.repository.url, 'https://github.com/Shards-foundation/shards-code.git');
   assert.equal(manifest.dependencies['better-sqlite3'], '1.2.3');
   assert.equal(manifest.dependencies['@vscode/ripgrep'], '1.2.3');
   assert.equal(manifest.optionalDependencies['@mariozechner/clipboard'], '1.2.3');
@@ -497,9 +503,14 @@ test('npm release manifests require native SQLite and pin installed external dep
   assert.throws(() => releaseManifest([f.root, f.source], '0.4.13'), /Expected one installed version/);
 });
 
+test('CLI archive filename uses the Shards Code product identity', async () => {
+  const { cliArchiveFilename } = await import('../scripts/lib/cli-release.mjs');
+  assert.equal(cliArchiveFilename('0.4.13'), 'shards-code-0.4.13.tar.gz');
+});
+
 test('CLI publication requires every supported installation receipt for the exact archive and revision', t => {
   const f = fixture(t);
-  const archive = path.join(f.root, 'minimax-code-0.4.13.tar.gz');
+  const archive = path.join(f.root, 'shards-code-0.4.13.tar.gz');
   writeFileSync(archive, 'synthetic archive');
   const sha256 = createHash('sha256').update(readFileSync(archive)).digest('hex');
   writeFileSync(`${archive}.sha256`, `${sha256}  ${path.basename(archive)}\n`);
@@ -518,6 +529,10 @@ test('CLI publication requires every supported installation receipt for the exac
   }
   const options = { archive, reports, version: '0.4.13', revision };
   assert.equal(validateReleaseReports(options), sha256);
+  const legacyArchive = path.join(f.root, 'minimax-code-0.4.13.tar.gz');
+  writeFileSync(legacyArchive, 'synthetic archive');
+  writeFileSync(`${legacyArchive}.sha256`, `${sha256}  ${path.basename(legacyArchive)}\n`);
+  assert.throws(() => validateReleaseReports({ ...options, archive: legacyArchive }), /Shards Code archive filename/);
   assert.throws(() => validateReleaseReports({ ...options, version: '0.4.14' }));
   assert.throws(() => validateReleaseReports({ ...options, revision: 'b'.repeat(40) }));
   const target = cliReleaseTargets.at(-1);
@@ -548,6 +563,7 @@ test('CLI release publishes only tag pushes after full verification and archive 
   assert.equal(workflow.jobs.install.strategy.matrix, '${{ fromJSON(needs.build.outputs.matrix) }}');
   const install = workflow.jobs.install.steps.find(step => step.run === 'pnpm verify --profile package');
   assert.ok(install.env.MCODE_RELEASE_ARCHIVE.endsWith('.tar.gz'));
+  assert.ok(install.env.MCODE_RELEASE_ARCHIVE.endsWith('/shards-code-${{ needs.build.outputs.version }}.tar.gz'));
   for (const job of Object.values(workflow.jobs)) {
     for (const step of job.steps) {
       if (step.uses && !step.uses.startsWith('./')) assert.match(step.uses, /@[a-f0-9]{40}$/);
@@ -845,19 +861,19 @@ function archiveFixture(t, entries) {
 
 test('native and Node source extractors produce identical file content', async t => {
   const f = archiveFixture(t, [
-    { path: 'minimax-code/README.md', content: 'Source preview\n' },
-    { path: 'minimax-code/nested/file.txt', content: 'portable contents\n' },
+    { path: 'shards-code/README.md', content: 'Source preview\n' },
+    { path: 'shards-code/nested/file.txt', content: 'portable contents\n' },
   ]);
   for (const extractor of ['native', 'node']) {
     const output = path.join(f.directory, extractor);
     mkdirSync(output);
     assert.equal(await extractSourceArchive(f.archive, output, extractor), extractor);
-    assert.equal(readFileSync(path.join(output, 'minimax-code/nested/file.txt'), 'utf8'), 'portable contents\n');
+    assert.equal(readFileSync(path.join(output, 'shards-code/nested/file.txt'), 'utf8'), 'portable contents\n');
   }
 });
 
 test('Windows extraction ignores a shadow tar executable on PATH', { skip: process.platform !== 'win32' }, t => {
-  const f = archiveFixture(t, [{ path: 'minimax-code/README.md', content: 'Windows archive\n' }]);
+  const f = archiveFixture(t, [{ path: 'shards-code/README.md', content: 'Windows archive\n' }]);
   const shadow = path.join(f.directory, 'shadow');
   const output = path.join(f.directory, 'output');
   mkdirSync(shadow);
@@ -872,17 +888,17 @@ test('Windows extraction ignores a shadow tar executable on PATH', { skip: proce
     encoding: 'utf8', env: { ...process.env, PATH: `${shadow}${path.delimiter}${process.env.PATH ?? ''}` },
   });
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(readFileSync(path.join(output, 'minimax-code/README.md'), 'utf8'), 'Windows archive\n');
+  assert.equal(readFileSync(path.join(output, 'shards-code/README.md'), 'utf8'), 'Windows archive\n');
 });
 
 test('source archive rejects traversal, links, Git history and duplicate entries before writing files', async t => {
-  const good = { path: 'minimax-code/good.txt', content: 'safe' };
+  const good = { path: 'shards-code/good.txt', content: 'safe' };
   for (const bad of [
-    { path: 'minimax-code/../../outside.txt', content: 'unsafe' },
-    { path: 'minimax-code/link', type: 'SymbolicLink', linkpath: '../../outside' },
-    { path: 'minimax-code/link', type: 'Link', linkpath: '../../outside' },
-    { path: 'minimax-code/.git/config', content: 'history' },
-    { path: 'minimax-code/file:stream', content: 'stream' },
+    { path: 'shards-code/../../outside.txt', content: 'unsafe' },
+    { path: 'shards-code/link', type: 'SymbolicLink', linkpath: '../../outside' },
+    { path: 'shards-code/link', type: 'Link', linkpath: '../../outside' },
+    { path: 'shards-code/.git/config', content: 'history' },
+    { path: 'shards-code/file:stream', content: 'stream' },
     good,
   ]) {
     const f = archiveFixture(t, [good, bad]);
@@ -896,7 +912,7 @@ test('source archive rejects traversal, links, Git history and duplicate entries
 });
 
 test('candidate rejects mismatched receipts and requires successful same-revision Linux and macOS reports', t => {
-  const f = archiveFixture(t, [{ path: 'minimax-code/README.md', content: 'source' }]);
+  const f = archiveFixture(t, [{ path: 'shards-code/README.md', content: 'source' }]);
   const revision = 'a'.repeat(40);
   const receipt = { schemaVersion: 1, revision, sha256: createHash('sha256').update(readFileSync(f.archive)).digest('hex'), format: 'source-only-no-git-history', publicationPerformed: false };
   writeFileSync(`${f.archive}.json`, JSON.stringify(receipt));
@@ -1035,7 +1051,7 @@ test('suite runner pins its locale, preserves gate arguments and canonicalizes W
   }
 });
 
-test('public support forms preserve destination URLs and separate Desktop from CLI reports', () => {
+test('public support forms preserve Shards scope and separate CLI reports from policy questions', () => {
   const forms = ['01-bug-report.yml', '02-feature-request.yml', '03-question.yml', 'docs.yml'];
   for (const name of forms) {
     const form = parseYaml(readFileSync(new URL(`../.github/ISSUE_TEMPLATE/${name}`, import.meta.url), 'utf8'));
@@ -1043,14 +1059,14 @@ test('public support forms preserve destination URLs and separate Desktop from C
     assert.equal(product.validations.required, name !== '03-question.yml');
     assert.equal(product.attributes.label, 'Product or interface');
     assert.ok(product.attributes.options.includes('CLI - interactive TUI'));
-    assert.ok(product.attributes.options.includes('Desktop app'));
+    assert.ok(!product.attributes.options.includes('Desktop app'));
     assert.ok(product.attributes.options.includes('CLI - ACP'));
     assert.ok(product.attributes.options.includes('CLI - headless'));
     const ids = form.body.filter(field => field.id).map(field => field.id);
     assert.equal(new Set(ids).size, ids.length);
   }
   const bug = parseYaml(readFileSync(new URL('../.github/ISSUE_TEMPLATE/01-bug-report.yml', import.meta.url), 'utf8'));
-  assert.notEqual(bug.body.find(field => field.id === 'upload-id').validations?.required, true);
+  assert.equal(bug.body.some(field => field.id === 'upload-id'), false);
   for (const retired of ['bug.yml', 'feature.yml'])
     assert.equal(existsSync(new URL(`../.github/ISSUE_TEMPLATE/${retired}`, import.meta.url)), false);
   assert.equal(classifyChanges(['README_ZH.md', 'README.md']).docsOnly, true);
@@ -1062,7 +1078,7 @@ test('issue product labels follow current form answers without replacing unrelat
   assert.deepEqual(workflow.permissions, { issues: 'write' });
   assert.equal(workflow.concurrency['cancel-in-progress'], false);
   const job = workflow.jobs['label-product'];
-  assert.equal(job.if, "${{ github.repository == 'MiniMax-AI/minimax-code' && github.event.repository.private == false && !github.event.issue.pull_request }}");
+  assert.equal(job.if, "${{ github.repository == 'Shards-foundation/shards-code' && github.event.repository.private == false && !github.event.issue.pull_request }}");
   assert.equal(job.steps.length, 1); // No checkout or execution of issue-supplied code.
   const run = job.steps[0].run;
   assert.doesNotMatch(run, /\$\{\{/);
@@ -1070,13 +1086,13 @@ test('issue product labels follow current form answers without replacing unrelat
   assert.ok(script);
   async function replay(body, labels, failureStatus) {
     const writes = [];
-    const issuePath = '/repos/MiniMax-AI/minimax-code/issues/7';
+    const issuePath = '/repos/Shards-foundation/shards-code/issues/7';
     await runInNewContext(script, {
       require: name => {
         assert.equal(name, 'node:fs');
         return { readFileSync: () => JSON.stringify({ issue: { number: 7, body: '### Product or interface\n\nDesktop app', labels: [] } }) };
       },
-      process: { env: { GITHUB_EVENT_PATH: 'fixture.json', GITHUB_REPOSITORY: 'MiniMax-AI/minimax-code', GITHUB_API_URL: 'https://api.github.invalid', GH_TOKEN: 'synthetic' } },
+      process: { env: { GITHUB_EVENT_PATH: 'fixture.json', GITHUB_REPOSITORY: 'Shards-foundation/shards-code', GITHUB_API_URL: 'https://api.github.invalid', GH_TOKEN: 'synthetic' } },
       fetch: async (url, options) => {
         assert.equal(options.headers.Authorization, 'Bearer synthetic');
         if (options.method === 'GET') {
@@ -1092,19 +1108,19 @@ test('issue product labels follow current form answers without replacing unrelat
   const answer = product => `### Product or interface\n\n${product}\n\n### Question\n\nSynthetic question`;
   const add = name => ({ method: 'POST', path: '/labels', body: { labels: [name] } });
   const remove = name => ({ method: 'DELETE', path: `/labels/${name}`, body: undefined });
-  assert.deepEqual(await replay(answer('CLI - interactive TUI'), ['bug', 'desktop']), [add('tui'), remove('desktop')]);
-  assert.deepEqual(await replay(answer('Desktop app').replace(/\n/g, '\r\n'), ['question']), [add('desktop')]);
-  assert.deepEqual(await replay(answer('Desktop app'), ['desktop', 'bug']), []);
+  assert.deepEqual(await replay(answer('CLI - interactive TUI'), ['bug', 'desktop']), [add('cli'), add('tui'), remove('desktop')]);
+  assert.deepEqual(await replay(answer('CLI - headless').replace(/\n/g, '\r\n'), ['question']), [add('cli')]);
+  assert.deepEqual(await replay(answer('CLI - headless'), ['cli', 'bug']), []);
   for (const product of ['CLI - headless', 'CLI - ACP', 'Source build or repository tooling']) {
-    assert.deepEqual(await replay(answer(product), ['tui', 'bug']), [remove('tui')]);
+    assert.deepEqual(await replay(answer(product), ['desktop', 'tui', 'bug']), [add('cli'), remove('desktop'), remove('tui')]);
   }
-  for (const body of [null, 'Desktop app', answer('_No response_'), answer('$(touch must-not-execute)')]) {
+  for (const body of [null, 'CLI - headless', answer('_No response_'), answer('$(touch must-not-execute)')]) {
     assert.deepEqual(await replay(body, ['desktop', 'bug']), []);
   }
-  await assert.rejects(replay(answer('Desktop app'), [], 403), /GitHub GET failed: 403/);
+  await assert.rejects(replay(answer('CLI - headless'), [], 403), /GitHub GET failed: 403/);
 });
 
-test('issue forms label incoming reports for triage and retain collaborator-only PR guidance', () => {
+test('issue forms label incoming reports for triage and link Shards contributor guidance', () => {
   for (const [name, type] of [
     ['01-bug-report.yml', 'bug'], ['02-feature-request.yml', 'enhancement'],
     ['03-question.yml', 'question'], ['docs.yml', 'documentation'],
@@ -1115,46 +1131,16 @@ test('issue forms label incoming reports for triage and retain collaborator-only
   const config = parseYaml(readFileSync(new URL('../.github/ISSUE_TEMPLATE/config.yml', import.meta.url), 'utf8'));
   assert.equal(config.blank_issues_enabled, false);
   const policy = config.contact_links.find(link => link.url.endsWith('/CONTRIBUTING.md'));
-  assert.match(policy.about, /only from repository collaborators/);
-  assert.match(policy.about, /external PRs are not accepted/);
+  assert.match(policy.url, /Shards-foundation\/shards-code/u);
+  assert.doesNotMatch(policy.about, /only from repository collaborators|external PRs are not accepted|MiniMax/u);
   const question = parseYaml(readFileSync(new URL('../.github/ISSUE_TEMPLATE/03-question.yml', import.meta.url), 'utf8'));
   assert.equal(question.body.find(field => field.id === 'platform').validations.required, false);
   assert.equal(question.body.find(field => field.id === 'question').validations.required, true);
 });
 
-test('issue notification is restricted to public destination events and builds payloads offline', t => {
-  const workflow = parseYaml(readFileSync(new URL('../.github/workflows/sync-issue-to-feishu.yml', import.meta.url), 'utf8'));
-  assert.deepEqual(workflow.on, { issues: { types: ['opened'] } });
-  assert.deepEqual(workflow.permissions, { contents: 'read', issues: 'read' });
-  const job = workflow.jobs['notify-feishu'];
-  assert.equal(job.if, "${{ github.repository == 'MiniMax-AI/minimax-code' && github.event.repository.private == false && !github.event.issue.pull_request }}");
-  const generate = job.steps.find(step => step.name === 'Build Feishu payload').run;
-  // Execute only the payload builder, never the delivery step or its secrets.
-  assert.doesNotMatch(generate, /\$\{\{\s*github\.event/);
-  const script = generate.match(/^node <<'EOF'\r?\n([\s\S]*?)\r?\nEOF\s*$/)?.[1];
-  assert.ok(script);
-  const directory = mkdtempSync(path.join(tmpdir(), 'support-payload-'));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  const marker = path.join(directory, 'must-not-execute');
-  const event = {
-    repository: { full_name: 'MiniMax-AI/minimax-code', html_url: 'https://github.com/MiniMax-AI/minimax-code' },
-    issue: { number: 7, title: 'Synthetic issue', body: `$(touch ${marker}) <at id=all>test</at>`, labels: [{ name: 'bug' }], created_at: '2026-09-18T00:00:00Z', html_url: 'https://github.com/MiniMax-AI/minimax-code/issues/7', user: { login: 'fixture' } },
-  };
-  const eventPath = path.join(directory, 'event.json');
-  writeFileSync(eventPath, JSON.stringify(event));
-  const result = spawnSync(process.execPath, ['--input-type=commonjs'], {
-    input: script, cwd: directory, encoding: 'utf8', timeout: 10000,
-    env: { ...process.env, GITHUB_EVENT_PATH: eventPath, FEISHU_BOT_SECRET: '', FEISHU_BOT_WEBHOOK: '' },
-  });
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(existsSync(marker), false);
-  const payload = JSON.parse(readFileSync(path.join(directory, 'feishu-payload.json'), 'utf8'));
-  assert.equal(payload.card.header.template, 'red');
-  assert.equal(payload.card.card_link.url, event.issue.html_url);
-  assert.equal(payload.card.header.title.content, 'GitHub Issue #7: Synthetic issue');
-  assert.doesNotMatch(JSON.stringify(payload), /<at /);
-  assert.match(JSON.stringify(payload), /‹at id=all›/);
-  assert.equal(payload.sign, undefined);
+test('public issue workflow does not forward reports to MiniMax-owned Feishu', () => {
+  const upstreamIssueWorkflow = new URL('../.github/workflows/sync-issue-to-feishu.yml', import.meta.url);
+  assert.equal(existsSync(upstreamIssueWorkflow), false);
 });
 
 test('source imports preserve vendored Office schema bytes through Git staging', t => {
@@ -1208,4 +1194,156 @@ test('TUI lint failure stops full and platform verification before compilation o
     assert.equal(report.gates.find(gate => gate.name === 'lint:tui').exitCode, 17);
     assert.equal(report.gates.find(gate => gate.name === 'build').status, 'NOT_RUN');
   }
+});
+
+test('public entry point presents Shards Code as an independent fork', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const readme = readFileSync(path.join(root, 'README.md'), 'utf8');
+  assert.match(readme, /<h1[^>]*>Shards Code<\/h1>/);
+  assert.match(readme, /independent fork/i);
+  assert.match(readme, /not affiliated with, endorsed by, or an official product of MiniMax/i);
+});
+
+test('workspace manifests and CLI identify the Shards Code product', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const rootManifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const tuiManifest = JSON.parse(readFileSync(path.join(root, 'packages/tui/package.json'), 'utf8'));
+  const cli = readFileSync(path.join(root, 'packages/tui/src/cli/program.ts'), 'utf8');
+  const welcome = readFileSync(path.join(root, 'packages/tui/src/tui/shell/welcome/design.ts'), 'utf8');
+  assert.equal(rootManifest.name, 'shards-code');
+  assert.match(rootManifest.description, /Shards Code/);
+  assert.equal(rootManifest.scripts['shards-code'], 'node dist/cli.js');
+  assert.equal(rootManifest.scripts.mcode, 'node dist/cli.js');
+  assert.equal(tuiManifest.name, '@shards-foundation/shards-code');
+  assert.match(cli, /\.name\('shards-code'\)/);
+  assert.match(cli, /Shards Code/);
+  assert.match(welcome, /SHARDS_CODE_TERMINAL_WORDMARK/);
+});
+
+test('ACP companion package identifies and launches Shards Code', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const manifest = JSON.parse(readFileSync(path.join(root, 'packages/code-acp/package.json'), 'utf8'));
+  const launcher = readFileSync(path.join(root, 'packages/code-acp/acp.js'), 'utf8');
+  const readme = readFileSync(path.join(root, 'packages/code-acp/README.md'), 'utf8');
+  assert.equal(manifest.name, '@shards-foundation/shards-code-acp');
+  assert.equal(manifest.dependencies['@shards-foundation/shards-code'], '0.0.0-dev');
+  assert.equal(manifest.repository.url, 'git+https://github.com/Shards-foundation/shards-code.git');
+  assert.match(launcher, /@shards-foundation\/shards-code/);
+  assert.match(launcher, /pkg\.bin\?\.\['shards-code'\] \?\? pkg\.bin\?\.mcode/u);
+  assert.match(readme, /@shards-foundation\/shards-code-acp/);
+});
+
+test('Chinese entry point discloses Shards Code independence from MiniMax', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const readme = readFileSync(path.join(root, 'README_ZH.md'), 'utf8');
+  assert.match(readme, /Shards Code/);
+  assert.match(readme, /独立分支/u);
+  assert.match(readme, /与 MiniMax 无关联/u);
+  assert.match(readme, /未获 MiniMax 认可/u);
+  assert.match(readme, /非 MiniMax 官方产品/u);
+});
+
+test('remote-control file API preserves its original HTTP header names', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const fileApi = readFileSync(path.join(root, 'packages/local-runtime/src/files/api.ts'), 'utf8');
+  assert.match(fileApi, /X-MCode-Request-Source/u);
+  assert.match(fileApi, /X-MCode-Remote-Control-File-Content-Max-Bytes/u);
+  assert.match(fileApi, /X-MCode-Thumbnail-Cache/u);
+  assert.doesNotMatch(fileApi, /X-Shards Code-/u);
+  assert.throws(() => new Headers({ 'X-Shards Code-Request-Source': 'remote-control' }));
+});
+
+test('Shards rebranding preserves original MIT attribution and MiniMax provider compatibility', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const license = readFileSync(path.join(root, 'LICENSE'));
+  const notice = readFileSync(path.join(root, 'NOTICE'), 'utf8');
+  const catalog = readFileSync(path.join(root, 'packages/config/src/minimax-model-catalog.ts'), 'utf8');
+  assert.equal(createHash('sha256').update(license).digest('hex'), '28bb5c2948742f9f8d27ed84882844d09dff07cb5df64f20729875e8582a18ea');
+  assert.match(notice, /MiniMax Code/);
+  assert.match(catalog, /MINIMAX_MODELS/u);
+  assert.match(catalog, /MiniMax-M3/u);
+});
+
+test('example and package metadata keep Shards product ownership clear', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const example = readFileSync(path.join(root, 'examples/pocket-pet/finished/index.html'), 'utf8');
+  assert.match(example, /Built to be changed with Shards\s+Code\./u);
+  assert.doesNotMatch(example, /Built to be changed with MiniMax\s+Code/u);
+  assert.doesNotMatch(packageJson.description, /managed accounts/i);
+});
+
+test('CLI exec failure copy uses the Shards Code product name', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const command = readFileSync(path.join(root, 'packages/tui/src/cli/run-exec-command.ts'), 'utf8');
+  assert.match(command, /Shards Code exec failed/u);
+  assert.doesNotMatch(command, /mcode exec failed/u);
+});
+
+test('login recovery hints use the canonical Shards CLI command', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const loginGate = readFileSync(path.join(root, 'packages/tui/src/application/login-gate.ts'), 'utf8');
+  const acpAgent = readFileSync(path.join(root, 'packages/tui/src/acp/agent.ts'), 'utf8');
+  assert.match(loginGate, /SHARDS_CODE_TUI_LOGIN_REQUIRED_MESSAGE/u);
+  assert.match(loginGate, /SHARDS_CODE_HEADLESS_LOGIN_REQUIRED_MESSAGE/u);
+  assert.doesNotMatch(loginGate, /MINIMAX_CODE_(?:TUI|HEADLESS)_LOGIN_REQUIRED_MESSAGE/u);
+  assert.match(loginGate, /Run `shards-code login`, then retry\./u);
+  assert.doesNotMatch(loginGate, /Run `mcode login`, then retry/u);
+  assert.match(acpAgent, /Run `shards-code login` and try again\./u);
+  assert.doesNotMatch(acpAgent, /Run `mcode login` and try again/u);
+});
+
+test('bundled agent personas do not depend on MiniMax-hosted avatars', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const agents = path.join(root, 'packages/local-runtime-v2/assets/agents');
+  const personaFiles = [];
+  const visit = directory => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const fullPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) visit(fullPath);
+      else if (entry.isFile() && /^PERSONA.*\.(?:md|hbs)$/u.test(entry.name)) personaFiles.push(fullPath);
+    }
+  };
+  visit(agents);
+  assert.ok(personaFiles.length >= 16, 'expected active and migration persona assets');
+  for (const file of personaFiles) {
+    assert.doesNotMatch(readFileSync(file, 'utf8'), /avatar:\s*https?:\/\/[^\s]*minimax/i, file);
+  }
+});
+
+test('bundled PDF and XLSX helper comments use Shards labels and retain MIT wording', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  for (const relativePath of [
+    'packages/local-runtime/assets/skills/pdf/scripts/lib/acroform_io.py',
+    'packages/local-runtime/assets/skills/pdf/scripts/lib/cli_utils.py',
+    'packages/local-runtime/assets/skills/pdf/scripts/lib/geometry.py',
+  ]) {
+    const helper = readFileSync(path.join(root, relativePath), 'utf8');
+    assert.match(helper, /Shards Code PDF skill/u, relativePath);
+    assert.doesNotMatch(helper, /MiniMax PDF skill/u, relativePath);
+  }
+  for (const relativePath of [
+    'packages/local-runtime/assets/skills/xlsx/scripts/office/soffice.py',
+    'packages/local-runtime/assets/skills/xlsx/scripts/recalc.py',
+  ]) {
+    const helper = readFileSync(path.join(root, relativePath), 'utf8');
+    assert.match(helper, /Part of the Shards Code xlsx skill \(MIT\)/u, relativePath);
+    assert.match(helper, /See LICENSE for terms/u, relativePath);
+    assert.doesNotMatch(helper, /Part of the MiniMax xlsx skill/u, relativePath);
+  }
+});
+
+test('helper skills use Shards Code product labels and retain legacy MiniMax config paths', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const llmCall = readFileSync(path.join(root, 'packages/local-runtime/assets/skills/llm-call/scripts/llm_call.py'), 'utf8');
+  const pdfVision = readFileSync(path.join(root, 'packages/local-runtime/assets/skills/pdf/scripts/read_pdf_vision.py'), 'utf8');
+  assert.match(llmCall, /active Shards Code data directory/u);
+  assert.doesNotMatch(llmCall, /active MiniMax Code data directory/u);
+  assert.match(llmCall, /MINIMAX_DATA_DIR/u);
+  assert.match(llmCall, /\.minimax/u);
+  assert.match(pdfVision, /active Shards Code data directory/u);
+  assert.match(pdfVision, /Restart the Shards Code app/u);
+  assert.doesNotMatch(pdfVision, /MiniMax Code data directory|Restart the MiniMax Code app/u);
+  assert.match(pdfVision, /MINIMAX_DATA_DIR/u);
+  assert.match(pdfVision, /\.minimax/u);
 });

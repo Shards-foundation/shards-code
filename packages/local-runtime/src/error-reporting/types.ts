@@ -4,7 +4,7 @@
  * Provides generic error reporting for local-runtime. Physical LLM provider request failures are
  * the first consumer, but event types are unrestricted so other subsystems can reuse the pipeline.
  *
- * Constraints (technical design "MCode desktop error-log batch reporting"):
+ * Constraints (technical design "Shards Code desktop error-log batch reporting"):
  * - Must stay in packages/local-runtime; do not move to packages/shared or depend on apps/electron.
  * - Memory only: no disk, SQLite, outbox, or dataDir cache.
  * - Reporting failures must not affect LLM requests, automatic retries, or turn results.

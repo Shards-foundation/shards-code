@@ -217,7 +217,7 @@ async function readWholeBounded(filePath, limit) {
 }
 
 function decompressZstd(buffer) {
-  // MCode requires Node >=22.19, whose zlib module includes bounded synchronous Zstandard support.
+  // Shards Code requires Node >=22.19, whose zlib module includes bounded synchronous Zstandard support.
   return importZlib()
     .zstdDecompressSync(buffer, { maxOutputLength: 32 * 1024 * 1024 })
     .toString('utf8');

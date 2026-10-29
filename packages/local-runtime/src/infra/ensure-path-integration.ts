@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
-const PATH_MARKER = '# Added by MiniMax Code';
+const PATH_MARKER = '# Added by Shards Code';
 
 export function ensurePathIntegration(dataDir: string): void {
   const binDir = join(dataDir, 'bin');

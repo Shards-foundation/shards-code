@@ -1,8 +1,12 @@
 {
-  "name": "@minimax/code",
+  "name": "@shards-foundation/shards-code",
   "version": "0.6.5",
   "private": true,
-  "description": "Minimax Code CLI and TUI product entry.",
+  "description": "Shards Code CLI and TUI product entry; an independent fork.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shards-foundation/shards-code.git"
+  },
   "type": "module",
   "exports": {
     "./package.json": "./package.json"

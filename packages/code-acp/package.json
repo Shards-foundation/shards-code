@@ -1,7 +1,7 @@
 {
-  "name": "@minimax-ai/code-acp",
+  "name": "@shards-foundation/shards-code-acp",
   "version": "0.0.0-dev",
-  "description": "Agent Client Protocol (ACP) launcher for MiniMax Code. Runs `mcode` from @minimax-ai/code so `npx @minimax-ai/code-acp acp` works. Version is stamped at release to match @minimax-ai/code.",
+  "description": "Agent Client Protocol (ACP) launcher for Shards Code. Runs the canonical `shards-code` command; release versions are stamped in lockstep with the CLI.",
   "type": "module",
   "bin": {
     "code-acp": "acp.js"
@@ -11,19 +11,19 @@
     "README.md"
   ],
   "dependencies": {
-    "@minimax-ai/code": "0.0.0-dev"
+    "@shards-foundation/shards-code": "0.0.0-dev"
   },
   "engines": {
     "node": ">=22.19 <23 || >=24 <27"
   },
   "license": "MIT",
-  "homepage": "https://agent.minimax.io",
+  "homepage": "https://github.com/Shards-foundation/shards-code",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MiniMax-AI/minimax-code.git"
+    "url": "git+https://github.com/Shards-foundation/shards-code.git"
   },
   "keywords": [
-    "minimax",
+    "shards-code",
     "acp",
     "agent-client-protocol"
   ]

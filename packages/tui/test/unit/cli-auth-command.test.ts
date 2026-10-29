@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { runTuiLogin, runTuiLogout } from '../../src/cli/auth-command.js';
 
-describe('Minimax Code auth commands', () => {
+describe('Shards Code auth commands', () => {
   it.each([true, false])('returns after dispatching browser logout (%s)', async (openBrowser) => {
     const writeError = vi.fn();
     const logoutUrl =

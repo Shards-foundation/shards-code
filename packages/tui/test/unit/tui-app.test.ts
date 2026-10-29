@@ -1228,7 +1228,7 @@ describe("createTuiApp", () => {
     },
   );
 
-  it("shows the MCode prompt in an empty Composer and hides it after input", async () => {
+  it("shows the Shards Code prompt in an empty Composer and hides it after input", async () => {
     const app = createTuiApp({
       runtime: createRuntime(),
       terminal: new FakeTerminal(),
@@ -1595,24 +1595,24 @@ describe("createTuiApp", () => {
     await app.ready;
     await vi.waitFor(() => {
       expect(terminal.writes.join("")).toContain(
-        "A new version of MCode is available",
+        "Shards Code 1.2.4 is available",
       );
     });
 
     const rendered = terminal.writes.join("");
     expect(checkForUpdate).toHaveBeenCalledTimes(1);
-    expect(rendered).toContain("Run '/update' to install MCode 1.2.4");
+    expect(rendered).toContain("Run '/update' to install Shards Code 1.2.4");
 
     await app.submit("Start working");
     expect(app.getSurface()).toBe("conversation");
     expect(app.tui.render(80).join("\n")).not.toContain(
-      "A new version of MCode is available",
+      "Shards Code 1.2.4 is available",
     );
 
     await app.submit("/new");
     expect(app.getSurface()).toBe("welcome");
     expect(app.tui.render(80).join("\n")).toContain(
-      "A new version of MCode is available",
+      "Shards Code 1.2.4 is available",
     );
     await app.stop();
   });
@@ -1777,7 +1777,7 @@ describe("createTuiApp", () => {
       await app.stop();
 
       expect(terminal.writes.join("")).not.toContain(
-        "A new version of MCode is available",
+        "A new version of Shards Code is available",
       );
       expect(
         app.transcript.snapshot().filter((cell) => cell.kind === "error"),
@@ -1797,7 +1797,7 @@ describe("createTuiApp", () => {
     const applyUpdate = vi.fn(async () => ({
       applied: true,
       message:
-        "MCode 1.2.4 is installed. Restart running MCode sessions to use it.",
+        "Shards Code 1.2.4 is installed. Restart running Shards Code sessions to use it.",
     }));
     const app = createTuiApp({
       runtime: createRuntime(),
@@ -1813,7 +1813,7 @@ describe("createTuiApp", () => {
 
     expect(inspectUpdate).toHaveBeenCalledOnce();
     expect(app.interaction.current()?.render(80).join("\n")).toContain(
-      "MCode update",
+      "Shards Code update",
     );
     app.interaction.current()?.handleInput?.("\r");
     await vi.waitFor(() =>
@@ -1828,7 +1828,7 @@ describe("createTuiApp", () => {
       expect(
         app.transcript
           .snapshot()
-          .some((cell) => cell.content.includes("MCode update completed")),
+          .some((cell) => cell.content.includes("Shards Code update completed")),
       ).toBe(true),
     );
     await app.stop();
@@ -1857,7 +1857,7 @@ describe("createTuiApp", () => {
       applyUpdate: async () => ({
         applied: true,
         restartRequired: true,
-        message: "MCode 1.2.4 is staged safely.",
+        message: "Shards Code 1.2.4 is staged safely.",
       }),
       requestRestart,
     });
@@ -1910,7 +1910,7 @@ describe("createTuiApp", () => {
           .snapshot()
           .some((cell) =>
             cell.content.includes(
-              "MCode update failed: Finish or stop the active response before updating.",
+              "Shards Code update failed: Finish or stop the active response before updating.",
             ),
           ),
       ).toBe(true),
@@ -1989,7 +1989,7 @@ describe("createTuiApp", () => {
     await app.ready;
     app.start();
     const rendered = app.tui.render(80).join("\n");
-    expect(rendered).not.toContain("Starting MiniMax Code");
+    expect(rendered).not.toContain("Starting Shards Code");
     expect(rendered).not.toContain("Loading session");
     await app.stop();
   });
@@ -2785,7 +2785,7 @@ describe("createTuiApp", () => {
     expect(conversation).toContain("Say hello");
     expect(conversation).toContain("Hello from the Agent");
     expect(terminal.started).toBe(true);
-    expect(terminal.title).toBe("Done | workspace (session-) | MCode");
+    expect(terminal.title).toBe("Done | workspace (session-) | Shards Code");
     const programReports = () =>
       terminal.writes.filter((value) => value.startsWith("\u001b]7501;"));
     expect(programReports()).toContain("\u001b]7501;state=working:app=mcode\u001b\\");
@@ -3453,7 +3453,7 @@ describe("createTuiApp", () => {
       expect(rendered).toContain("Running");
       expect(rendered).not.toContain("Running · 0s");
       expect(rendered).not.toContain("Running · Read");
-      expect(rendered).not.toContain("MCode · Running");
+      expect(rendered).not.toContain("Shards Code · Running");
       expect(rendered).toContain("Ctrl+O details");
       expect(rendered).toContain("Esc stop");
       expect(rendered).not.toContain("Enter run next");
@@ -3554,7 +3554,7 @@ describe("createTuiApp", () => {
         .filter(
           (line) =>
             line.includes("Inspecting the repository") &&
-            !line.includes("MCode"),
+            !line.includes("Shards Code"),
         ).length;
     let expandedThinkingRows = 0;
 
@@ -3574,7 +3574,7 @@ describe("createTuiApp", () => {
         expect(rendered).toContain("Ctrl+O details");
         expect(rendered).toContain("Esc stop");
         expect(rendered).toContain("Thinking…");
-        expect(rendered).not.toContain("MCode ·");
+        expect(rendered).not.toContain("Shards Code ·");
         expect(rendered).not.toContain("Thinking · Inspecting the repository");
         expandedThinkingRows = countThinkingBodyRows(rendered);
         expect(expandedThinkingRows).toBeGreaterThan(0);
@@ -5770,7 +5770,7 @@ describe("createTuiApp", () => {
     expect(app.interaction.isActive()).toBe(true);
     expect(app.transcript.snapshot()).toEqual(transcriptBeforeStatus);
     const statusOutput = app.tui.render(80).join("\n");
-    expect(statusOutput).toContain("MCode status");
+    expect(statusOutput).toContain("Shards Code status");
     expect(statusOutput).toContain("Model");
     expect(statusOutput).not.toContain("/status");
     expect(statusOutput).toContain("/workspace");
@@ -5859,7 +5859,7 @@ describe("createTuiApp", () => {
             state: "authenticated" as const,
             message:
               _region === "en"
-                ? "Signed in with MiniMax Global. Restart MCode to use this account region."
+                ? "Signed in with MiniMax Global. Restart Shards Code to use this account region."
                 : "Signed in with MiniMax.",
           };
         },
@@ -5951,7 +5951,7 @@ describe("createTuiApp", () => {
       {
         kind: "final-summary",
         content:
-          "Signed in with MiniMax Global. Restart MCode to use this account region.",
+          "Signed in with MiniMax Global. Restart Shards Code to use this account region.",
       },
       {
         kind: "final-summary",
@@ -6256,7 +6256,7 @@ describe("createTuiApp", () => {
     expect(app.tui.hasOverlay()).toBe(false);
     expect(app.interaction.isActive()).toBe(true);
     expect(app.transcript.snapshot()).toEqual(transcriptBeforeStatus);
-    expect(app.tui.render(80).join("\n")).toContain("MCode status");
+    expect(app.tui.render(80).join("\n")).toContain("Shards Code status");
 
     resolveSessionPage?.({
       sessions: [
@@ -7183,7 +7183,7 @@ describe("createTuiApp", () => {
     expect(runtime.getSession).toHaveBeenCalledWith("session-existing");
     expect(app.interaction.current()).toBeDefined();
     expect(app.transcript.snapshot()).toEqual(transcriptBeforeStatus);
-    expect(app.tui.render(100).join("\n")).toContain("MCode status");
+    expect(app.tui.render(100).join("\n")).toContain("Shards Code status");
     expect(runtime.renameSession).toHaveBeenCalledWith(
       "session-existing",
       "Renamed session",
@@ -9907,7 +9907,7 @@ describe("createTuiApp", () => {
     await app.ready;
     await app.submit("/resume session-existing");
     await vi.waitFor(() =>
-      expect(terminal.title).toBe("Needs approval | Existing session | MCode"),
+      expect(terminal.title).toBe("Needs approval | Existing session | Shards Code"),
     );
     expect(programReports().at(-1)).toBe(
       "\u001b]7501;state=blocked:kind=permission:app=mcode\u001b\\",
@@ -9915,7 +9915,7 @@ describe("createTuiApp", () => {
 
     await app.submit("/allow");
     await vi.waitFor(() =>
-      expect(terminal.title).toBe("Needs input | Existing session | MCode"),
+      expect(terminal.title).toBe("Needs input | Existing session | Shards Code"),
     );
     expect(programReports().at(-1)).toBe(
       "\u001b]7501;state=blocked:kind=question:app=mcode\u001b\\",
@@ -9938,7 +9938,7 @@ describe("createTuiApp", () => {
     app.start();
     await app.ready;
     await app.submit("Say hello");
-    expect(terminal.title).toBe("Done | workspace (session-) | MCode");
+    expect(terminal.title).toBe("Done | workspace (session-) | Shards Code");
     await app.stop();
     expect(terminal.writes.some((value) => value.includes("\u001b]7501;"))).toBe(false);
   });
@@ -10037,7 +10037,7 @@ describe("createTuiApp", () => {
       content: "Proceed?  Yes",
     });
     expect(app.interaction.current()).toBeDefined();
-    expect(app.tui.render(80).join("\n")).toContain("MCode status");
+    expect(app.tui.render(80).join("\n")).toContain("Shards Code status");
     expect(app.transcript.snapshot()).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -10442,7 +10442,7 @@ describe("createTuiApp", () => {
     await vi.waitFor(() =>
       expect(app.transcript.get("question:question-review")).toMatchObject({
         status: "resolved",
-        detail: "Answer sent · MCode is continuing…",
+        detail: "Answer sent · Shards Code is continuing…",
       }),
     );
 
@@ -10531,7 +10531,7 @@ describe("createTuiApp", () => {
         app.transcript.get("question:question-delayed-reply"),
       ).toMatchObject({
         status: "resolved",
-        detail: "Answer sent · MCode is continuing…",
+        detail: "Answer sent · Shards Code is continuing…",
       }),
     );
     await vi.waitFor(() =>
@@ -12121,7 +12121,7 @@ describe("createTuiApp", () => {
     });
     expect(app.tui.render(80).join("\n")).toContain("Loading");
     expect(app.tui.render(80).join("\n")).not.toContain("Loading · 0s");
-    expect(app.tui.render(80).join("\n")).not.toContain("MCode ·");
+    expect(app.tui.render(80).join("\n")).not.toContain("Shards Code ·");
     terminal.input?.("\x1b");
     await vi.waitFor(() =>
       expect(app.controller.snapshot().activeTurnId).toBeUndefined(),

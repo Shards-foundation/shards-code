@@ -376,9 +376,6 @@
       "@mavis/system-reminder": [
         "./packages/agent-modules/system-reminder/src/index.ts"
       ],
-      "@minimax/code/package.json": [
-        "./packages/tui/package.json"
-      ],
       "@minimax/mcode-sandbox-runtime": [
         "./third_party/sandbox-runtime/src/index.ts"
       ],
@@ -387,6 +384,9 @@
       ],
       "@minimax/mcode-sandbox-runtime/package.json": [
         "./third_party/sandbox-runtime/package.json"
+      ],
+      "@shards-foundation/shards-code/package.json": [
+        "./packages/tui/package.json"
       ]
     },
     "lib": [

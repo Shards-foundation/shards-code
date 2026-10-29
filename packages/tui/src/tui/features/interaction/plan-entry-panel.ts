@@ -64,7 +64,7 @@ export class TuiPlanEntryPanel implements Component {
             chalk.bold.hex(colors.text)(
               this.submitting === 'confirm' ? 'Continuing with plan…' : 'Keeping Default mode…',
             ),
-            chalk.hex(colors.muted)('Waiting for MiniMax Code to continue the conversation.'),
+            chalk.hex(colors.muted)('Waiting for Shards Code to continue the conversation.'),
           ],
         },
         safeWidth,

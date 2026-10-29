@@ -1,4 +1,4 @@
-"""Tiny CLI helpers shared across the MiniMax PDF skill scripts.
+"""Tiny CLI helpers shared across the Shards Code PDF skill scripts.
 
 Each entry-point script in ``scripts/`` builds its argparse parser
 through :func:`make_parser` so the help output, default ``--quiet`` /

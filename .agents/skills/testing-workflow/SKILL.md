@@ -1,6 +1,6 @@
 ---
 name: testing-workflow
-description: Select and report verification for MiniMax Code changes using the repository's declared test suites and CI gates. Use when validating code, skills, documentation, build tooling or source-distribution changes.
+description: Select and report verification for Shards Code changes using the repository's declared test suites and CI gates. Use when validating code, skills, documentation, build tooling or source-distribution changes.
 ---
 
 # Testing Workflow

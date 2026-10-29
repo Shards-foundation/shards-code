@@ -648,7 +648,7 @@ function classifyClipboardImageError(
   ) {
     return new TuiClipboardImageError(
       'permission-denied',
-      'Minimax Code cannot read the system clipboard. Allow clipboard access, then try again.',
+      'Shards Code cannot read the system clipboard. Allow clipboard access, then try again.',
       { cause: error },
     );
   }

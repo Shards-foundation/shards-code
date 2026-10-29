@@ -1,12 +1,12 @@
-# Pocket Pet: teach a blinking face to help you focus
+# Pocket Pet: a small focus timer
 
-A small browser project for a real coding-agent workflow: add a timer, then change the interaction. No hardware, framework, package installation, or external assets are needed to run the example.
+Pocket Pet is a synthetic browser project for trying a coding-agent workflow: add a timer, then change its interaction. It needs no hardware, framework, package installation or external assets.
 
 ## Requirements
 
 - Node.js 22.19+ and a modern browser. The local server binds only to `127.0.0.1:4173`.
-- To have the agent edit the starter: install [MCode](../../README.md#quick-start) and configure a MiniMax account with available credits or your own compatible model API. Model calls may incur charges. Source availability does not make hosted inference free.
-- Running the finished example and its tests needs no account or model call.
+- To ask Shards Code to edit the starter, build it using the [source guide](../../README.md#build-from-source) and configure a compatible model provider. Provider usage may incur charges.
+- Running the finished example and its tests requires no account or model call.
 
 ## Try the finished pet
 
@@ -22,7 +22,7 @@ For a quick demonstration, open `http://127.0.0.1:4173/?demo=1`. The screen expl
 
 ## Build it yourself
 
-Create an independent copy so the agent does not edit the repository:
+Create an independent copy so an agent does not edit the repository:
 
 ```bash
 node examples/pocket-pet/setup.mjs ../my-pocket-pet
@@ -30,23 +30,21 @@ cd ../my-pocket-pet
 node serve.mjs
 ```
 
-The setup command refuses an existing destination. Open the URL above. In a second terminal, change to the same `my-pocket-pet` directory and run `mcode`. Use the normal permission prompts to review file edits and test execution.
+Open the local URL. In a second terminal, change to the same `my-pocket-pet` directory and run the built Shards CLI:
+
+```bash
+node /absolute/path/to/shards-code/dist/cli.js
+```
+
+Use the normal permission prompts to review file edits and test execution.
 
 ### First request
 
-Paste [prompt-1.txt](prompt-1.txt):
-
-> Give this browser pocket pet a working Pomodoro timer. Keep its existing visual design. Start with 25 minutes, show MM:SS, let the button start, pause, and resume, and give it a focused expression while running. Add a clearly labeled 10-second demo mode through ?demo=1 so the video does not imply 25 minutes passed in real time. Use an elapsed-time deadline so background tabs do not slow the clock. Extract pure timer logic into timer.mjs and write node:test tests for start, pause, resume, completion, and reset. Use no external dependencies, network requests, or assets. Keep all work in this directory. Update the intro to say "A little focus. A little company." and explain the working controls. Run the tests. Do not commit. Reply briefly in English with the actual result.
-
-Refresh the browser. Check Start → Pause → Resume, and let demo mode finish. Read the actual test output.
+Paste [prompt-1.txt](prompt-1.txt). It asks the agent to add a Pomodoro timer, preserve the starter's visual design, write tests, and avoid network calls or dependencies. Refresh the browser and check the actual behavior and test output.
 
 ### Change the requirement
 
-In the same session, paste [prompt-2.txt](prompt-2.txt):
-
-> Change the requirement: while the timer is running, pause only after holding the button for 800 ms. A short click must not pause it. Support pointer and keyboard (Space or Enter), cancel a pending hold on pointer cancellation, lost capture, or window blur, and keep start/resume as normal clicks. Show a visible hold progress indicator and explain the control. When the timer completes, make the pet celebrate with a short finite animation, respecting prefers-reduced-motion. Keep the labeled ?demo=1 mode. Add regression tests for the hold threshold and cancellation; run all tests. Keep the existing design, use no dependencies, and do not commit. Reply briefly in English with actual results.
-
-Refresh again. Confirm a short tap leaves the timer running; a hold pauses it; a normal click resumes it; completion celebrates. Model output varies: inspect its changes and verify the behavior rather than expecting byte-identical files.
+In the same session, paste [prompt-2.txt](prompt-2.txt). It changes pause to an 800 ms hold, covers pointer and keyboard input, and adds a reduced-motion-aware completion effect. Inspect the edits, run the tests, and check the browser behavior yourself; model output may vary.
 
 ## Verify the reference implementation
 
@@ -54,6 +52,4 @@ Refresh again. Confirm a short tap leaves the timer running; a hold pauses it; a
 node --test examples/pocket-pet/finished/timer.test.mjs examples/pocket-pet/finished/hold.test.mjs
 ```
 
-The shipped `finished/` reference is based on a real MiniMax Code 0.5.8 BYOK session, followed by maintainer visual polish and browser verification. The shipped reference has a revised design, a session progress bar, short-tap feedback, and visible mode links; these are documented maintainer additions beyond the two prompts. The starter was designed beforehand. This demonstrates the agent modifying an existing project; it is not a claim that the CLI generated the entire design from an empty directory. See [recording details](../../docs/demo.md).
-
-The example keeps state in memory. Reloading resets the timer. It is an educational example, not an alarm service guaranteed to run while a computer sleeps.
+The finished directory is an example implementation, not a recorded Shards agent session or evidence of a particular provider's performance. The timer keeps state in memory; reloading resets it. It is an educational example, not an alarm service guaranteed to run while a computer sleeps.

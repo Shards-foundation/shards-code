@@ -135,14 +135,15 @@ writeFileSync(
   JSON.stringify(result.metafile, null, 2) + "\n",
 );
 console.log(
-  `Built MiniMax Code ${version} from ${Object.keys(result.metafile.inputs).length} source files.`,
+  `Built Shards Code ${version} from ${Object.keys(result.metafile.inputs).length} source files.`,
 );
 
 writeFileSync(
   path.join(outdir, "package.json"),
   JSON.stringify(
     {
-      name: "@minimax-ai/code", version, type: "module", private: true,
+      name: "@shards-foundation/shards-code", version, type: "module", private: true,
+      bin: { "shards-code": "cli.js", mcode: "cli.js" },
       ...(process.env.MCODE_RELEASE_TAG ? {
         gitHead: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
       } : {}),

@@ -726,9 +726,9 @@ describe('TranscriptView', () => {
         id: 'inspection-status',
         kind: 'inspection',
         status: 'succeeded',
-        content: 'MCode status\nAccount: Connected with MiniMax',
+        content: 'Shards Code status\nAccount: Connected with MiniMax',
         inspection: {
-          title: 'MCode status',
+          title: 'Shards Code status',
           badge: { label: 'READY', tone: 'success' },
           sections: [
             {
@@ -752,7 +752,7 @@ describe('TranscriptView', () => {
     const rendered = stripVTControlCharacters(view.render(60).join('\n'));
 
     expect(rendered).toContain('╭─');
-    expect(rendered).toMatch(/│ MCode status\s+● READY │/u);
+    expect(rendered).toMatch(/│ Shards Code status\s+● READY │/u);
     expect(rendered).toContain('READY');
     expect(rendered).toContain('├─ Account ');
     expect(rendered).toMatch(/│ Account\s+│ Connected with MiniMax\s+│/u);
@@ -1977,7 +1977,7 @@ describe('TranscriptView', () => {
         status: 'resolved',
         title: 'Answers sent',
         content: 'Release channel  Stable\nCollaboration  Mixed mode',
-        detail: 'MCode is continuing…',
+        detail: 'Shards Code is continuing…',
         createdAtMs: 6,
       }),
     ]);
@@ -1995,7 +1995,7 @@ describe('TranscriptView', () => {
     expect(rendered).toContain('✓ Answers sent');
     expect(rendered).toContain('Release channel  Stable');
     expect(rendered).toContain('Collaboration  Mixed mode');
-    expect(rendered).toContain('MCode is continuing');
+    expect(rendered).toContain('Shards Code is continuing');
     expect(rendered).not.toContain('/allow');
     expect(rendered).not.toContain('/q1');
   });

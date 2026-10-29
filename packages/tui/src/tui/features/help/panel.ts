@@ -116,7 +116,7 @@ export class TuiHelpPanel implements Component {
       })),
       {
         keys: 'Enter',
-        description: queueEnabled ? 'Send; while MCode works it sends next' : 'Send while idle',
+        description: queueEnabled ? 'Send; while Shards Code works it sends next' : 'Send while idle',
       },
     ];
     const commandLabelWidth = columnWidth(this.commands.map(formatTuiCommandUsage), width, 12);

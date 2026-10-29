@@ -74,8 +74,8 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
       : requirePluginRunner(options)(request);
   const program = applyInteractiveCliContract(
     new Command()
-      .name('mcode')
-      .description('Minimax Code — terminal coding agent')
+      .name('shards-code')
+      .description('Shards Code — terminal coding agent')
       .version(options.version)
       .enablePositionalOptions(),
     { allowStartupEnvironmentSelection: options.allowStartupEnvironmentSelection },
@@ -122,7 +122,7 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
   const acp = applySystemPromptCliOptions(
     program
       .command('acp')
-      .description('Run MiniMax Code as an Agent Client Protocol server over stdio'),
+      .description('Run Shards Code as an Agent Client Protocol server over stdio'),
   )
     .allowExcessArguments(false)
     .action((commandOptions: RawSystemPromptOptions, command: Command) => {
@@ -136,7 +136,7 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
 
   acp
     .command('login')
-    .description('Sign in to use MiniMax Code Agent features')
+    .description('Sign in to use Shards Code Agent features')
     .option('--region <region>', 'account region: cn or global', parseLoginRegion)
     .option('--no-browser', 'print the authorization URL without opening a browser')
     .allowExcessArguments(false)
@@ -148,7 +148,7 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
 
   program
     .command('login')
-    .description('Sign in to use MiniMax Code Agent features')
+    .description('Sign in to use Shards Code Agent features')
     .option('--region <region>', 'account region: cn or global', parseLoginRegion)
     .option('--no-browser', 'print the authorization URL without opening a browser')
     .allowExcessArguments(false)
@@ -167,7 +167,7 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
 
   program
     .command('update')
-    .description('Check for and install a Minimax Code update')
+    .description('Check for and install a Shards Code update')
     .allowExcessArguments(false)
     .action(options.runUpdate);
 
@@ -295,7 +295,7 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
 
   const plugin = program
     .command('plugin')
-    .description('Manage MiniMax Code Plugins')
+    .description('Manage Shards Code Plugins')
     .allowExcessArguments(false)
     .action(() => options.launchTui(withLane({ initialPrompt: '/plugins' })));
 
@@ -342,7 +342,7 @@ export function createTuiProgram(options: CreateTuiProgramOptions): Command {
 
   const marketplace = plugin
     .command('marketplace')
-    .description('List or refresh MiniMax Code Plugin sources');
+    .description('List or refresh Shards Code Plugin sources');
 
   marketplace
     .command('list')

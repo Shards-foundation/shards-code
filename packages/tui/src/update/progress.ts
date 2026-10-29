@@ -19,7 +19,7 @@ export interface McodeUpdateOperationOptions {
 }
 
 export class McodeUpdateCancelledError extends Error {
-  constructor(message = 'MCode update cancelled; the previous installation remains active.') {
+  constructor(message = 'Shards Code update cancelled; the previous installation remains active.') {
     super(message);
     this.name = 'McodeUpdateCancelledError';
   }

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
-  MINIMAX_CODE_HEADLESS_LOGIN_REQUIRED_MESSAGE,
+  SHARDS_CODE_HEADLESS_LOGIN_REQUIRED_MESSAGE,
   TuiLoginRequiredError,
   requireTuiAccountLogin,
   requireTuiAgentAccess,
@@ -62,7 +62,7 @@ describe('MiniMax login gate', () => {
       category: 'config',
       code: 'auth.login_required',
       retryable: false,
-      message: MINIMAX_CODE_HEADLESS_LOGIN_REQUIRED_MESSAGE,
+      message: SHARDS_CODE_HEADLESS_LOGIN_REQUIRED_MESSAGE,
       account,
     } satisfies Partial<TuiLoginRequiredError>);
   });

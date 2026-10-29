@@ -9,7 +9,7 @@ export const COMPOSER_COPY = {
   draftMigrationFailed: "Couldn't move draft recovery to this session.",
   draftRestoreFailed: "Couldn't read draft recovery.",
   draftRecoveryUnavailable:
-    'You can continue using MCode. Unsent input may not be recoverable after restarting.',
+    'You can continue using Shards Code. Unsent input may not be recoverable after restarting.',
   draftCleanupNextStep: 'An older draft or attachment backup may remain on disk.',
 } as const;
 

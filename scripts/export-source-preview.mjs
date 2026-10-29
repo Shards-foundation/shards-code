@@ -64,11 +64,11 @@ let extractor;
 try {
   receiptFd = openSync(sidecar, "wx", 0o600);
   await measure("archive", () =>
-    git(["archive", "--format=tar.gz", "--prefix=minimax-code/", revision], {
+    git(["archive", "--format=tar.gz", "--prefix=shards-code/", revision], {
       stdio: ["ignore", fd, "pipe"],
     }),
   );
-  snapshot = mkdtempSync(path.join(tmpdir(), "mcode-source-export-"));
+  snapshot = mkdtempSync(path.join(tmpdir(), "shards-code-source-export-"));
   extractor = await measure("extract", () =>
     extractSourceArchive(
       destination,
@@ -76,7 +76,7 @@ try {
       process.env.MCODE_SOURCE_EXTRACTOR,
     ),
   );
-  const snapshotRoot = path.join(snapshot, "minimax-code");
+  const snapshotRoot = path.join(snapshot, "shards-code");
   const check = await measure("inventory", () =>
     spawnSync(
       process.execPath,

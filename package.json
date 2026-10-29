@@ -1,9 +1,13 @@
 {
-  "name": "minimax-code",
+  "name": "shards-code",
   "version": "0.6.5",
   "private": true,
   "type": "module",
-  "description": "Standalone MiniMax Code TUI with managed accounts, BYOK models, cloud tools, plugins and ACP.",
+  "description": "Shards Code CLI and TUI with BYOK models, local tools, plugins and ACP; an independent fork.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shards-foundation/shards-code.git"
+  },
   "packageManager": "pnpm@9.12.0",
   "engines": {
     "node": ">=22.19 <23 || >=24.2 <27"
@@ -12,6 +16,7 @@
     "build": "node scripts/build.mjs",
     "release:cli": "node scripts/release-cli.mjs",
     "start": "node dist/cli.js",
+    "shards-code": "node dist/cli.js",
     "mcode": "node dist/cli.js",
     "verify": "node scripts/verify.mjs",
     "test:smoke": "node --test test/smoke.test.mjs",
