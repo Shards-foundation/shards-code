@@ -44,11 +44,28 @@ function violationsIn(files) {
   return violations;
 }
 
+function isTuiSourceFile(file) {
+  return file.replaceAll('\\', '/').startsWith('packages/tui/src/');
+}
+
+test('privacy source selection recognizes Windows path separators', () => {
+  const windowsPath = path.win32.join(
+    'packages',
+    'tui',
+    'src',
+    'runtime',
+    'feedback',
+    'ticket.ts',
+  );
+  const selected = [windowsPath].filter(isTuiSourceFile);
+  assert.deepEqual(selected, [windowsPath]);
+});
+
 test('production source contains no automatic MiniMax telemetry or eval-capture channel', () => {
   const files = productionRoots.flatMap((directory) => filesUnder(directory, new Set(['.ts', '.js', '.mjs'])));
   assert.deepEqual(violationsIn(files), []);
   const tuiSource = files
-    .filter((file) => file.startsWith('packages/tui/src/'))
+    .filter(isTuiSourceFile)
     .map((file) => readFileSync(path.join(root, file), 'utf8'))
     .join('\n');
   assert.match(tuiSource, /feedback\/ticket/iu, 'the user-initiated feedback path must remain');
