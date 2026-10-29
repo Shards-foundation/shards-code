@@ -38,7 +38,7 @@ describe.skipIf(process.platform !== "win32")("Windows source contract", () => {
     const fixtureRoot = path.join(root, "package");
     mkdirSync(fixtureRoot);
     writeFileSync(path.join(fixtureRoot, "package.json"), JSON.stringify({
-      name: "@minimax-ai/code",
+      name: "@shards-foundation/shards-code",
       version: "1.2.4",
       bin: { mcode: "cli.cjs" },
     }));

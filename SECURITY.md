@@ -1,14 +1,14 @@
 # Security
 
-**OWNER REVIEW DRAFT — the contact below is unverified and is not an active or monitored reporting route.**
+**OWNER REVIEW DRAFT — delivery of one test email was confirmed in the owner's inbox on 2026-10-29. Continuous monitoring and a response-time commitment have not been established.**
 
-**Proposed reporting contact:** `Shards-inc@engineer.com` (provided for owner review; the address, ownership, and monitoring status have not been verified).
+**Proposed reporting contact:** `Shards-inc@engineer.com` (a test message to this address was confirmed in the owner's inbox on 2026-10-29).
 
-Do not treat this address as an active security-reporting route until the owner confirms that it is controlled by Shards and provides a private, monitored intake path. No response-time commitment is established. This source-review draft does not establish an active Shards security inbox.
+That confirmation covers the test message only. Do not describe this address as a continuously monitored security-reporting route or promise a response time. This draft does not establish an active, continuously monitored Shards security inbox.
 
 Shards Code is an independent fork and is not affiliated with or endorsed by MiniMax. Do not send vulnerability details to MiniMax or publish exploit details, credentials, or real user data in a public issue.
 
-If GitHub's **Private vulnerability reporting** feature is enabled for the Shards Code repository, use that private channel. If it is unavailable, ask the repository owner to confirm a private reporting route before sharing sensitive details. The owner should configure and test a private reporting channel before a public software release. No response SLA is currently promised.
+If GitHub's **Private vulnerability reporting** feature is enabled for the Shards Code repository, use that private channel. If it is unavailable, ask the repository owner to confirm a private reporting route before sharing sensitive details. The owner should configure and test a private reporting channel before a public software release.
 
 Include the affected revision, operating system and Node.js version, a minimal reproduction, the expected and actual permission boundaries, and only necessary redacted evidence. Use synthetic files and dedicated test accounts; do not test other people's accounts or infrastructure.
 

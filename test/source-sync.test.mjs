@@ -798,7 +798,7 @@ test('ordinary CI runs a focused Windows contract while compatibility remains ma
   const readWorkflow = name => parseYaml(readFileSync(new URL(`../.github/workflows/${name}.yml`, import.meta.url), 'utf8'));
   const ci = readWorkflow('ci');
   assert.ok(Object.hasOwn(ci.on, 'pull_request'));
-  assert.deepEqual(ci.on.push.branches, ['main']);
+  assert.deepEqual(ci.on.push.branches, ['main', 'chore/shards-code-rebrand']);
   assert.deepEqual(Object.keys(ci.jobs).sort(), ['changes', 'docs', 'verification', 'verify']);
   assert.deepEqual(ci.jobs.verify.strategy.matrix.os, ['ubuntu-latest', 'macos-latest', 'windows-latest']);
   assert.deepEqual(ci.jobs.verify.strategy.matrix.node, ['24']);
@@ -820,6 +820,30 @@ test('ordinary CI runs a focused Windows contract while compatibility remains ma
   assert.ok(Object.hasOwn(audit.on, 'pull_request'));
   assert.ok(audit.jobs['source-history-artifact'].steps.some(step => step.run?.includes('gitleaks dir dist')));
 });
+
+test('default-branch pushes run CI and the release audit', () => {
+  const branch = 'chore/shards-code-rebrand';
+  for (const name of ['ci', 'security']) {
+    const workflow = parseYaml(readFileSync(new URL(`../.github/workflows/${name}.yml`, import.meta.url), 'utf8'));
+    assert.ok(workflow.on.push.branches.includes(branch), `${name} must scan pushes to ${branch}`);
+  }
+});
+
+test('project workflow installs use the package manager version declared by the root manifest', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const expected = manifest.packageManager.match(/^pnpm@(.+)$/u)?.[1];
+  assert.ok(expected, 'root package.json must declare an exact pnpm packageManager version');
+  for (const name of ['ci', 'security']) {
+    const workflow = parseYaml(readFileSync(new URL(`../.github/workflows/${name}.yml`, import.meta.url), 'utf8'));
+    const setupSteps = Object.values(workflow.jobs).flatMap(job => job.steps ?? [])
+      .filter(step => step.uses?.startsWith('pnpm/action-setup@'));
+    for (const step of setupSteps) {
+      if (step.with?.package_json_file || !step.with?.version) continue;
+      assert.equal(step.with.version, expected, `${name} pnpm/action-setup version`);
+    }
+  }
+});
+
 test('manual source candidates pin every checkout and receipt to the selected revision', () => {
   const workflow = parseYaml(readFileSync(new URL('../.github/workflows/source-candidate.yml', import.meta.url), 'utf8'));
   assert.deepEqual(Object.keys(workflow.on).sort(), ['workflow_call', 'workflow_dispatch']);

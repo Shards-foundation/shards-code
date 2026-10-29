@@ -15,21 +15,21 @@ regexes = ['''^labelKey: 'permission\.scope\.byArgvPrefix2'$''']
 [[rules.allowlists]]
 description = "Documented keyboard shortcut"
 condition = "AND"
-paths = ['''(^|/)(packages/local-runtime|dist)/assets/skills/cu-desktop/SKILL\.md$''']
+paths = ['''(^|/)(packages/local-runtime|dist|package)/assets/skills/cu-desktop/SKILL\.md$''']
 regexTarget = "match"
 regexes = ['''^desktop_key combo="ctrl\+shift\+Escape"$''']
 
 [[rules.allowlists]]
 description = "Pagination example ends with explicit xxxx placeholder"
 condition = "AND"
-paths = ['''(^|/)(packages/local-runtime|dist)/assets/skills/lark-tools/cli-skills/lark-im/references/lark-im-reactions\.md$''']
+paths = ['''(^|/)(packages/local-runtime|dist|package)/assets/skills/lark-tools/cli-skills/lark-im/references/lark-im-reactions\.md$''']
 regexTarget = "match"
 regexes = ['''^page_token": "YhljsPiGfUgnVAg9urvRFd-BvSqRLxxxx"$''']
 
 [[rules.allowlists]]
 description = "PDF form field identifier, not an API key"
 condition = "AND"
-paths = ['''(^|/)(packages/local-runtime|dist)/assets/skills/pdf/templates/form-fill-acroform/cases/italy-schengen-visa-(zhangwei|example)/field_values\.case\.json$''']
+paths = ['''(^|/)(packages/local-runtime|dist|package)/assets/skills/pdf/templates/form-fill-acroform/cases/italy-schengen-visa-(zhangwei|example)/field_values\.case\.json$''']
 regexTarget = "match"
 regexes = ['''^key": "p1-place-of-birth"$''']
 
@@ -43,28 +43,28 @@ regexes = ['''^defaultKeys: "ctrl\+shift\+down"$''']
 [[rules.allowlists]]
 description = "Bundled TUI shortcut and permission translation key"
 condition = "AND"
-paths = ['''(^|/)dist/chunks/(chunk|launcher)-[A-Z0-9]+\.js$''']
+paths = ['''(^|/)(dist|package)/chunks/(chunk|launcher)-[A-Z0-9]+\.js$''']
 regexTarget = "match"
 regexes = ['''^defaultKeys: ?"ctrl\+shift\+down"$''', '''^labelKey: ?"permission\.scope\.byArgvPrefix2"$''']
 
 [[rules.allowlists]]
 description = "Bundled node-forge public PKCS12 algorithm names"
 condition = "AND"
-paths = ['''(^|/)dist/chunks/chunk-[A-Z0-9]+\.js$''']
+paths = ['''(^|/)(dist|package)/chunks/chunk-[A-Z0-9]+\.js$''']
 regexTarget = "match"
 regexes = ['''^pbeWithSHAAnd3-KeyTripleDES-CBC","pbewithSHAAnd40BitRC2-CBC"$''']
 
 [[rules.allowlists]]
 description = "Bundled IM binding migration guard, no credential value"
 condition = "AND"
-paths = ['''(^|/)dist/chunks/chunk-[A-Z0-9]+\.js$''']
+paths = ['''(^|/)(dist|package)/chunks/chunk-[A-Z0-9]+\.js$''']
 regexTarget = "match"
 regexes = ['''^[A-Za-z_$][A-Za-z0-9_$]*\.resolvedProjectKey\|\|[A-Za-z_$][A-Za-z0-9_$]*\.mutationReceipts===void $''']
 
 [[rules.allowlists]]
 description = "node-forge PKCS12 function alias, no key material"
 condition = "AND"
-paths = ['''(^|/)dist/chunks/chunk-[A-Z0-9]+\.js$''']
+paths = ['''(^|/)(dist|package)/chunks/chunk-[A-Z0-9]+\.js$''']
 regexTarget = "match"
 regexes = ['''^[A-Za-z_$][A-Za-z0-9_$]*\.generateKey = [A-Za-z_$][A-Za-z0-9_$]*\.pbe\.generatePkcs12Key;?$''']
 
