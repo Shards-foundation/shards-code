@@ -51,7 +51,7 @@
     "@types/node": "^20",
     "@types/pngjs": "^6.0.5",
     "@types/proper-lockfile": "^4",
-    "typescript": "^5",
+    "typescript": "^7",
     "vitest": "^2"
   },
   "private": true,

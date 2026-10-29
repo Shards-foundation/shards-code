@@ -120,7 +120,7 @@
     "dependency-cruiser": "18.4.0",
     "jscpd": "^5.3.3",
     "knip": "^6.38.0",
-    "typescript": "^5",
+    "typescript": "^7",
     "vitest": "^2"
   },
   "license": "MIT"

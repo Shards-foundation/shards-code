@@ -333,7 +333,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@vitest/coverage-v8": "^2",
-    "typescript": "^5",
+    "typescript": "^7",
     "vitest": "^2"
   },
   "private": true,

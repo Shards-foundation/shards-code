@@ -34,7 +34,7 @@
     "@types/js-yaml": "^4",
     "@types/node": "^20",
     "@types/proper-lockfile": "^4",
-    "typescript": "^5"
+    "typescript": "^7"
   },
   "private": true,
   "license": "MIT"
