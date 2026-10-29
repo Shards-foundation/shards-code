@@ -8,8 +8,6 @@ import {
   createDeferredLocalSandboxBashOperationsFactory,
   createSandboxBashOperationsFactory,
 } from './deferred-port.js';
-import { createSandboxEvalEventSink } from './observability/eval-adapter.js';
-import type { SandboxEvalReporter } from './observability/contracts.js';
 import { LocalSandboxService } from './local-sandbox-service.js';
 import type {
   SandboxMetricsClient,
@@ -19,7 +17,6 @@ import type { SandboxConfigCommitWriter } from './config-commit.js';
 
 interface LocalSandboxCompositionOptions {
   readonly sandboxConfig?: SandboxConfig;
-  readonly evalReporter?: SandboxEvalReporter;
   readonly logger?: { info(fields: Record<string, unknown>, message: string): void };
   readonly eventSink?: SandboxObservabilityOptions['eventSink'];
   readonly log?: SandboxObservabilityOptions['log'];
@@ -58,7 +55,7 @@ export function composeLocalSandboxService(
     config,
     operationsFactory,
     configWriter: input.configWriter,
-    eventSink: input.eventSink ?? createSandboxEvalEventSink(input.evalReporter),
+    eventSink: input.eventSink,
     log: input.log ?? ((event) => input.logger?.info({ ...event }, event.event_type)),
     ...(input.metrics
       ? {

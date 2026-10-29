@@ -5,7 +5,6 @@ import {
 } from "@mavis/agent-core/protocol";
 import { createHookExtension, type AgentExtension } from "@mavis/agent-runtime";
 import type {
-  CreatedLocalRuntimeHost,
   LocalRuntimeApiHost,
 } from "@mavis/local-runtime";
 
@@ -20,7 +19,6 @@ type HostedAgentCapabilitySource = Pick<
   LocalRuntimeApiHost,
   "createHostedAgentCapabilities"
 >;
-type HostedEvalReporterFactory = CreatedLocalRuntimeHost["evalReporterFactory"];
 type HostedAgentCapabilities = ReturnType<
   LocalRuntimeApiHost["createHostedAgentCapabilities"]
 >;
@@ -155,7 +153,6 @@ function createV1ModelResolver(
  */
 export function createV1AgentHostProductCapabilities(
   source: HostedAgentCapabilitySource,
-  evalReporterFactory?: HostedEvalReporterFactory,
 ): V1AgentHostProductCapabilities {
   const hosted = source.createHostedAgentCapabilities();
   const websiteDeploy = createV1WebsiteDeployProjectionAdapter(
@@ -216,13 +213,9 @@ export function createV1AgentHostProductCapabilities(
       contextUsage: hosted.contextUsage,
       logger: hosted.runnerLogger,
       ...(hosted.metricsClient ? { metricsClient: hosted.metricsClient } : {}),
-      ...(hosted.llmRequestFailureHook
-        ? { onLLMRequestFailure: hosted.llmRequestFailureHook }
-        : {}),
       ...(hosted.observeLLMRequest
         ? { observeLLMRequest: hosted.observeLLMRequest }
         : {}),
-      ...(evalReporterFactory ? { evalReporterFactory } : {}),
     },
     fileApi: {
       ...(hosted.fetchImpl ? { fetchImpl: hosted.fetchImpl } : {}),

@@ -309,11 +309,6 @@ export interface ISystemReminderEntry {
   thresholds?: ISystemReminderThresholds;
 }
 
-export interface IEvalCaptureConfig {
-  enabled: boolean;
-  sample_rate?: number;
-}
-
 export interface IAgentConfig {
   system_prompt: string;
   model: IModelRef;
@@ -333,7 +328,6 @@ export interface IAgentConfig {
   system_reminders?: Array<ISystemReminderEntry>;
   subagent_types?: Array<ISubagentTypeConfig>;
   creation_source?: number;
-  eval_capture?: IEvalCaptureConfig;
   background_task_enabled?: boolean;
   plugins?: Array<IPluginRef>;
   tool_list_authoritative?: boolean;

@@ -7,16 +7,9 @@ import type {
 
 export interface RunawayGuardObserverOptions {
   readonly logger?: PiTurnRunnerLogger;
-  readonly reportEvent?: (
-    sessionId: string,
-    event: {
-      readonly eventType: string;
-      readonly payload: Readonly<Record<string, unknown>>;
-    },
-  ) => void;
 }
 
-/** Whitelist-only projection; logging and Eval delivery fail independently. */
+/** Whitelist-only projection to the local logger. */
 export function createRunawayGuardObserver(options: RunawayGuardObserverOptions) {
   return (
     event: string,
@@ -47,11 +40,6 @@ export function createRunawayGuardObserver(options: RunawayGuardObserverOptions)
     };
     try {
       options.logger?.info?.({ event, ...payload }, '[runaway-guard] observation');
-    } catch {
-      /* fail open */
-    }
-    try {
-      options.reportEvent?.(observation.sessionId, { eventType: event, payload });
     } catch {
       /* fail open */
     }

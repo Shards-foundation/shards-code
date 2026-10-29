@@ -4,7 +4,6 @@
 // utilities + small interfaces + the SSE writer wrapper — no `this` dependencies.
 import type { PromptSnapshotSource } from "@mavis/agent-core";
 import type {
-  PiLLMRequestFailureHook,
   PiLLMRequestObserver,
 } from "@mavis/agent-core/pi-turn-runner";
 import {
@@ -34,8 +33,6 @@ import { logger } from "../common/logger.js";
 import type { MetricsClient } from "../common/metrics.js";
 import type { LocalRuntimeConfig } from "../config/types.js";
 import type { LocalConfigUpdateResult } from "../config/update.js";
-import type { DesktopErrorReporter } from "../error-reporting/index.js";
-import type { LocalEvalReporterFactoryLike } from "../eval/types.js";
 import type { GlobalEventPublisher } from "../events/global-events.js";
 import type { LocalHookService } from "../hooks/api.js";
 import type { LegacyHistoryReader } from "../legacy-opencode/legacy-history-reader.js";
@@ -118,7 +115,6 @@ export interface LocalRuntimeApiHostOptions {
   deferQuestionnaireRecovery?: boolean;
   telemetry?: LocalRuntimeTelemetrySink;
   /** Existing Session Clio reporter used for non-message runtime observations. */
-  evalReporterFactory?: LocalEvalReporterFactoryLike;
   /** Complete host-owned Goal event projection; when present it also owns Clio mirroring. */
   threadGoalRuntimeEventSink?: ThreadGoalRuntimeEventSink;
   matrixLogger?: MatrixToolLogger;
@@ -147,10 +143,6 @@ export interface LocalRuntimeApiHostOptions {
   isContextWindowUsageEnabled?: () => boolean;
   /** Electron: pass `net.fetch` for VPN proxy / enterprise CA trust. */
   fetchImpl?: typeof fetch;
-  /** Process-level desktop error reporter, shut down by API Host and exposed to v2 through a narrow callback. */
-  errorReporter?: DesktopErrorReporter;
-  /** Failure callback shared with the v1 runner and supplied to v2. */
-  llmRequestFailureHook?: PiLLMRequestFailureHook;
   bashCompletionCorrelation?: {
     record(sessionId: string, completion: LocalBashCompletion): void;
     observeLLMRequest: PiLLMRequestObserver;

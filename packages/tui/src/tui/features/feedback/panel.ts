@@ -52,13 +52,17 @@ export interface TuiFeedbackPanelOptions {
 export class TuiFeedbackPanel implements Component, Focusable {
   private state: FeedbackPanelState = { status: 'review' };
   private detailsExpanded = false;
+  private diagnosticsIncluded: boolean;
   private frameIndex = 0;
   private animationTimer: ReturnType<typeof setInterval> | undefined;
   private closed = false;
   private disposed = false;
   focused = false;
 
-  constructor(private readonly options: TuiFeedbackPanelOptions) {}
+  constructor(private readonly options: TuiFeedbackPanelOptions) {
+    this.diagnosticsIncluded =
+      options.preview.diagnosticBundleAvailable && options.preview.diagnosticBundleIncluded;
+  }
 
   handleInput(data: string): void {
     if (this.state.status === 'submitting') {
@@ -73,6 +77,15 @@ export class TuiFeedbackPanel implements Component, Focusable {
     }
     if (matchesKey(data, 'd')) {
       this.toggleDetails();
+      return;
+    }
+    if (
+      matchesKey(data, 'i') &&
+      this.options.preview.diagnosticBundleAvailable &&
+      (this.state.status === 'review' || this.state.status === 'failed')
+    ) {
+      this.diagnosticsIncluded = !this.diagnosticsIncluded;
+      this.options.requestRender();
       return;
     }
     if (matchesKey(data, Key.escape) || matchesKey(data, Key.ctrl('c'))) {
@@ -122,6 +135,7 @@ export class TuiFeedbackPanel implements Component, Focusable {
     });
     try {
       const receipt = await this.options.submit(this.options.preview.draftId, {
+        includeDiagnostics: this.includesDiagnostics(),
         onPhase: (phase) => this.acceptPhase(phase),
       });
       if (!this.closed && !this.disposed) this.setState({ status: 'succeeded', receipt });
@@ -197,10 +211,22 @@ export class TuiFeedbackPanel implements Component, Focusable {
         width,
         colors.success,
       ),
+      ...renderWrapped(
+        this.options.preview.diagnosticBundleAvailable
+          ? `Diagnostics: ${includesDiagnostics ? 'included (minimized counts only)' : 'unchecked (not included)'}`
+          : 'Diagnostics: unavailable and not included',
+        width,
+        includesDiagnostics ? colors.signal : colors.success,
+      ),
       ...this.renderDetails(width),
       '',
       chalk.bold.hex(colors.signal)('› Send feedback'),
-      renderTuiActionHint(fit('Enter send · d details · Esc cancel', width)),
+      renderTuiActionHint(
+        fit(
+          `Enter send · ${this.options.preview.diagnosticBundleAvailable ? 'i diagnostics · ' : ''}d details · Esc cancel`,
+          width,
+        ),
+      ),
     ];
   }
 
@@ -312,6 +338,16 @@ export class TuiFeedbackPanel implements Component, Focusable {
 
   private renderDetails(width: number, receipt?: TuiFeedbackReceipt): string[] {
     if (!this.detailsExpanded) return [];
+    const included = [...this.options.preview.included];
+    const excluded = [...this.options.preview.excluded];
+    if (this.options.preview.diagnosticBundleAvailable) {
+      const target = this.includesDiagnostics() ? included : excluded;
+      target.push(
+        this.includesDiagnostics()
+          ? 'minimized diagnostic counts from selected local records'
+          : 'optional minimized diagnostic counts (not included)',
+      );
+    }
     const diagnostics = this.options.preview.diagnostics.flatMap((row) =>
       renderWrapped(
         `${sanitizeTerminalText(row.label)}  ${sanitizeTerminalText(row.value)}`,
@@ -328,13 +364,13 @@ export class TuiFeedbackPanel implements Component, Focusable {
         : []),
       chalk.hex(colors.dim)('Included'),
       ...renderWrapped(
-        this.options.preview.included.map(sanitizeTerminalText).join(' · '),
+        included.map(sanitizeTerminalText).join(' · '),
         width,
         colors.muted,
       ),
       chalk.hex(colors.dim)('Excluded'),
       ...renderWrapped(
-        this.options.preview.excluded.map(sanitizeTerminalText).join(' · '),
+        excluded.map(sanitizeTerminalText).join(' · '),
         width,
         colors.success,
       ),
@@ -342,7 +378,7 @@ export class TuiFeedbackPanel implements Component, Focusable {
   }
 
   private includesDiagnostics(): boolean {
-    return this.options.preview.diagnosticBundleIncluded;
+    return this.diagnosticsIncluded;
   }
 
   private cancelWasRequested(): boolean {

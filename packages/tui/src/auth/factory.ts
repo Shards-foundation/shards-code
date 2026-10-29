@@ -15,8 +15,6 @@ export interface CreateDefaultMcodeAuthApplicationOptions {
   buildEnv?: MavisBuildEnv;
   oauthEndpointEnvironment?: MCodeOAuthEndpointEnvironment;
   createSharedSession?: typeof createMcodeSharedAuthSession;
-  telemetry?: McodeAuthApplicationOptions['telemetry'];
-  telemetrySource?: McodeAuthApplicationOptions['telemetrySource'];
   writeRegionPreference?: McodeAuthApplicationOptions['writeRegionPreference'];
   sharedAuthCore?: McodeAuthApplicationOptions['sharedAuthCore'];
 }
@@ -34,8 +32,6 @@ export function createDefaultMcodeAuthApplication(
     dataDir: options.dataDir,
     region,
     buildEnv,
-    ...(options.telemetry ? { telemetry: options.telemetry } : {}),
-    ...(options.telemetrySource ? { telemetrySource: options.telemetrySource } : {}),
     writeRegionPreference: options.writeRegionPreference ?? writeTuiRegionPreference,
   } satisfies Omit<McodeAuthApplicationOptions, 'sharedAuthCore'>;
   const createSharedAuthCore = (requestedRegion: MavisRegion) =>

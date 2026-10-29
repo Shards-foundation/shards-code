@@ -1,4 +1,3 @@
-export { isTelemetryChannelEnabled, type TelemetryChannel } from './telemetry-policy.js';
 export { isLocalSourceProvenanceEnabled } from './source-provenance.js';
 export { writeTuiStatusLineSetting } from './tui-status-line-write.js';
 export { parseRunawayGuardOverride, resolveRunawayGuardConfig } from './runaway-guard-config.js';
@@ -186,7 +185,6 @@ export type {
 } from './agent-capabilities.js';
 export type {
   Config,
-  TelemetryConfig,
   EffortLevel,
   ThinkingConfig,
   ModelThinkingConfig,

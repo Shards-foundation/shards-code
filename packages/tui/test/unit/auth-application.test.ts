@@ -3,7 +3,6 @@ import type { LogoutResult } from '@mavis/oauth-core';
 
 import { createLocalAuthFixture } from '../../../oauth-core/test/helpers/local-auth.js';
 
-import type { McodeBusinessEvent } from '../../src/analytics/business-telemetry.js';
 import { McodeAuthApplication } from '../../src/auth/application.js';
 
 function sharedCore(status: 'anonymous' | 'authenticated' | 'logout_pending' = 'anonymous') {
@@ -216,29 +215,15 @@ describe('McodeAuthApplication', () => {
     });
   });
 
-  it('reports OAuth telemetry and preserves login failures', async () => {
-    const events: McodeBusinessEvent[] = [];
+  it('preserves OAuth login failures without collecting business telemetry', async () => {
     const core = sharedCore();
     core.login.mockRejectedValueOnce(new Error('OAuth authorization failed.'));
     const application = new McodeAuthApplication({
       dataDir: '/data',
       sharedAuthCore: core,
-      telemetry: {
-        track: (event, properties) => events.push({ event, properties } as McodeBusinessEvent),
-        flush: async () => undefined,
-      },
-      telemetrySource: 'mcode_tui',
     });
 
     await expect(application.login()).rejects.toThrow('OAuth authorization failed.');
-    expect(events.at(-1)).toEqual({
-      event: 'login_result',
-      properties: {
-        source: 'mcode_tui',
-        result_type: '2',
-        fail_reason: '5',
-        login_type: 'minimax_oauth',
-      },
-    });
+    expect(core.login).toHaveBeenCalledOnce();
   });
 });

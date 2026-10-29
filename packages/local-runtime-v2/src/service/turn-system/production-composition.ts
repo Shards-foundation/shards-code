@@ -566,8 +566,6 @@ function createHostRunawayGuardExtension<TAgent extends AgentExecutionSnapshot>(
     readVerifiedProgress: (input) =>
       options.product.executor.fileChanges.takeToolProgress?.(input) ?? [],
     logger: options.product.runner.logger,
-    reportEvent: (sessionId, event) =>
-      options.product.runner.evalReporterFactory?.reportRuntimeEvent?.(sessionId, event),
   });
 }
 

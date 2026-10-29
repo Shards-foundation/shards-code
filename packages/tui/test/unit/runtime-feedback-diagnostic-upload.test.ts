@@ -59,6 +59,38 @@ function transport() {
 }
 
 describe('feedback diagnostic upload privacy', () => {
+  it('keeps diagnostics unchecked in the preview and sends them only after the user toggles consent', async () => {
+    const submit = vi.fn(async () => ({ schemaVersion: 1 as const, status: 'unknown' as const }));
+    const panel = new TuiFeedbackPanel({
+      preview: {
+        schemaVersion: 1,
+        draftId: 'draft-1',
+        description: 'Synthetic feedback',
+        diagnostics: [],
+        diagnosticBundleAvailable: true,
+        diagnosticBundleIncluded: false,
+        included: ['reviewed feedback description'],
+        excluded: ['diagnostic counts and raw session files'],
+        expiresAtMs: Date.now() + 60_000,
+      },
+      submit,
+      cancel: async () => undefined,
+      requestRender() {},
+      onClose() {},
+    });
+
+    expect(panel.render(120).join('\n')).toMatch(/diagnostics.*unchecked/iu);
+    panel.handleInput('i');
+    expect(panel.render(120).join('\n')).toMatch(/diagnostics.*included/iu);
+    panel.handleInput('\r');
+    await vi.waitFor(() => expect(submit).toHaveBeenCalled());
+    expect(submit).toHaveBeenCalledWith(
+      'draft-1',
+      expect.objectContaining({ includeDiagnostics: true }),
+    );
+    panel.dispose();
+  });
+
   it('runs review, real session collection, packaging and intercepted PUT with synthetic sensitive artifacts', async () => {
     const dataDir = await directory();
     const root = join(dataDir, 'session-root');
@@ -154,7 +186,8 @@ describe('feedback diagnostic upload privacy', () => {
       description: 'Synthetic feedback',
       sessionId: 'root',
     });
-    expect(preview.included.join(' ')).toContain('original contents and filenames are omitted');
+    expect(preview.diagnosticBundleAvailable).toBe(true);
+    expect(preview.diagnosticBundleIncluded).toBe(false);
     const panel = new TuiFeedbackPanel({
       preview,
       submit: (id, options) => service.submit(id, options),
@@ -162,8 +195,10 @@ describe('feedback diagnostic upload privacy', () => {
       requestRender() {},
       onClose() {},
     });
+    expect(panel.render(120).join('\n')).toContain('Diagnostics: unchecked (not included)');
+    panel.handleInput('i');
     expect(panel.render(120).join('\n')).toContain('No raw attachments');
-    await service.submit(preview.draftId);
+    await service.submit(preview.draftId, { includeDiagnostics: true });
     panel.dispose();
     const archive = await capture.archive();
     expect(archive.text).not.toContain(PRIVATE);

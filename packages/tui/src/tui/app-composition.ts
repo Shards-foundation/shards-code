@@ -12,9 +12,7 @@ import { TuiComposerImagePreview } from './features/composer/image-preview.js';
 import { createTuiExternalTargetOpener } from '../host/open-external.js';
 import { readTuiClipboardText, writeTuiClipboardText } from '../host/clipboard-text.js';
 import { formatTuiActionFailure } from '../user-facing-failure.js';
-import type { McodeBusinessTelemetry } from '../analytics/business-telemetry.js';
 import type { TuiBackgroundTask } from '../runtime/port.js';
-import { TuiBusinessEventTracker } from '../analytics/tui-business-event-tracker.js';
 import type {
   CreateTuiChatControllerOptions,
   TuiChatController,
@@ -501,38 +499,8 @@ export function createTuiApplicationSurface(options: {
 }
 
 // ---------------------------------------------------------------------------
-// Telemetry + small identity helpers
+// Small identity helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Build the business-event tracker. Returns `undefined` when no telemetry
- * sink was provided so the caller can skip wiring.
- */
-export function createTuiBusinessEventTracker(options: {
-  readonly telemetry?: McodeBusinessTelemetry;
-  readonly workspaceDir: string;
-  readonly controller: TuiChatController;
-  readonly featureFlow: TuiFeatureFlow;
-  readonly stateStore: TuiStateStore;
-  readonly transcript: TranscriptStore;
-}): TuiBusinessEventTracker | undefined {
-  if (!options.telemetry) return undefined;
-  return new TuiBusinessEventTracker(options.telemetry, {
-    chatType: () => {
-      const sessionId = options.controller.snapshot().session?.sessionId;
-      const sessionState = sessionId
-        ? options.stateStore.snapshot().sessions.get(sessionId)
-        : undefined;
-      return sessionState?.execution.subagents.size ? 'agent_team' : 'chat';
-    },
-    userMessageCount: () =>
-      options.transcript.snapshot().filter((cell) => cell.kind === 'user').length,
-    skillCommandNames: () =>
-      new Set(
-        options.featureFlow.skillCommands().map((command) => command.name.toLocaleLowerCase()),
-      ),
-  });
-}
 
 /**
  * Resolve the live "active turn id" from either the chat controller snapshot

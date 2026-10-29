@@ -36,14 +36,11 @@ describe('explicit headless config', () => {
         '  minSavingsKiB: 192',
         '  minCandidateKiB: 3',
         '  keepRecentRounds: 2',
-        'telemetry:',
-        '  enabled: true',
       ].join('\n'),
     );
 
-    await expect(
-      loadTuiRuntimeConfig(configPath, { dataDir: '/desktop/data' }),
-    ).resolves.toMatchObject({
+    const config = await loadTuiRuntimeConfig(configPath, { dataDir: '/desktop/data' });
+    expect(config).toMatchObject({
       dataDir: '/desktop/data',
       defaultModel: 'provider/model',
       permissionMode: 'auto',
@@ -58,8 +55,8 @@ describe('explicit headless config', () => {
         minCandidateKiB: 3,
         keepRecentRounds: 2,
       },
-      telemetry: { enabled: true, metrics: false, diagnostics: false },
     });
+    expect(config).not.toHaveProperty('telemetry');
   });
 
   it('classifies invalid YAML as a config error and shares canonical field fallback semantics', async () => {
@@ -74,7 +71,8 @@ describe('explicit headless config', () => {
     await expect(loadTuiRuntimeConfig(malformed, base)).rejects.toMatchObject({
       kind: 'config',
     });
-    await expect(loadTuiRuntimeConfig(invalidMode, base)).resolves.toMatchObject({
+    const config = await loadTuiRuntimeConfig(invalidMode, base);
+    expect(config).toMatchObject({
       dataDir: '/desktop/data',
       permissionMode: 'auto',
       runawayGuard: { enabled: true },
@@ -87,7 +85,7 @@ describe('explicit headless config', () => {
         minCandidateKiB: 2,
         keepRecentRounds: 5,
       },
-      telemetry: { enabled: false, metrics: false, diagnostics: false },
     });
+    expect(config).not.toHaveProperty('telemetry');
   });
 });

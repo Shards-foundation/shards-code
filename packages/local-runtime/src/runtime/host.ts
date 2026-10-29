@@ -1,5 +1,5 @@
 import { logger } from "../common/logger.js";
-import type { LocalEventWriter } from "../events/sink.js";
+import { LocalEventSink, type LocalEventWriter } from "../events/sink.js";
 import { PiTurnRunner } from "@mavis/agent-core/pi-turn-runner";
 import { RuntimeEventStatus, RuntimeEventType } from "@mavis/protocol";
 import {
@@ -15,13 +15,7 @@ import {
   SAFETY_SCENE,
   type ContentSafetyChecker,
 } from "../content-safety/api.js";
-import {
-  createDesktopErrorReporter,
-  createLLMFailureReportHook,
-  type DesktopErrorReporter,
-} from "../error-reporting/index.js";
 import type { MetricsClient } from "../common/metrics.js";
-import type { LocalEvalReporterFactoryLike } from "../eval/types.js";
 import { createLocalTurnEventReporting } from "../turns/event-reporter.js";
 import { combineAbortSignals } from "./abort-signals.js";
 import {
@@ -38,7 +32,6 @@ import {
   PI_TURN_RUNNER_LOGGER,
   withLlmResponseIdentifierLogging,
 } from "./pi-turn-observability.js";
-import { runLocalRuntimeEvalTurn } from "./host-eval.js";
 import {
   ContextUsageTurnTracker,
   withContextUsageEventWriter,
@@ -79,23 +72,9 @@ export class LocalRuntimeHost {
   private readonly outputSafetyRetryDelay?: () => Promise<void>;
   private readonly reviewContent: ContentSafetyChecker;
   private readonly metricsClient?: MetricsClient;
-  private readonly evalReporterFactory?: LocalEvalReporterFactoryLike;
-  /** Compatibility failure-observer port; the default implementation neither retains nor sends raw errors. */
-  private readonly errorReporter: DesktopErrorReporter;
   readonly contextUsageRuntime: ContextUsageRuntime;
 
   constructor(options: LocalRuntimeHostOptions = {}) {
-    this.errorReporter =
-      options.errorReporter ??
-      createDesktopErrorReporter({
-        ...(options.authContextGetter
-          ? { authContextGetter: options.authContextGetter }
-          : {}),
-        ...(options.routingContextGetter
-          ? { routingContextGetter: options.routingContextGetter }
-          : {}),
-        ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
-      });
     this.piRunner =
       options.piRunner ??
       new PiTurnRunner({
@@ -104,11 +83,6 @@ export class LocalRuntimeHost {
           : {}),
         logger: PI_TURN_RUNNER_LOGGER,
         toolContextSizeEstimator: TOOL_CONTEXT_SIZE_ESTIMATOR,
-        // Report every confirmed physical LLM request failure, including retries; agent-core excludes
-        // user cancellations.
-        onLLMRequestFailure:
-          options.llmRequestFailureHook ??
-          createLLMFailureReportHook(this.errorReporter),
         ...(options.observeLLMRequest
           ? { observeLLMRequest: options.observeLLMRequest }
           : {}),
@@ -117,7 +91,6 @@ export class LocalRuntimeHost {
       options.outputSafetyMaxRegenerations ?? OUTPUT_SAFETY_MAX_REGENERATIONS;
     this.outputSafetyRetryDelay = options.outputSafetyRetryDelay;
     this.metricsClient = options.metricsClient;
-    this.evalReporterFactory = options.evalReporterFactory;
     this.contextUsageRuntime = createContextUsageRuntime(options);
     // Bind the safety checker to the live auth source once, here — the review
     // call then only passes content + scene, never the access token per call.
@@ -165,11 +138,8 @@ export class LocalRuntimeHost {
     input: LocalRuntimeTurnInput<TCtx>,
     observation: { regenerations: number },
   ): Promise<LocalRuntimeTurnOutput> {
-    return runLocalRuntimeEvalTurn({
-      input,
-      reporterFactory: this.evalReporterFactory,
-      execute: (evalInput) => this.executeTurn(evalInput, observation),
-    });
+    const eventWriter: LocalEventWriter = input.eventWriter ?? new LocalEventSink();
+    return this.executeTurn({ ...input, eventWriter }, observation);
   }
 
   private async executeTurn<TCtx extends LocalToolContext = LocalToolContext>(

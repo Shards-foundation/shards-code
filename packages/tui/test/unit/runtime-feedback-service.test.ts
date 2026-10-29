@@ -40,16 +40,17 @@ describe('TuiFeedbackService', () => {
     });
 
     const preview = service.prepare({ description: 'Renderer froze', sessionId: 'session-1' });
-    expect(preview.diagnosticBundleIncluded).toBe(true);
-    expect(preview.included).toContain(
+    expect(preview.diagnosticBundleIncluded).toBe(false);
+    expect(preview.included).not.toContain(
       'diagnostic counts from the selected Session subtree (including messages, snapshots, and report artifacts); original contents and filenames are omitted',
     );
-    expect(preview.excluded).not.toContain(
+    expect(preview.excluded).toContain(
       'canonical full conversation and tool-call history (messages.jsonl)',
     );
     const phases: string[] = [];
     await expect(
       service.submit(preview.draftId, {
+        includeDiagnostics: true,
         onPhase: (phase) => phases.push(phase),
       }),
     ).resolves.toEqual({
@@ -75,6 +76,29 @@ describe('TuiFeedbackService', () => {
       upload_diagnostic_log: true,
       diagnostic_log: { upload_id: 'upload-1' },
     });
+  });
+
+  it('does not upload diagnostics when a feedback draft is sent without explicit diagnostic consent', async () => {
+    const diagnosticLogUploader = vi.fn(async () => ({ uploadId: 'must-not-upload' }));
+    let requestBody: Record<string, unknown> | undefined;
+    const service = new TuiFeedbackService({
+      appVersion: '0.1.0-test',
+      authContextGetter: () => ({ accessToken: 'managed-token', realUserID: 'user-1' }),
+      diagnosticLogUploader,
+      fetchImpl: vi.fn(async (_input, init) => {
+        requestBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        return ticketResponse();
+      }),
+    });
+
+    const preview = service.prepare({ description: 'No diagnostics by default' });
+    expect(preview.diagnosticBundleIncluded).toBe(false);
+    expect(preview.included.join(' ')).not.toContain('diagnostic counts');
+    await service.submit(preview.draftId);
+
+    expect(diagnosticLogUploader).not.toHaveBeenCalled();
+    expect(requestBody).toMatchObject({ upload_diagnostic_log: false });
+    expect(requestBody).not.toHaveProperty('diagnostic_log');
   });
 
   it('keeps canonical Session history excluded when no diagnostic uploader is configured', () => {
@@ -305,11 +329,11 @@ describe('TuiFeedbackService', () => {
     });
     const preview = service.prepare({ description: 'Retry me' });
 
-    await expect(service.submit(preview.draftId)).rejects.toMatchObject({
+    await expect(service.submit(preview.draftId, { includeDiagnostics: true })).rejects.toMatchObject({
       code: 'feedback_upload_failed',
       retryable: true,
     });
-    await expect(service.submit(preview.draftId)).resolves.toMatchObject({
+    await expect(service.submit(preview.draftId, { includeDiagnostics: true })).resolves.toMatchObject({
       ticketId: 'ticket-retry',
       uploadId: 'upload-retry',
     });
@@ -331,7 +355,7 @@ describe('TuiFeedbackService', () => {
     });
     const preview = service.prepare({ description: 'Logs are unavailable' });
 
-    await expect(service.submit(preview.draftId)).resolves.toMatchObject({
+    await expect(service.submit(preview.draftId, { includeDiagnostics: true })).resolves.toMatchObject({
       ticketId: 'ticket-without-diagnostics',
     });
     expect(requestBody).toMatchObject({

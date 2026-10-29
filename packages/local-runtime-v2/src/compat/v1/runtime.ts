@@ -298,10 +298,6 @@ interface V1GlobalEventPublisherBinding {
 
 export interface V1ServiceCompatibility extends V1ProcessLocalSupport {
   readonly sandbox: {
-    readonly eval?: Pick<
-      NonNullable<CreatedLocalRuntimeHost["evalReporterFactory"]>,
-      "canReport" | "reportRuntimeEvent"
-    >;
     writeConfig(candidate: unknown): Promise<void>;
   };
   /** V1-owned Git process capability exposed to the V2 worktree controller. */
@@ -457,7 +453,6 @@ export function createV1RuntimeCompatibility(
       return {
         ...processLocal,
         sandbox: {
-          eval: host.evalReporterFactory,
           writeConfig: async (candidate) => {
             await updateLocalConfigFile({}, new Set(["sandbox"]), {
               sandbox: structuredClone(candidate),
@@ -484,10 +479,7 @@ export function createV1RuntimeCompatibility(
           resolveDelegatable: (requestRef) =>
             resolveDelegatableAgentReference(api.agentResolver, requestRef),
         },
-        agentHost: createV1AgentHostProductCapabilities(
-          host.apiHost,
-          host.evalReporterFactory,
-        ),
+        agentHost: createV1AgentHostProductCapabilities(host.apiHost),
         generatedAssets: {
           compressModelImage: (input) => {
             const compressed = buildCompressedModelImageFromBuffer(

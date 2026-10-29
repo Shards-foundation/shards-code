@@ -3,7 +3,6 @@ import {
   PiTurnRunner,
   type LLMModelConfig,
   type PiEventWriter,
-  type PiLLMRequestFailureHook,
   type PiLLMRequestObserver,
   type PiTurnRunnerOptions,
   type PiTurnRunnerLogger,
@@ -31,7 +30,6 @@ import type {
   LocalRuntimeTurnToolContext,
 } from '../execution/executor.js';
 import { LocalOutputSafetyEventWriter } from './output-safety-event-writer.js';
-import { runWithLocalEvalReporter, type LocalEvalReporterFactoryPort } from './eval-reporter.js';
 import { deriveLocalTurnRuntimeOutcome } from './turn-outcome.js';
 import { appendSafetyReplacement } from './safety-replacement.js';
 import { DEFAULT_OUTPUT_REVISION_INSTRUCTION } from '../preparation/config/prompt-templates.js';
@@ -48,9 +46,7 @@ export interface LocalAgentTurnRunnerOptions {
   readonly metricsClient?: MetricsClient;
   readonly logger?: PiTurnRunnerLogger;
   readonly contextUsage?: LocalContextUsageCapabilities;
-  readonly onLLMRequestFailure?: PiLLMRequestFailureHook;
   readonly observeLLMRequest?: PiLLMRequestObserver;
-  readonly evalReporterFactory?: LocalEvalReporterFactoryPort;
   /**
    * Per-turn recorder factory for the development LLM Context Inspector; when omitted, Pi assembly
    * is identical to behavior before injection.
@@ -85,8 +81,7 @@ export class LocalAgentTurnRunner implements LocalRuntimeTurnRunnerPort {
   private readonly outputSafetyMaxRegenerations: number;
 
   constructor(private readonly options: LocalAgentTurnRunnerOptions) {
-    // Injected runners and evaluation reporters retain their full event contract.
-    this.acceptsEventSummary = !options.piRunner && !options.evalReporterFactory;
+    this.acceptsEventSummary = !options.piRunner;
     this.piRunner = options.piRunner ?? new PiTurnRunner(buildLocalPiTurnRunnerOptions(options));
     this.outputSafetyMaxRegenerations =
       options.outputSafetyMaxRegenerations ?? OUTPUT_SAFETY_MAX_REGENERATIONS;
@@ -98,12 +93,7 @@ export class LocalAgentTurnRunner implements LocalRuntimeTurnRunnerPort {
       (input.caller === undefined || input.caller === 'chat' || input.caller === 'channel_feishu');
     const observation = { regenerations: 0 };
     try {
-      return await runWithLocalEvalReporter(
-        this.options.evalReporterFactory,
-        input,
-        (reportedInput) => this.runTurnCore(reportedInput, observation),
-        this.options.logger,
-      );
+      return await this.runTurnCore(input, observation);
     } finally {
       if (isUserTurn) this.recordRegenerations(input, observation.regenerations);
     }
@@ -437,13 +427,12 @@ function shouldReportInputReviewResolution(input: LocalRuntimeTurnRunnerInput): 
 function buildLocalPiTurnRunnerOptions(
   options: Pick<
     LocalAgentTurnRunnerOptions,
-    'metricsClient' | 'logger' | 'onLLMRequestFailure' | 'observeLLMRequest' | 'llmCaptureFactory'
+    'metricsClient' | 'logger' | 'observeLLMRequest' | 'llmCaptureFactory'
   >,
 ): PiTurnRunnerOptions {
   return {
     ...(options.metricsClient ? { metricsClient: options.metricsClient } : {}),
     ...(options.logger ? { logger: options.logger } : {}),
-    ...(options.onLLMRequestFailure ? { onLLMRequestFailure: options.onLLMRequestFailure } : {}),
     ...(options.observeLLMRequest ? { observeLLMRequest: options.observeLLMRequest } : {}),
     ...(options.llmCaptureFactory ? { llmCaptureFactory: options.llmCaptureFactory } : {}),
   };

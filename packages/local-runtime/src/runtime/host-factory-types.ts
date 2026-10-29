@@ -9,10 +9,6 @@ import type { WeChatRuntimeSdk } from '../channels/wechat-sdk-contract.js';
 import type { MetricsBatchReporter, MetricsClient } from '../common/metrics.js';
 import type { LocalRuntimeConfig } from '../config/types.js';
 import type { LocalConfigUpdateResult } from '../config/update.js';
-import type {
-  LocalEvalReporterFactoryLike,
-  LocalEvalReporterFactoryOptions,
-} from '../eval/types.js';
 import type { LocalMcpRuntimeCapability } from './mcp-capability.js';
 import type { McpRuntimeLogger } from '@mavis/mcp/runtime/types';
 import type { LocalHostDiagnosticsProvider } from '../observability/diagnostics-provider.js';
@@ -80,8 +76,6 @@ export interface LocalRuntimeProductHostOptions {
   routingContextGetter?: () => LocalRuntimeRoutingContext | undefined;
   isContextWindowUsageEnabled?: () => boolean;
   fetchImpl?: typeof fetch;
-  /** Optional fail-open eval capture transport supplied by packaged Electron builds. */
-  evalCapture?: LocalEvalReporterFactoryOptions;
   configUpdater?: (body: Record<string, unknown>) => Promise<LocalConfigUpdateResult>;
   hostDiagnosticsProvider?: LocalHostDiagnosticsProvider;
   skillRegistryDiagnostics?: LocalRuntimeApiHostOptions['skillRegistryDiagnostics'];
@@ -125,8 +119,6 @@ export interface CreatedLocalRuntimeHost {
   metricsClient: MetricsClient;
   /** Shared diagnostic event sink; preserves the host context and file writer identity. */
   observability: ObservabilityLogger;
-  /** Eval reporter used by the runtime host; exposed for graceful shutdown flushing. */
-  evalReporterFactory?: LocalEvalReporterFactoryLike;
   /** V2-only non-blocking identity lifecycle hook; absent on direct legacy hosts. */
   notifyAuthContextChanged?: (
     authState?: 'pending' | 'authenticated' | 'logged_out',

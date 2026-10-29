@@ -4,7 +4,6 @@ export {
   type LocalAgentTurnRunnerResult,
   type LocalPiTurnRunner,
 } from './local-agent-turn-runner.js';
-export type { LocalEvalReporterFactoryPort, LocalEvalReporterPort } from './eval-reporter.js';
 export {
   LocalTurnPermissionGate,
   type LocalTurnPermissionApprovalOwner,

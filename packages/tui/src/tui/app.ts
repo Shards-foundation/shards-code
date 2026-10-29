@@ -8,7 +8,6 @@ import {
   createTuiApplicationSessionActions,
   createTuiApplicationSurface,
   createTuiApplicationWidgets,
-  createTuiBusinessEventTracker,
   createTuiChatControllerComposition,
   createTuiRunIdentity,
   resolveTuiInteractionMaxRows,
@@ -313,18 +312,6 @@ export function createTuiApp(options: CreateTuiAppOptions): TuiApp {
     isStopped: () => stopped,
     hasLiveRun,
   });
-  const businessEventTracker = createTuiBusinessEventTracker({
-    telemetry: options.businessTelemetry,
-    workspaceDir: options.workspaceDir,
-    controller,
-    featureFlow,
-    stateStore,
-    transcript,
-  });
-  editor.onAutocompleteView = (suggestions) =>
-    businessEventTracker?.trackAutocompleteView(suggestions);
-  editor.onAutocompleteSelect = (suggestions, item) =>
-    businessEventTracker?.trackAutocompleteSelection(suggestions, item);
   const feedbackFlow = new Feedback(
     options.runtime,
     controller,
@@ -602,8 +589,6 @@ export function createTuiApp(options: CreateTuiAppOptions): TuiApp {
     abortSessionRun: (sessionId) =>
       options.runtime.abortSession({ id: sessionId, reason: 'user_stop' }),
     currentRunId: liveRunId,
-    onSideSessionOpened: (input) => businessEventTracker?.trackBtwSessionOpened(input),
-    onSideSessionClosed: (input) => businessEventTracker?.trackBtwSessionClosed(input),
     onSideConversationChanged: () => {
       updateChrome(controller.snapshot());
       tui.requestRender();
@@ -681,7 +666,6 @@ export function createTuiApp(options: CreateTuiAppOptions): TuiApp {
     },
     userMessageCount: () => transcript.snapshot().filter((cell) => cell.kind === 'user').length,
     onMessageAdmitted: (input) => {
-      businessEventTracker?.trackChatSend(input);
       layout.forceFollowBottom();
     },
   });

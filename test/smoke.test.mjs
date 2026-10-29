@@ -72,8 +72,25 @@ test("CLI defaults to the shared user config without migrating the old source di
   const config = path.join(home, ".minimax", "config.yaml");
   const oldConfig = path.join(home, ".minimax-code", "config.yaml");
   for (const file of [config, oldConfig]) mkdirSync(path.dirname(file));
-  writeFileSync(config, "telemetry:\n  enabled: true\n", { mode: 0o600 });
-  const oldContents = "telemetry:\n  enabled: false\n";
+  const configContents = [
+    "custom_provider:",
+    "  shared:",
+    "    options:",
+    "      apiKey: smoke-test-key",
+    "      baseURL: https://example.invalid/v1",
+    "    models: {}",
+    "",
+  ].join("\n");
+  writeFileSync(config, configContents, { mode: 0o600 });
+  const oldContents = [
+    "custom_provider:",
+    "  legacy:",
+    "    options:",
+    "      apiKey: legacy-test-key",
+    "      baseURL: https://legacy.example.invalid/v1",
+    "    models: {}",
+    "",
+  ].join("\n");
   writeFileSync(oldConfig, oldContents, { mode: 0o600 });
   for (const name of Object.keys(options.env)) {
     if (name.startsWith("__MAVIS_RUNTIME")) delete options.env[name];
@@ -83,17 +100,16 @@ test("CLI defaults to the shared user config without migrating the old source di
   Object.assign(options.env, {
     HOME: home,
     USERPROFILE: home,
-    MCODE_DISABLE_TELEMETRY: "1",
   });
-  const result = spawnSync(process.execPath, [cli, "telemetry", "status"], {
+  const result = spawnSync(process.execPath, [cli, "provider", "list"], {
     ...options,
     encoding: "utf8",
     timeout: runtimeTimeoutMs,
   });
   assertSuccessfulChild(result);
-  const status = JSON.parse(result.stdout);
-  assert.equal(status.configFile, config);
-  assert.equal(status.configured, true);
+  assert.match(result.stdout, /custom_provider:shared/);
+  assert.doesNotMatch(result.stdout, /custom_provider:legacy/);
+  assert.equal(readFileSync(config, "utf8"), configContents);
   assert.equal(readFileSync(oldConfig, "utf8"), oldContents);
 });
 test("provider configuration loads from an isolated data directory", (t) => {

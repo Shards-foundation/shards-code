@@ -1,4 +1,4 @@
-import { createCipheriv, createHash, hkdfSync, randomBytes, randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   chmodSync,
   mkdirSync,
@@ -10,9 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { arch, platform } from 'node:os';
-import { basename, dirname, join } from 'node:path';
-
-import { isTelemetryChannelEnabled, type MavisBuildEnv, type MavisRegion } from '@mavis/config';
+import { basename, join } from 'node:path';
 
 export type TuiIncidentPhase = 'startup' | 'runtime' | 'shutdown';
 export type TuiIncidentSeverity = 'fatal' | 'error' | 'warning';
@@ -60,23 +58,9 @@ export interface TuiIncidentReporter extends TuiIncidentSink {
   completeRun(): void;
 }
 
-export interface TuiIncidentAuthContext {
-  readonly accessToken?: string;
-  readonly realUserID?: string;
-}
-
 export interface CreateTuiIncidentReporterOptions {
-  /** Explicit `telemetry.diagnostics` opt-in; environment opt-outs always take precedence. */
-  readonly readTelemetryEnabled?: () => boolean | undefined;
   readonly dataDir: string;
   readonly appVersion: string;
-  readonly region: MavisRegion;
-  readonly buildEnv: MavisBuildEnv;
-  readonly resolveAuthContext?: () =>
-    | TuiIncidentAuthContext
-    | undefined
-    | Promise<TuiIncidentAuthContext | undefined>;
-  readonly fetchImpl?: typeof fetch;
   readonly nowMs?: () => number;
   readonly pid?: number;
   readonly isProcessAlive?: (pid: number) => boolean;
@@ -86,7 +70,6 @@ export interface CreateTuiIncidentReporterOptions {
   readonly osVersion?: string;
   readonly terminal?: string;
   readonly tuiMode?: string;
-  readonly requestTimeoutMs?: number;
 }
 
 interface TuiIncidentBreadcrumb {
@@ -120,44 +103,15 @@ interface TuiRunMarker {
   readonly appVersion: string;
 }
 
-interface TuiWireIncident {
-  readonly event_type: string;
-  readonly event_log: string;
-  readonly occurred_at_ms: number;
-  readonly code_location: string;
-}
-
 const INCIDENT_DIRECTORY = ['v2', 'observability', 'cli', 'incidents'] as const;
 // Version 1 records contain arbitrary private text and must never be replayed.
 const INCIDENT_SCHEMA_VERSION = 2;
-const EVENT_LOG_WIRE_VERSION = 'v1';
-// Gateway wire compatibility value. It is cryptographic KDF input, not a source identifier.
-const EVENT_LOG_HKDF_SALT = 'mcode-desktop-event-log-v1';
 const MAX_INCIDENT_FILES = 200;
 const MAX_NON_FATAL_INCIDENTS_PER_RUN = 100;
 const MAX_BREADCRUMBS = 20;
 const RETENTION_MS = 7 * 24 * 60 * 60 * 1_000;
 const NON_FATAL_DEDUPE_MS = 60_000;
 const FATAL_DEDUPE_MS = 2_000;
-const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
-const DEFAULT_CLOSE_FLUSH_TIMEOUT_MS = 300;
-const BATCH_SIZE = 20;
-
-const ERROR_API_HOST: Readonly<Record<MavisRegion, Readonly<Record<MavisBuildEnv, string>>>> = {
-  cn: {
-    dev: 'https://matrix-test.example.invalid',
-    test: 'https://matrix-test.example.invalid',
-    staging: 'https://matrix-pre.example.invalid',
-    prod: 'https://agent.minimaxi.com',
-  },
-  en: {
-    dev: 'https://matrix-overseas-test.example.invalid',
-    test: 'https://matrix-overseas-test.example.invalid',
-    staging: 'https://matrix-overseas-pre.example.invalid',
-    prod: 'https://agent.minimax.io',
-  },
-};
-const ERROR_BATCH_PATH = '/minimax-cloud/api/v1/observability/desktop-errors/batch';
 
 export function resolveTuiIncidentDirectory(dataDir: string): string {
   return join(dataDir, ...INCIDENT_DIRECTORY);
@@ -200,25 +154,19 @@ class LocalTuiIncidentReporter implements TuiIncidentReporter {
   private readonly directory: string;
   private readonly markerPath: string;
   private readonly nowMs: () => number;
-  private readonly fetchImpl: typeof fetch;
   private readonly pid: number;
   private readonly startedAtMs: number;
   private readonly isProcessAlive: (pid: number) => boolean;
   private readonly breadcrumbs: TuiIncidentBreadcrumb[] = [];
   private readonly recentFingerprints = new Map<string, number>();
-  private readonly activeRequestControllers = new Set<AbortController>();
-  private drainPromise: Promise<void> | undefined;
-  private drainRequested = false;
   private phase: TuiIncidentPhase = 'startup';
   private nonFatalIncidentCount = 0;
   private fatalIncidentCaptured = false;
-  private networkDrainStopped = false;
   private completed = false;
 
   constructor(private readonly options: CreateTuiIncidentReporterOptions) {
     this.directory = resolveTuiIncidentDirectory(options.dataDir);
     this.nowMs = options.nowMs ?? Date.now;
-    this.fetchImpl = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
     this.pid = options.pid ?? process.pid;
     this.startedAtMs = this.nowMs();
     this.isProcessAlive = options.isProcessAlive ?? defaultIsProcessAlive;
@@ -228,7 +176,6 @@ class LocalTuiIncidentReporter implements TuiIncidentReporter {
     this.recoverUncleanRuns();
     this.writeRunMarker();
     this.breadcrumb('cli.run.started', { phase: this.phase });
-    void this.drain();
   }
 
   get hasFatalIncident(): boolean {
@@ -315,14 +262,10 @@ class LocalTuiIncidentReporter implements TuiIncidentReporter {
       };
       writeJsonAtomically(
         this.directory,
-        join(
-          this.directory,
-          `${this.uploadEnabled() ? 'pending' : 'local'}-${occurredAtMs}-${incidentId}.json`,
-        ),
+        join(this.directory, `local-${occurredAtMs}-${incidentId}.json`),
         stored,
       );
       this.prune();
-      void this.drain();
       return incidentId;
     } catch {
       return undefined;
@@ -330,47 +273,11 @@ class LocalTuiIncidentReporter implements TuiIncidentReporter {
   }
 
   drain(): Promise<void> {
-    this.drainRequested = true;
-    if (this.drainPromise) return this.drainPromise;
-    const drain = this.runDrainLoop().finally(() => {
-      if (this.drainPromise === drain) this.drainPromise = undefined;
-    });
-    this.drainPromise = drain;
-    return drain;
+    return Promise.resolve();
   }
 
-  private async runDrainLoop(): Promise<void> {
-    do {
-      this.drainRequested = false;
-      await this.drainPending();
-    } while (this.drainRequested);
-  }
-
-  async flush(timeoutMs = DEFAULT_CLOSE_FLUSH_TIMEOUT_MS): Promise<void> {
-    const drain = this.drain();
-    if (!Number.isFinite(timeoutMs) || timeoutMs < 0) {
-      await drain.catch(() => undefined);
-      return;
-    }
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    try {
-      await Promise.race([
-        drain.catch(() => undefined),
-        new Promise<void>((resolve) => {
-          timeout = setTimeout(
-            () => {
-              this.networkDrainStopped = true;
-              for (const controller of this.activeRequestControllers) controller.abort();
-              resolve();
-            },
-            Math.max(0, timeoutMs),
-          );
-          timeout.unref?.();
-        }),
-      ]);
-    } finally {
-      if (timeout) clearTimeout(timeout);
-    }
+  async flush(_timeoutMs?: number): Promise<void> {
+    return Promise.resolve();
   }
 
   completeRun(): void {
@@ -380,77 +287,6 @@ class LocalTuiIncidentReporter implements TuiIncidentReporter {
       rmSync(this.markerPath, { force: true });
     } catch {
       // A stale marker is recoverable on the next launch.
-    }
-  }
-
-  private async drainPending(): Promise<void> {
-    if (!this.uploadEnabled()) return;
-    const resolveAuthContext = this.options.resolveAuthContext;
-    if (!resolveAuthContext) return;
-    let auth: TuiIncidentAuthContext | undefined;
-    try {
-      auth = await resolveAuthContext();
-    } catch {
-      return;
-    }
-    const accessToken = auth?.accessToken?.trim();
-    const realUserID = auth?.realUserID?.trim();
-    if (!accessToken || !realUserID) return;
-
-    const pending = readStoredIncidents(this.directory);
-    for (let index = 0; index < pending.length; index += BATCH_SIZE) {
-      const batch = pending.slice(index, index + BATCH_SIZE);
-      let wireEvents: TuiWireIncident[];
-      try {
-        wireEvents = batch.map(({ incident }) => ({
-          event_type: incident.eventType,
-          event_log: encryptEventLog(incident.eventLog, accessToken, realUserID, incident),
-          occurred_at_ms: incident.occurredAtMs,
-          code_location: incident.codeLocation,
-        }));
-      } catch {
-        return;
-      }
-      if (!(await this.sendBatch(wireEvents, accessToken, realUserID))) return;
-      for (const item of batch) markIncidentSent(item.path);
-    }
-  }
-
-  private async sendBatch(
-    events: readonly TuiWireIncident[],
-    accessToken: string,
-    realUserID: string,
-  ): Promise<boolean> {
-    if (this.networkDrainStopped || !this.uploadEnabled()) return false;
-    const requestController = new AbortController();
-    const requestTimeout = setTimeout(
-      () => requestController.abort(),
-      this.options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
-    );
-    requestTimeout.unref?.();
-    this.activeRequestControllers.add(requestController);
-    try {
-      const requestUrl = new URL(
-        `${ERROR_API_HOST[this.options.region][this.options.buildEnv]}${ERROR_BATCH_PATH}`,
-      );
-      if (requestUrl.protocol !== 'https:') return false;
-      requestUrl.searchParams.set('user_id', realUserID);
-      const response = await this.fetchImpl(requestUrl, {
-        method: 'POST',
-        headers: {
-          'User-Agent': 'MiniMaxAgent',
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ events }),
-        signal: requestController.signal,
-      });
-      return response.ok;
-    } catch {
-      return false;
-    } finally {
-      clearTimeout(requestTimeout);
-      this.activeRequestControllers.delete(requestController);
     }
   }
 
@@ -506,10 +342,6 @@ class LocalTuiIncidentReporter implements TuiIncidentReporter {
     } catch {
       // Incident reporting cannot affect TUI startup or phase transitions.
     }
-  }
-
-  private uploadEnabled(): boolean {
-    return isTelemetryChannelEnabled('diagnostics', this.options.readTelemetryEnabled);
   }
 
   private prune(): void {
@@ -712,73 +544,6 @@ function minimizeEventLog(value: unknown, eventType: string): string {
   });
 }
 
-function encryptEventLog(
-  plaintext: string,
-  token: string,
-  userId: string,
-  event: Pick<TuiStoredIncident, 'eventType' | 'occurredAtMs'>,
-): string {
-  const key = Buffer.from(
-    hkdfSync(
-      'sha256',
-      Buffer.from(token, 'utf8'),
-      Buffer.from(EVENT_LOG_HKDF_SALT, 'utf8'),
-      Buffer.from(userId, 'utf8'),
-      32,
-    ),
-  );
-  const nonce = randomBytes(12);
-  const cipher = createCipheriv('aes-256-gcm', key, nonce);
-  cipher.setAAD(
-    Buffer.from(
-      JSON.stringify({ event_type: event.eventType, occurred_at_ms: event.occurredAtMs }),
-      'utf8',
-    ),
-  );
-  const ciphertext = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
-  const payload = Buffer.concat([ciphertext, cipher.getAuthTag()]);
-  return `${EVENT_LOG_WIRE_VERSION}.${nonce.toString('base64url')}.${payload.toString('base64url')}`;
-}
-
-function readStoredIncidents(
-  directory: string,
-): Array<{ readonly path: string; readonly incident: TuiStoredIncident }> {
-  return safeReadDirectory(directory)
-    .filter((entry) => entry.startsWith('pending-') && entry.endsWith('.json'))
-    .sort()
-    .flatMap((entry) => {
-      const path = join(directory, entry);
-      try {
-        const parsed = JSON.parse(readFileSync(path, 'utf8')) as Partial<TuiStoredIncident>;
-        const eventType = allowedString(parsed.eventType, EVENT_TYPES);
-        if (
-          parsed.schemaVersion !== INCIDENT_SCHEMA_VERSION ||
-          !uuid(parsed.incidentId) ||
-          !eventType ||
-          !timestamp(parsed.occurredAtMs) ||
-          typeof parsed.eventLog !== 'string'
-        ) {
-          safeRemove(path);
-          return [];
-        }
-        // Never trust the schema tag alone. Re-project both the encrypted payload
-        // and plaintext envelope immediately before any network request.
-        const incident: TuiStoredIncident = {
-          schemaVersion: INCIDENT_SCHEMA_VERSION,
-          incidentId: parsed.incidentId!,
-          eventType,
-          occurredAtMs: parsed.occurredAtMs,
-          codeLocation: `tui.${eventType}`,
-          eventLog: minimizeEventLog(JSON.parse(parsed.eventLog), eventType),
-        };
-        writeJsonAtomically(directory, path, incident);
-        return [{ path, incident }];
-      } catch {
-        return [];
-      }
-    });
-}
-
 function readRunMarker(path: string): TuiRunMarker | undefined {
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as Partial<TuiRunMarker>;
@@ -812,16 +577,6 @@ function writeJsonAtomically(directory: string, target: string, value: unknown):
   } catch (error) {
     safeRemove(temporaryPath);
     throw error;
-  }
-}
-
-function markIncidentSent(path: string): void {
-  const target = join(dirname(path), basename(path).replace(/^pending-/u, 'sent-'));
-  try {
-    renameSync(path, target);
-    ensurePrivateFile(target);
-  } catch {
-    // Keeping the pending file is safe; the next launch may retry it.
   }
 }
 

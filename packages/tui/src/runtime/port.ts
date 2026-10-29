@@ -671,6 +671,7 @@ export interface TuiFeedbackPreview {
   draftId: string;
   description: string;
   diagnostics: TuiFeedbackDiagnosticRow[];
+  diagnosticBundleAvailable: boolean;
   diagnosticBundleIncluded: boolean;
   included: string[];
   excluded: string[];
@@ -693,6 +694,7 @@ export type TuiFeedbackPhase =
 
 export interface TuiFeedbackSubmitOptions {
   readonly signal?: AbortSignal;
+  readonly includeDiagnostics?: boolean;
   readonly onPhase?: (phase: TuiFeedbackPhase) => void;
 }
 

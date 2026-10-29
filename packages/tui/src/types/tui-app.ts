@@ -21,7 +21,6 @@ import type { EditTuiDraftInExternalEditor } from '../host/external-editor.js';
 import type { TuiTextClipboardReader, TuiTextClipboardWriter } from '../host/clipboard-text.js';
 import type { TuiExternalTargetOpener } from '../host/open-external.js';
 import type { TuiTranscriptExporter } from '../host/transcript-export.js';
-import type { McodeBusinessTelemetry } from '../analytics/business-telemetry.js';
 import type { TuiNotificationSettings } from '../tui/platform/terminal-notifications.js';
 import type { TerminalCapabilities } from '../tui/platform/terminal-capabilities.js';
 import type { MavisRegion } from '@mavis/config';
@@ -74,7 +73,6 @@ export interface CreateTuiAppOptions extends TuiUpdateOptions {
   productFeatures?: Partial<TuiProductFeatures>;
   observability?: TuiObservability;
   incidentReporter?: TuiIncidentSink;
-  businessTelemetry?: McodeBusinessTelemetry;
   auth?: McodeAuthPort;
   externalEditorCommand?: string;
   editDraftInExternalEditor?: EditTuiDraftInExternalEditor;

@@ -42,10 +42,6 @@ import {
   TuiDraftRecoveryError,
 } from "../../src/tui/features/composer/draft-recovery.js";
 import { composerText } from "../../src/tui/features/composer/copy.js";
-import type {
-  McodeBusinessEvent,
-  McodeBusinessTelemetry,
-} from "../../src/analytics/business-telemetry.js";
 import { VirtualTerminalScreen } from "../helpers/virtual-terminal.js";
 import { VirtualTerminal } from "../pi-084-upstream/virtual-terminal.js";
 import { TuiFailure } from "../../src/failure.js";
@@ -1323,60 +1319,6 @@ describe("createTuiApp", () => {
     });
     expect(app.surfaceHost.render(100).join("\n")).toContain("Goal · Paused");
 
-    await app.stop();
-  });
-
-  it("wires complete chat and autocomplete business events into the TUI surface", async () => {
-    const events: McodeBusinessEvent[] = [];
-    const businessTelemetry: McodeBusinessTelemetry = {
-      track: (event, properties) =>
-        events.push({ event, properties } as McodeBusinessEvent),
-      flush: async () => undefined,
-    };
-    const app = createTuiApp({
-      runtime: createRuntime(),
-      terminal: new FakeTerminal(),
-      version: "0.1.0",
-      workspaceDir: "/workspace/agent-archon",
-      businessTelemetry,
-    });
-
-    await app.ready;
-    await app.submit("First prompt");
-    await app.submit("Second prompt");
-    for (const character of "/he") app.editor.handleInput(character);
-    await vi.waitFor(() =>
-      expect(
-        events.some((item) => item.event === "slash_command_menu_view"),
-      ).toBe(true),
-    );
-    app.editor.handleInput("\r");
-
-    expect(events.filter((item) => item.event === "chat_send")).toEqual([
-      {
-        event: "chat_send",
-        properties: {
-          chat_type: "chat",
-          is_first_message: 1,
-          is_attachment: "text",
-        },
-      },
-      {
-        event: "chat_send",
-        properties: {
-          chat_type: "chat",
-          is_first_message: 0,
-          is_attachment: "text",
-        },
-      },
-    ]);
-    expect(events).toContainEqual({
-      event: "slash_command_click",
-      properties: {
-        chat_type: "chat",
-        command_type: "other",
-      },
-    });
     await app.stop();
   });
 

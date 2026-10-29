@@ -83,17 +83,3 @@ export interface SanitizedSandboxViolation {
   readonly target: SandboxViolationTarget;
   readonly withinInvocationRoots?: boolean;
 }
-
-export interface SandboxEvalReporter {
-  canReport(): boolean;
-  reportRuntimeEvent?(
-    sessionId: string,
-    input: {
-      readonly eventType: string;
-      readonly payload: unknown;
-      readonly delivery?: 'batched' | 'immediate';
-      readonly isError?: boolean;
-      readonly origin?: { readonly turnId: string; readonly toolCallId?: string };
-    },
-  ): void;
-}

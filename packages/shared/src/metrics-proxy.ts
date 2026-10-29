@@ -85,17 +85,6 @@ export interface CreateMetricsClientOptions
   serviceName: string;
 }
 
-export interface CreateDesktopReporterOptions extends Omit<
-  MetricsReporterOptions,
-  'endpoint' | 'batchPath' | 'reportMetric'
-> {
-  configuredDomainUrl?: string;
-  isEn: boolean;
-  isProd: boolean;
-  isStaging?: boolean;
-  isDev?: boolean;
-}
-
 interface MetricStorePoint {
   name: string;
   labels: MetricLabels;
@@ -137,8 +126,6 @@ const DEFAULT_RETRY = {
 };
 
 const METRIC_NAME_RE = /^[a-zA-Z_:][a-zA-Z0-9_:]*$/;
-const DEFAULT_METRICS_BATCH_PATH = '/matrix/api/v1/metrics/batch';
-export const DESKTOP_METRICS_BATCH_PATH = '/matrix/api/v1/metrics/batch';
 
 export class MetricsReportError extends Error {
   readonly status?: number;
@@ -161,7 +148,7 @@ export class MetricsReporter implements MetricsBatchReporter {
       ...(options.endpoint
         ? {
             endpoint: options.endpoint.replace(/\/+$/, ''),
-            batchPath: normalizeBatchPath(options.batchPath ?? DEFAULT_METRICS_BATCH_PATH),
+            batchPath: normalizeBatchPath(options.batchPath ?? ''),
           }
         : {}),
     };
@@ -542,14 +529,6 @@ export function createMetricsClient(options: CreateMetricsClientOptions): Metric
   });
 }
 
-export function createDesktopReporter(options: CreateDesktopReporterOptions): MetricsReporter {
-  return new MetricsReporter({
-    ...options,
-    endpoint: resolveDesktopDomainUrl(options),
-    batchPath: DESKTOP_METRICS_BATCH_PATH,
-  });
-}
-
 export function buildMetricKey(type: MetricType, name: string, labels: MetricLabels = {}): string {
   const labelText = Object.keys(labels)
     .sort()
@@ -573,25 +552,8 @@ function normalizeBuckets(buckets: number[]): number[] {
 
 function normalizeBatchPath(path: string): string {
   const trimmed = path.trim();
-  if (!trimmed) return DEFAULT_METRICS_BATCH_PATH;
+  if (!trimmed) return '';
   return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-}
-
-function resolveDesktopDomainUrl(options: CreateDesktopReporterOptions): string {
-  const configuredDomainUrl = options.configuredDomainUrl?.trim();
-  if (configuredDomainUrl) return configuredDomainUrl;
-
-  if (options.isEn) {
-    if (options.isProd) return 'https://agent.minimax.io';
-    if (options.isStaging) return 'https://matrix-overseas-pre.example.invalid';
-    if (options.isDev) return 'https://matrix-overseas-test.example.invalid';
-    return 'https://matrix-overseas-test.example.invalid';
-  }
-
-  if (options.isProd) return 'https://agent.minimax.cn';
-  if (options.isStaging) return 'https://matrix-pre.example.invalid';
-  if (options.isDev) return 'https://matrix-test.example.invalid';
-  return 'https://matrix-test.example.invalid';
 }
 
 function isRetryableError(error: unknown): boolean {

@@ -1,9 +1,5 @@
 # Verification records
 
-Verification statements in this file apply only to the exact Shards Code revision and environment named. Upstream test counts, product demos and live-service results are not Shards acceptance evidence. This local fork preserves MiniMax provider/API compatibility; source tests do not prove live provider availability.
+The earlier verification report covered source commit `f5ee71d66e0154686d1c6d79700c138474bc8092`, before the subsequent privacy changes that removed automatic telemetry and evaluation capture. Its test counts and limitations do not establish the status of this updated source snapshot. A fresh `pnpm verify` run on the committed updated source is required before reporting current results.
 
-## Final local rebrand verification
-
-**Status: pending final verification of the reviewed local commit.** Record the commit SHA, OS/architecture, Node.js and pnpm versions, full verification-gate results, exact executed test pass/fail/skip counts, lint/typecheck/build results, and source/history/artifact secret-scan results here after the final source changes. Do not report a pass until each command has completed successfully on the named revision.
-
-Cross-platform results, fresh account login, real provider calls, paid services and other live behavior must be listed separately and marked not run unless tested. A local pass does not establish GitHub Actions success, publication, or release readiness by itself.
+A full run attempted while the worktree was uncommitted stopped at `export source preview`, which requires committed changes. It did not reach the test gates and is not a passing verification result. The final report must name the tested revision, operating system and tool versions; give exact pass, fail and skip counts; and identify platform-specific gates that were not applicable or run. See [Release audit status](release-audit.md) for other outstanding review items.

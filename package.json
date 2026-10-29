@@ -32,7 +32,7 @@
     "check:plugin": "node tools/plugins/validate-plugin.mjs",
     "test:capabilities": "node scripts/run-vitest-suite.mjs capability",
     "test:windows": "node scripts/run-vitest-suite.mjs windows",
-    "test:artifact": "node --test test/public-artifact.test.mjs",
+    "test:artifact": "node --test test/public-artifact.test.mjs test/privacy-removal.test.mjs",
     "test:release-tools": "node --test test/source-sync.test.mjs",
     "lint": "pnpm run lint:tui",
     "lint:tui": "eslint packages/tui/src packages/tui/test --ext .ts,.mjs --quiet"

@@ -23,7 +23,6 @@ export {
 
 export {
   assertLocalMetricName,
-  createLocalRuntimeDesktopReporter,
   createLocalRuntimeMetricsClient,
   type LocalMetricLabels,
   type LocalRuntimeMetricsClientOptions,

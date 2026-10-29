@@ -1259,7 +1259,6 @@ function initializeRuntimeSandbox(
   return composeLocalSandboxService({
     ...options,
     configWriter: options.compatibility.sandbox.writeConfig,
-    evalReporter: options.compatibility.sandbox.eval,
     sandboxDescriptors: options.overrides?.sandbox?.descriptors,
   });
 }

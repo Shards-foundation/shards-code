@@ -2,8 +2,6 @@ import type { ToolDiagnosticLogger as MatrixToolLogger } from "./tool-logger.js"
 
 import type { LocalRuntimeTelemetrySink } from "../sessions/router.js";
 import type { ObservabilityLogger } from "./types.js";
-import type { LocalEvalReporterFactoryLike } from "../eval/types.js";
-import { reportThreadGoalEvalEvent } from "../thread-goal/eval-observability.js";
 import type { ThreadGoalRuntimeEventSink } from "../thread-goal/events.js";
 
 export function createLocalRuntimeTelemetrySink(
@@ -33,19 +31,9 @@ export function createLocalRuntimeTelemetrySink(
 /** Records one safe local Goal event together with its best-effort Session Clio outcome. */
 export function createThreadGoalObservabilityEventSink(
   logger: ObservabilityLogger,
-  reporterFactory?: LocalEvalReporterFactoryLike,
 ): ThreadGoalRuntimeEventSink {
   const goalLogger = logger.child({ component: "local-runtime.thread-goal" });
   return (event) => {
-    const deliveries = reporterFactory
-      ? reportThreadGoalEvalEvent(reporterFactory, event)
-      : [
-          {
-            sessionId: event.payload.sessionId,
-            trajectory: "parent" as const,
-            outcome: "not_configured" as const,
-          },
-        ];
     const payload = event.payload as Record<string, unknown>;
     const child = goalLogger.child({
       sessionId: event.payload.sessionId,
@@ -56,7 +44,6 @@ export function createThreadGoalObservabilityEventSink(
       eventType: event.type,
       eventAtMs: event.at,
       payload,
-      clioDeliveries: deliveries,
     });
   };
 }

@@ -5,13 +5,8 @@ import {
   type LocalToolContext,
 } from '../runtime/host.js';
 import type { Api, Context, Model } from '@earendil-works/pi-ai';
-import type {
-  PiLLMRequestFailureHook,
-  PiLLMRequestObserver,
-} from '@mavis/agent-core/pi-turn-runner';
+import type { PiLLMRequestObserver } from '@mavis/agent-core/pi-turn-runner';
 import type { MetricsClient } from '../common/metrics.js';
-import type { LocalEvalReporterFactoryLike } from '../eval/types.js';
-import type { DesktopErrorReporter } from '../error-reporting/index.js';
 import type { ContextUsageToolCalibration } from '../context/context-usage-calibration.js';
 import type { LocalRuntimeAuthContext } from '../runtime/model-resolver.js';
 import type { LocalRuntimeRoutingContext } from '../runtime/routing-headers.js';
@@ -207,14 +202,8 @@ export interface LocalSessionControllerOptions {
    * `runtimeHost` is supplied. Falls back to `globalThis.fetch`.
    */
   fetchImpl?: typeof fetch;
-  /** Desktop error reporter shared by the default v1 runner and v2 managed runner. */
-  errorReporter?: DesktopErrorReporter;
-  /** Process-level failure callback used by the default v1 runner. */
-  llmRequestFailureHook?: PiLLMRequestFailureHook;
   /** Host-owned observer for each physical LLM request lifecycle. */
   observeLLMRequest?: PiLLMRequestObserver;
-  /** Optional eval reporter shared across all sessions owned by this controller. */
-  evalReporterFactory?: LocalEvalReporterFactoryLike;
   /** Production v2 composition uses this to fail closed before legacy Turn writes. */
   assertTurnStartAllowed?: () => void;
   /** Production v2 composition uses this to fail closed before legacy Session writes. */
@@ -233,7 +222,6 @@ export class LocalSessionController {
   private readonly router: LocalSessionRouter;
   private readonly nowMs: () => number;
   private readonly turnTimings: LocalActiveTurnTimingRegistry;
-  private readonly evalReporterFactory?: LocalEvalReporterFactoryLike;
   private readonly assertTurnStartAllowed: () => void;
   private readonly assertSessionMutationAllowed: (
     operation: 'create' | 'update' | 'delete',
@@ -242,7 +230,6 @@ export class LocalSessionController {
   constructor(options: LocalSessionControllerOptions = {}) {
     this.nowMs = options.nowMs ?? (() => Date.now());
     this.turnTimings = options.turnTimings ?? new LocalActiveTurnTimingRegistry(this.nowMs);
-    this.evalReporterFactory = options.evalReporterFactory;
     this.assertTurnStartAllowed = options.assertTurnStartAllowed ?? (() => undefined);
     this.assertSessionMutationAllowed = options.assertSessionMutationAllowed ?? (() => undefined);
     this.store = options.store ?? new InMemoryLocalSessionStore();
@@ -256,14 +243,7 @@ export class LocalSessionController {
             routingContextGetter: options.routingContextGetter,
             ...(options.metricsClient ? { metricsClient: options.metricsClient } : {}),
             fetchImpl: options.fetchImpl,
-            ...(options.errorReporter ? { errorReporter: options.errorReporter } : {}),
-            ...(options.llmRequestFailureHook
-              ? { llmRequestFailureHook: options.llmRequestFailureHook }
-              : {}),
             ...(options.observeLLMRequest ? { observeLLMRequest: options.observeLLMRequest } : {}),
-            ...(options.evalReporterFactory
-              ? { evalReporterFactory: options.evalReporterFactory }
-              : {}),
           }),
         legacyOpencodeEnabled: options.legacyOpencodeEnabled,
         telemetry: options.telemetry,
@@ -423,16 +403,12 @@ export class LocalSessionController {
       updatedAtMs: fields.updatedAtMs ?? this.nowMs(),
     };
     await this.store.upsert(updated);
-    if (!session.archived && updated.archived) {
-      this.evalReporterFactory?.releaseReporter(sessionId);
-    }
     return updated;
   }
 
   async deleteSession(sessionId: string): Promise<void> {
     this.assertSessionMutationAllowed('delete');
     await this.store.delete(sessionId);
-    this.evalReporterFactory?.releaseReporter(sessionId);
   }
 
   get activeTurnTimingReader(): LocalActiveTurnTimingReader {

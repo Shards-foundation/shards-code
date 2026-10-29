@@ -130,25 +130,22 @@ export class TuiFeedbackService {
         { label: 'OS', value: cleanFeedbackText(platform.osVersion) },
         { label: 'Session', value: sessionId ?? 'not included' },
       ],
-      diagnosticBundleIncluded: Boolean(this.options.diagnosticLogUploader),
+      diagnosticBundleAvailable: Boolean(this.options.diagnosticLogUploader),
+      diagnosticBundleIncluded: false,
       included: [
         'reviewed feedback description with recognized credentials redacted',
         'bounded client, Runtime, platform, and optional Session metadata',
-        ...(this.options.diagnosticLogUploader
-          ? [
-              'diagnostic counts from the selected Session subtree (including messages, snapshots, and report artifacts); original contents and filenames are omitted',
-              'bounded diagnostic counts from Runtime, CLI, and terminal logs and events from the last 2 days',
-              'only known roles, states, error types/codes, HTTP statuses, and parse/omission counts are retained',
-            ]
-          : []),
       ],
       excluded: [
         'stored credentials and authentication files',
         'raw attachments, prompts, conversation text, tool arguments/results, local paths, file contents, and free-text errors',
+        'canonical full conversation and tool-call history (messages.jsonl)',
         ...(this.options.diagnosticLogUploader
-          ? ['unrelated sessions, workspace files, and config files']
+          ? [
+              'optional minimized diagnostic counts (not included unless selected before sending)',
+              'unrelated sessions, workspace files, and config files',
+            ]
           : [
-              'canonical full conversation and tool-call history (messages.jsonl)',
               'file contents and diagnostic log bodies',
               'workspace and config file contents',
             ]),
@@ -229,10 +226,12 @@ export class TuiFeedbackService {
         );
       confirmationToken = token;
       confirmationUserID = realUserID;
-      if (this.options.diagnosticLogUploader) {
+      const includeDiagnostics =
+        options.includeDiagnostics === true && draft.preview.diagnosticBundleAvailable;
+      if (includeDiagnostics) {
         reportFeedbackPhase(options, 'uploading-diagnostics');
+        await this.uploadDiagnostics(draft, controller.signal);
       }
-      await this.uploadDiagnostics(draft, controller.signal);
       reportFeedbackPhase(options, 'creating-ticket');
       const payload = feedbackPayload(
         {

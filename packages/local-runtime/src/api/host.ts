@@ -8,7 +8,6 @@ import type {
   PromptSnapshotSource,
 } from "@mavis/agent-core";
 import type {
-  PiLLMRequestFailureHook,
   PiLLMRequestObserver,
 } from "@mavis/agent-core/pi-turn-runner";
 import type { AgentMessage } from "@mavis/agent-core/protocol/agent-message";
@@ -54,10 +53,6 @@ import {
 import type { LocalCronRuntime } from "../cron/index.js";
 import { SqliteLocalCronStore } from "../cron/index.js";
 import { createCuScreenshotPrunerHook } from "../cu/cu-screenshot-pruner.js";
-import {
-  createLLMFailureReportHook,
-  type DesktopErrorReporter,
-} from "../error-reporting/index.js";
 import {
   createGlobalEventSource,
   type GlobalEventSubscriber,
@@ -185,7 +180,6 @@ import {
   type LocalTeamTaskDispatchInput,
   type LocalTeamTaskDispatchResult,
 } from "../team/api.js";
-import { createThreadGoalEvalEventSink } from "../thread-goal/eval-observability.js";
 import {
   LocalThreadGoalIntegration,
   type InternalGoalPromptTurn,
@@ -328,13 +322,11 @@ export class LocalRuntimeApiHost {
     | undefined;
   public readonly isContextWindowUsageEnabled: () => boolean;
   public readonly fetchImpl: typeof fetch | undefined;
-  public readonly llmRequestFailureHook: PiLLMRequestFailureHook | undefined;
   public readonly recordSessionBashCompletion: (
     sessionId: string,
     completion: LocalBashCompletion,
   ) => void;
   public readonly observeLLMRequest: PiLLMRequestObserver;
-  private readonly errorReporter: DesktopErrorReporter | undefined;
   private readonly configUpdater: (
     body: Record<string, unknown>,
   ) => Promise<LocalConfigUpdateResult>;
@@ -471,12 +463,6 @@ export class LocalRuntimeApiHost {
     this.isContextWindowUsageEnabled =
       options.isContextWindowUsageEnabled ?? (() => false);
     this.fetchImpl = options.fetchImpl;
-    this.errorReporter = options.errorReporter;
-    this.llmRequestFailureHook =
-      options.llmRequestFailureHook ??
-      (this.errorReporter
-        ? createLLMFailureReportHook(this.errorReporter)
-        : undefined);
     this.configUpdater = options.configUpdater ?? updateLocalConfigFile;
     this.legacyRuntime = options.legacyOpencodeRuntime;
     this.legacyOpencodeEnabled = options.legacyOpencodeEnabled;
@@ -591,10 +577,6 @@ export class LocalRuntimeApiHost {
         authContextGetter: this.authContextGetter,
         routingContextGetter: this.routingContextGetter,
         fetchImpl: this.fetchImpl,
-        ...(this.errorReporter ? { errorReporter: this.errorReporter } : {}),
-        ...(this.llmRequestFailureHook
-          ? { llmRequestFailureHook: this.llmRequestFailureHook }
-          : {}),
         observeLLMRequest: this.observeLLMRequest,
         assertTurnStartAllowed: () =>
           this.rejectRetiredConversation("turn-start"),
@@ -863,13 +845,7 @@ export class LocalRuntimeApiHost {
       formatError: formatUnknownError,
       ...(options.threadGoalRuntimeEventSink
         ? { emitRuntimeEvent: options.threadGoalRuntimeEventSink }
-        : options.evalReporterFactory
-          ? {
-              emitRuntimeEvent: createThreadGoalEvalEventSink(
-                options.evalReporterFactory,
-              ),
-            }
-          : {}),
+        : {}),
     });
     this.mcpRuntime = options.mcpService;
     this.hookService =
@@ -1455,7 +1431,6 @@ export class LocalRuntimeApiHost {
       () => this.questionnaireAutoReplyScheduler.close(),
       () => this.globalEvents.close(),
       () => drainBackgroundTasks(this),
-      () => this.errorReporter?.close(),
     ];
     for (const close of cleanups) {
       try {
